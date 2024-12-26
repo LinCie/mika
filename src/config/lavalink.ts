@@ -1,8 +1,8 @@
 const lavalinkNodes = [
   {
-    name: "Localhost",
-    url: "localhost:6969",
-    auth: "re_aoharu",
+    name: "mikalink",
+    url: "localhost:4321",
+    auth: "misonomika",
   },
 ];
 

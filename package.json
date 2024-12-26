@@ -4,6 +4,7 @@
   "type": "module",
   "devDependencies": {
     "@types/bun": "latest",
+    "concurrently": "^9.1.0",
     "pino-pretty": "^13.0.0"
   },
   "peerDependencies": {
@@ -17,6 +18,8 @@
   },
   "scripts": {
     "start": "bun run index.ts",
-    "dev": "bun run index.ts --watch | pino-pretty"
+    "dev": "bun run index.ts --watch | pino-pretty",
+    "lava": "java -jar lavalink/Lavalink.jar",
+    "dev:conc": "concurrently \"bun dev\" \"bun lava\""
   }
 }
