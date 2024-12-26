@@ -1,5 +1,5 @@
 import { GatewayIntentBits, Partials } from "discord.js";
-import { Mika } from "@/types";
+import { Mika } from "@/instances";
 
 const mika = new Mika({
   partials: [Partials.Channel, Partials.GuildMember, Partials.User],
