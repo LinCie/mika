@@ -16,6 +16,17 @@ class Mika extends Client {
       .on("ready", (name) =>
         this.logger.info(`Lavalink ${name} is now ready <3`)
       )
+      .on("disconnect", (name) =>
+        this.logger.warn(`${name} has been disconnected`)
+      )
+      .on("reconnecting", (name, left) =>
+        this.logger.warn(
+          `${name} is attempting to reconnect\n${left} ${
+            left < 2 ? "try" : "tries"
+          } left`
+        )
+      )
+      .on("debug", (name, content) => this.logger.warn(content, name))
       .on("error", (name, error) => this.logger.error(error, name));
   }
 }
