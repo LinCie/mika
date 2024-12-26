@@ -14,7 +14,7 @@ class Mika extends Client {
     // Discord client
     this.once("ready", (client) =>
       this.logger.info("Mika is now ready and live <3")
-    );
+    ).on("error", (error) => this.logger.error(error));
 
     // Shoukaku
     this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), lavalinkNodes);
