@@ -10,8 +10,14 @@ class Mika extends Client {
 
   constructor(options: ClientOptions) {
     super(options);
+
+    // Discord client
+    this.once("ready", (client) =>
+      this.logger.info("Mika is now ready and live <3")
+    );
+
+    // Shoukaku
     this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), lavalinkNodes);
-    this.logger = logger;
     this.shoukaku
       .on("ready", (name) =>
         this.logger.info(`Lavalink ${name} is now ready <3`)
@@ -26,8 +32,15 @@ class Mika extends Client {
           } left`
         )
       )
-      .on("debug", (name, content) => this.logger.warn(content, name))
+      .on("debug", (name, content) => {
+        if (Bun.env.NODE_ENV === "development") {
+          this.logger.warn(content, name);
+        }
+      })
       .on("error", (name, error) => this.logger.error(error, name));
+
+    // Logger
+    this.logger = logger;
   }
 }
 
