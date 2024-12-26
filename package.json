@@ -20,9 +20,9 @@
     "start": "bun run index.ts",
     "lava": "java -jar lavalink/Lavalink.jar",
     "dev": "NODE_ENV=development bun run index.ts --watch | pino-pretty",
-    "dev:conc": "concurrently \"bun dev\" \"bun lava\"",
+    "dev:conc": "NODE_ENV=development concurrently \"bun dev\" \"bun lava\"",
     "build": "bun build ./index.ts --outdir ./dist --target bun --minify",
-    "serve": "bun run ./dist/index | pino-pretty",
-    "serve:conc": "concurrently \"bun serve\" \"bun lava\""
+    "serve": "NODE_ENV=production bun run ./dist/index | pino-pretty",
+    "serve:conc": "NODE_ENV=production concurrently \"bun serve\" \"bun lava\""
   }
 }
