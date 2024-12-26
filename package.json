@@ -3,7 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "pino-pretty": "^13.0.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -11,9 +12,11 @@
   "dependencies": {
     "@discordjs/voice": "^0.18.0",
     "discord.js": "^14.16.3",
+    "pino": "^9.6.0",
     "shoukaku": "^4.1.1"
   },
   "scripts": {
-    "start": "bun run index.ts"
+    "start": "bun run index.ts",
+    "dev": "bun run index.ts --watch | pino-pretty"
   }
 }
