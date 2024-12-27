@@ -19,6 +19,7 @@
   "scripts": {
     "start": "bun run index.ts",
     "lava": "java -jar lavalink/Lavalink.jar",
+    "lava:get": "bun run scripts/getLavalink.js",
     "dev": "NODE_ENV=development bun run index.ts --watch | pino-pretty",
     "dev:conc": "NODE_ENV=development concurrently \"bun dev\" \"bun lava\"",
     "build": "bun build ./index.ts --outdir ./dist --target bun --minify",
