@@ -75,7 +75,7 @@ class Mika extends Client {
 		}
 		const { commandName } = interaction;
 		if (commands[commandName as keyof typeof commands]) {
-			commands[commandName as keyof typeof commands].execute(interaction);
+			commands[commandName as keyof typeof commands].execute(this, interaction);
 		}
 	}
 

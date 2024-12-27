@@ -1,12 +1,13 @@
-import { SlashCommandBuilder, CommandInteraction } from "discord.js";
+import type { Mika } from "@/instances";
+import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
 
 const data = new SlashCommandBuilder()
-  .setName("ping")
-  .setDescription("Ping the bot")
-  .toJSON();
+	.setName("ping")
+	.setDescription("Ping the bot")
+	.toJSON();
 
-async function execute(interaction: CommandInteraction) {
-  await interaction.reply("Pong!");
+async function execute(client: Mika, interaction: CommandInteraction) {
+	await interaction.reply("Pong!");
 }
 
 export { data, execute };
