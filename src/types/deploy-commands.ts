@@ -1,5 +1,5 @@
 type DeployCommandsProps = {
-  guildId: string;
+	guildId: string;
 };
 
-export { type DeployCommandsProps };
+export type { DeployCommandsProps };
