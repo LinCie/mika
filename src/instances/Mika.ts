@@ -8,6 +8,7 @@ import {
 } from "@/config";
 import type { DeployCommandsProps } from "@/types";
 import { logger } from "@/utils";
+import Denque from "denque";
 import {
 	type CacheType,
 	type ClientOptions,
@@ -17,12 +18,14 @@ import {
 	Routes,
 } from "discord.js";
 import type { BaseLogger } from "pino";
-import { Connectors, Shoukaku } from "shoukaku";
+import { Connectors, type Player, Shoukaku, type Track } from "shoukaku";
 
 class Mika extends Client {
 	public readonly shoukaku: Shoukaku;
 	public readonly logger: BaseLogger;
 	public readonly rest: REST;
+	public queue: { current: number; content: Denque<Track> };
+	public player: Player | null = null;
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -32,6 +35,9 @@ class Mika extends Client {
 
 		// Discord REST
 		this.rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN);
+
+		// Denque
+		this.queue = { current: 0, content: new Denque<Track>() };
 
 		// Shoukaku
 		this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), lavalinkNodes);
@@ -69,6 +75,18 @@ class Mika extends Client {
 			.on("error", (error) => this.logger.error(error));
 	}
 
+	/**
+	 * Handles incoming interactions and executes the corresponding command.
+	 *
+	 * @param {Interaction<CacheType>} interaction - The interaction to be handled.
+	 *
+	 * @remarks
+	 * This function first checks if the interaction is a command. If it is, it
+	 * retrieves the command name from the interaction and checks if the command
+	 * is registered in the commands object. If the command is registered, it
+	 * calls the execute method of the command and passes the client and interaction
+	 * as arguments.
+	 */
 	async runCommands(interaction: Interaction<CacheType>) {
 		if (!interaction.isCommand()) {
 			return;
@@ -79,6 +97,20 @@ class Mika extends Client {
 		}
 	}
 
+	/**
+	 * Deploys development slash commands to a specific guild.
+	 *
+	 * @param {DeployCommandsProps} param0 - The parameters for deploying commands.
+	 * @param {string} param0.guildId - The ID of the guild to which dev commands are deployed.
+	 *
+	 * @remarks
+	 * This function is intended for use in development environments to refresh
+	 * application commands for a specified guild. It logs the start and success
+	 * of the operation, and throws an error if the operation fails.
+	 *
+	 * @throws {Error}
+	 * Thrown if there is an error while deploying the commands.
+	 */
 	async deployDevCommands({ guildId }: DeployCommandsProps) {
 		try {
 			this.logger.info("Started refreshing dev application (/) commands.");
@@ -97,6 +129,15 @@ class Mika extends Client {
 		}
 	}
 
+	/**
+	 * Deploy global slash commands.
+	 *
+	 * @remarks
+	 * This is a production only function. It will be skipped in development environment.
+	 *
+	 * @throws {Error}
+	 * Thrown if there is an error while deploying commands.
+	 */
 	async deployGlobalCommands() {
 		try {
 			this.logger.info("Started refreshing global application (/) commands.");
