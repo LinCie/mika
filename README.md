@@ -4,6 +4,7 @@ To install dependencies:
 
 ```bash
 bun install
+bun lava:get
 ```
 
 To run:
