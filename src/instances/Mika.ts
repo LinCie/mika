@@ -7,7 +7,6 @@ import {
 	lavalinkNodes,
 } from "@/config";
 import type { DeployCommandsProps } from "@/types";
-import { logger } from "@/utils";
 import Denque from "denque";
 import {
 	type CacheType,
@@ -17,7 +16,7 @@ import {
 	REST,
 	Routes,
 } from "discord.js";
-import type { BaseLogger } from "pino";
+import { pino, type BaseLogger } from "pino";
 import { Connectors, type Player, Shoukaku, type Track } from "shoukaku";
 
 class Mika extends Client {
@@ -31,7 +30,7 @@ class Mika extends Client {
 		super(options);
 
 		// Logger
-		this.logger = logger;
+		this.logger = pino();
 
 		// Discord REST
 		this.rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN);
