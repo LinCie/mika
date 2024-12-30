@@ -1,5 +1,7 @@
 import type { Mika } from "./Mika";
 import type { CommandInteraction, GuildMember, TextChannel } from "discord.js";
+import { MikaQueue } from "./MikaQueue";
+import type { Player, Track } from "shoukaku";
 
 class MikaPlayer {
 	public readonly client: Mika;
@@ -7,6 +9,8 @@ class MikaPlayer {
 	public readonly member: GuildMember;
 	public readonly guild: string;
 	public readonly channel: TextChannel;
+	public player: Player | undefined;
+	public queue: MikaQueue;
 
 	constructor(client: Mika, interaction: CommandInteraction) {
 		this.client = client;
@@ -16,6 +20,7 @@ class MikaPlayer {
 		this.channel = this.client.channels.cache.get(
 			this.interaction.channel?.id!,
 		) as TextChannel;
+		this.queue = new MikaQueue();
 	}
 
 	/**
@@ -27,30 +32,27 @@ class MikaPlayer {
 	 *
 	 * @throws {Error} If the member is not in a voice channel.
 	 */
-	public async enterVoiceChannel() {
-		this.client.player = await this.client.shoukaku.joinVoiceChannel({
+	public async init() {
+		this.player = await this.client.shoukaku.joinVoiceChannel({
 			guildId: this.interaction.guild?.id!,
 			channelId: this.member.voice.channel?.id!,
 			shardId: 0,
 			deaf: true,
 		});
+		this.client.players.set(this.guild, this);
 
-		this.client.player.on("end", async () => {
-			this.client.queue.current += 1;
-
-			if (this.client.queue.current < this.client.queue.content.length) {
-				const track = this.client.queue.content.get(this.client.queue.current);
-
-				this.client.player?.playTrack({
-					volume: 50,
-					track: track,
-				});
+		this.player?.on("end", async () => {
+			if (this.queue.current < this.queue.getLength()) {
+				const track = this.queue.playNext();
+				if (track) await this.playMusic(track);
 
 				await this.channel.send(`${track?.info.title} is currently playing`);
 			} else {
 				await this.channel.send("Queue is currently empty");
 			}
 		});
+
+		return this;
 	}
 
 	/**
@@ -113,6 +115,13 @@ class MikaPlayer {
 		const node = this.getNode();
 		const search = this.getSearchQuery(query, method);
 		return await node?.rest.resolve(search);
+	}
+
+	public async playMusic(track: Track) {
+		await this.player?.playTrack({
+			volume: 50,
+			track: { encoded: track.encoded },
+		});
 	}
 }
 
