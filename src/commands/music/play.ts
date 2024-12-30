@@ -49,11 +49,6 @@ export default class Play extends MikaCommands {
 				const track = result.data.shift();
 				if (track) {
 					player.queue.addTrack(track);
-					if (player.queue.current === 0) {
-						player.playMusic(player.queue.getCurrent()!);
-					} else if (player.queue.current === player.queue.getLength() - 2) {
-						player.playMusic(player.queue.playNext()!);
-					}
 					await this.interaction.editReply(
 						`${track?.info.title} has been added to queue`,
 					);
@@ -64,11 +59,6 @@ export default class Play extends MikaCommands {
 			case LoadType.TRACK: {
 				const track = result.data;
 				player.queue.addTrack(track);
-				if (player.queue.current === 0) {
-					player.playMusic(player.queue.getCurrent()!);
-				} else if (player.queue.current === player.queue.getLength() - 2) {
-					player.playMusic(player.queue.playNext()!);
-				}
 				await this.interaction.editReply(
 					`${track?.info.title} has been added to queue`,
 				);
@@ -78,11 +68,6 @@ export default class Play extends MikaCommands {
 			case LoadType.PLAYLIST: {
 				const tracks = result.data.tracks;
 				player.queue.addTracks(tracks);
-				if (player.queue.current === 0) {
-					player.playMusic(player.queue.getCurrent()!);
-				} else if (player.queue.current === player.queue.getLength() - 2) {
-					player.playMusic(player.queue.playNext()!);
-				}
 				await this.interaction.editReply(
 					`${tracks.length} ${tracks.length > 1 ? "tracks" : "track"} has been added to queue from playlist ${result.data.info.name}`,
 				);
