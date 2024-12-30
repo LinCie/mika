@@ -1,6 +1,6 @@
 import type { Mika } from "./Mika";
 import type { CommandInteraction, GuildMember, TextChannel } from "discord.js";
-import { MikaQueue } from "./MikaQueue";
+import { MikaQueue, QueueEvents } from "./MikaQueue";
 import type { Player, Track } from "shoukaku";
 
 class MikaPlayer {
@@ -10,6 +10,7 @@ class MikaPlayer {
 	public readonly guild: string;
 	public readonly channel: TextChannel;
 	public player: Player | undefined;
+	public isPlaying: boolean;
 	public queue: MikaQueue;
 
 	constructor(client: Mika, interaction: CommandInteraction) {
@@ -20,7 +21,30 @@ class MikaPlayer {
 		this.channel = this.client.channels.cache.get(
 			this.interaction.channel?.id!,
 		) as TextChannel;
+		this.isPlaying = false;
+
+		// Queue
 		this.queue = new MikaQueue();
+		this.queue.on(QueueEvents.TRACK_ADDED, async (track: Track) => {
+			if (!this.isPlaying) {
+				if (this.queue.current === this.queue.getLength() - 2) {
+					await this.playMusic(this.queue.playNext()!);
+				} else {
+					await this.playMusic(track);
+				}
+				this.isPlaying = true;
+			}
+		});
+		this.queue.on(QueueEvents.TRACKS_ADDED, async (tracks: Array<Track>) => {
+			if (!this.isPlaying) {
+				if (this.queue.current === this.queue.getLength() - tracks.length - 1) {
+					await this.playMusic(this.queue.playNext()!);
+				} else {
+					await this.playMusic(tracks.shift()!);
+				}
+				this.isPlaying = true;
+			}
+		});
 	}
 
 	/**
@@ -49,8 +73,8 @@ class MikaPlayer {
 			if (this.queue.current < this.queue.getLength() - 1) {
 				const track = this.queue.playNext();
 				if (track) await this.playMusic(track);
-				await this.channel.send(`${track?.info.title} is currently playing`);
 			} else {
+				this.isPlaying = false;
 				await this.channel.send("Queue is currently empty");
 			}
 		});
