@@ -49,8 +49,8 @@ export default class Play extends MikaCommands {
 				const track = result.data.shift();
 				if (track) {
 					player.queue.addTrack(track);
-					if (player.queue.getLength() === 1) {
-						player.playMusic(track);
+					if (player.queue.current === 0) {
+						player.playMusic(player.queue.getCurrent()!);
 					} else if (player.queue.current === player.queue.getLength() - 2) {
 						player.playMusic(player.queue.playNext()!);
 					}
@@ -64,8 +64,8 @@ export default class Play extends MikaCommands {
 			case LoadType.TRACK: {
 				const track = result.data;
 				player.queue.addTrack(track);
-				if (player.queue.getLength() === 1) {
-					player.playMusic(track);
+				if (player.queue.current === 0) {
+					player.playMusic(player.queue.getCurrent()!);
 				} else if (player.queue.current === player.queue.getLength() - 2) {
 					player.playMusic(player.queue.playNext()!);
 				}
