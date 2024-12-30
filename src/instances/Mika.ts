@@ -24,9 +24,7 @@ class Mika extends Client {
 	public readonly shoukaku: Shoukaku;
 	public readonly logger: BaseLogger;
 	public readonly rest: REST;
-	public queue: { current: number; content: Denque<Track> };
-	public players: Array<MikaPlayer>;
-	public player: Player | null = null;
+	public players: Map<string, MikaPlayer>;
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -37,11 +35,8 @@ class Mika extends Client {
 		// Discord REST
 		this.rest = new REST({ version: "10" }).setToken(DISCORD_TOKEN);
 
-		// Denque
-		this.queue = { current: 0, content: new Denque<Track>() };
-
 		// Player
-		this.players = [];
+		this.players = new Map<string, MikaPlayer>();
 
 		// Shoukaku
 		this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), lavalinkNodes);
@@ -92,12 +87,21 @@ class Mika extends Client {
 	 * as arguments.
 	 */
 	async runCommands(interaction: Interaction<CacheType>) {
-		if (!interaction.isCommand()) {
-			return;
-		}
+		if (!interaction.isChatInputCommand()) return;
+		if (!interaction.isCommand()) return;
 		const { commandName } = interaction;
-		if (commands[commandName as keyof typeof commands]) {
-			commands[commandName as keyof typeof commands].execute(this, interaction);
+		if (!commandName) return;
+
+		try {
+			if (commands[commandName as keyof typeof commands]) {
+				commands[commandName as keyof typeof commands].execute(
+					this,
+					interaction,
+				);
+			}
+		} catch (error) {
+			this.logger.error(error);
+			throw error;
 		}
 	}
 
