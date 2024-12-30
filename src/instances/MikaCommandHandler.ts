@@ -46,7 +46,7 @@ class MikaCommandHandler {
 					if (CommandClass.prototype instanceof MikaCommands) {
 						this.commands.set(data.name, CommandClass);
 						this.commandDataArray.push(data);
-						this.client.logger.info(
+						this.client.logger.debug(
 							`Command /${data.name} has been loaded successfully`,
 						);
 					} else {
