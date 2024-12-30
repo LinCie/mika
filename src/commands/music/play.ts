@@ -1,7 +1,7 @@
 import type { Mika } from "@/instances";
-import { MikaPlayer } from "@/instances";
+import { MikaCommands, MikaPlayer } from "@/instances";
 import { type CommandInteraction, SlashCommandBuilder } from "discord.js";
-import { LoadType, type Track } from "shoukaku";
+import { LoadType } from "shoukaku";
 
 const data = new SlashCommandBuilder()
 	.setName("play")
@@ -24,65 +24,75 @@ const data = new SlashCommandBuilder()
 	)
 	.toJSON();
 
-async function execute(
-	client: Mika,
-	interaction: CommandInteraction,
-): Promise<void> {
-	await interaction.deferReply();
-
-	let player: MikaPlayer;
-	if (client.players.has(interaction.guild?.id!)) {
-		player = client.players.get(interaction.guild?.id!)!;
-	} else {
-		player = await new MikaPlayer(client, interaction).init();
+export default class Play extends MikaCommands {
+	constructor(client: Mika, interaction: CommandInteraction) {
+		super(client, interaction);
+		this.commandOptions = { isDeferred: true };
 	}
 
-	const query = interaction.options.get("query", true).value as string;
-	const method = (interaction.options.get("method")?.value ??
-		"scsearch") as string;
+	async main() {
+		let player: MikaPlayer;
+		if (this.client.players.has(this.interaction.guild?.id!)) {
+			player = this.client.players.get(this.interaction.guild?.id!)!;
+		} else {
+			player = await new MikaPlayer(this.client, this.interaction).init();
+		}
 
-	const result = await player.searchMusic(query, method);
+		const query = this.interaction.options.get("query", true).value as string;
+		const method = (this.interaction.options.get("method")?.value ??
+			"scsearch") as string;
 
-	switch (result?.loadType) {
-		case LoadType.SEARCH: {
-			const track = result.data.shift();
-			if (track) {
+		const result = await player.searchMusic(query, method);
+
+		switch (result?.loadType) {
+			case LoadType.SEARCH: {
+				const track = result.data.shift();
+				if (track) {
+					player.queue.addTrack(track);
+					if (player.queue.getLength() === 1) {
+						player.playMusic(track);
+						await this.interaction.editReply(
+							`${track?.info.title} is currently playing`,
+						);
+					} else {
+						await this.interaction.editReply(
+							`${track?.info.title} has been added to queue`,
+						);
+					}
+				}
+				break;
+			}
+
+			case LoadType.TRACK: {
+				const track = result.data;
 				player.queue.addTrack(track);
 				if (player.queue.getLength() === 1) {
 					player.playMusic(track);
-					await interaction.editReply(`${track?.info.title} is currently playing`);
+					await this.interaction.editReply(
+						`${track?.info.title} is currently playing`,
+					);
 				} else {
-					await interaction.editReply(
+					await this.interaction.editReply(
 						`${track?.info.title} has been added to queue`,
 					);
 				}
+				break;
 			}
-			break;
-		}
-
-		case LoadType.TRACK: {
-			const track = result.data;
-			player.queue.addTrack(track);
-			if (player.queue.getLength() === 1) {
-				player.playMusic(track);
-				await interaction.editReply(`${track?.info.title} is currently playing`);
-			} else {
-				await interaction.editReply(`${track?.info.title} has been added to queue`);
+			case LoadType.EMPTY: {
+				await this.interaction.editReply(
+					`No result found with query "${query}"`,
+				);
+				break;
 			}
-			break;
-		}
-		case LoadType.EMPTY: {
-			await interaction.editReply(`No result found with query "${query}"`);
-			break;
-		}
-		case LoadType.ERROR: {
-			await interaction.editReply(
-				"An error had occured. Please try again later <3",
-			);
-			client.logger.error(result.data.message, result.data.cause);
-			break;
+			case LoadType.ERROR: {
+				await this.interaction.editReply(
+					"An error had occured. Please try again later <3",
+				);
+				this.client.logger.error(result.data.message, result.data.cause);
+				break;
+			}
 		}
 	}
 }
 
-export { data, execute };
+export { data };
