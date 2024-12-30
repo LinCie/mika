@@ -30,5 +30,8 @@
     "build": "bun build ./index.ts --outdir ./dist --target bun --minify",
     "serve": "NODE_ENV=production bun run ./dist/index | pino-pretty",
     "serve:conc": "NODE_ENV=production concurrently \"bun serve\" \"bun lava\""
-  }
+  },
+  "trustedDependencies": [
+    "@biomejs/biome"
+  ]
 }
