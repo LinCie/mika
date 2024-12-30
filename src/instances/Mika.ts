@@ -1,4 +1,3 @@
-import { commands, commandsData } from "@/commands";
 import {
 	BOT_CLIENT_ID,
 	DEV_GUILD_ID,
@@ -7,7 +6,6 @@ import {
 	lavalinkNodes,
 } from "@/config";
 import type { DeployCommandsProps } from "@/types";
-import Denque from "denque";
 import {
 	type CacheType,
 	type ClientOptions,
@@ -17,14 +15,17 @@ import {
 	Routes,
 } from "discord.js";
 import { pino, type BaseLogger } from "pino";
-import { Connectors, type Player, Shoukaku, type Track } from "shoukaku";
+import { Connectors, Shoukaku } from "shoukaku";
 import type { MikaPlayer } from "./MikaPlayer";
+import { MikaCommandHandler } from "./MikaCommandHandler";
+import path from "node:path";
 
 class Mika extends Client {
 	public readonly shoukaku: Shoukaku;
 	public readonly logger: BaseLogger;
 	public readonly rest: REST;
 	public players: Map<string, MikaPlayer>;
+	public commandHandler: MikaCommandHandler;
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -37,6 +38,11 @@ class Mika extends Client {
 
 		// Player
 		this.players = new Map<string, MikaPlayer>();
+
+		// Commands
+		this.commandHandler = new MikaCommandHandler(this);
+		const commandsPath = path.join(__dirname, "../commands");
+		this.commandHandler.loadCommands(commandsPath);
 
 		// Shoukaku
 		this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), lavalinkNodes);
@@ -75,16 +81,14 @@ class Mika extends Client {
 	}
 
 	/**
-	 * Handles incoming interactions and executes the corresponding command.
+	 * Handles incoming interactions and executes corresponding commands.
 	 *
-	 * @param {Interaction<CacheType>} interaction - The interaction to be handled.
+	 * @param interaction - The interaction received from Discord. It must be a chat input command.
 	 *
 	 * @remarks
-	 * This function first checks if the interaction is a command. If it is, it
-	 * retrieves the command name from the interaction and checks if the command
-	 * is registered in the commands object. If the command is registered, it
-	 * calls the execute method of the command and passes the client and interaction
-	 * as arguments.
+	 * This function checks if the interaction is a valid command and has a command name.
+	 * If valid, it attempts to execute the command using the command handler.
+	 * Errors during command execution are logged.
 	 */
 	async runCommands(interaction: Interaction<CacheType>) {
 		if (!interaction.isChatInputCommand()) return;
@@ -93,15 +97,9 @@ class Mika extends Client {
 		if (!commandName) return;
 
 		try {
-			if (commands[commandName as keyof typeof commands]) {
-				commands[commandName as keyof typeof commands].execute(
-					this,
-					interaction,
-				);
-			}
+			await this.commandHandler.runCommand(interaction);
 		} catch (error) {
 			this.logger.error(error);
-			throw error;
 		}
 	}
 
@@ -122,6 +120,7 @@ class Mika extends Client {
 	async deployDevCommands({ guildId }: DeployCommandsProps) {
 		try {
 			this.logger.info("Started refreshing dev application (/) commands.");
+			const commandsData = this.commandHandler.getCommandDataArray();
 
 			await this.rest.put(
 				Routes.applicationGuildCommands(BOT_CLIENT_ID, guildId),
@@ -149,6 +148,7 @@ class Mika extends Client {
 	async deployGlobalCommands() {
 		try {
 			this.logger.info("Started refreshing global application (/) commands.");
+			const commandsData = this.commandHandler.getCommandDataArray();
 
 			await this.rest.put(Routes.applicationCommands(BOT_CLIENT_ID), {
 				body: commandsData,
