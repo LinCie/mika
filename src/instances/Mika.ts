@@ -55,8 +55,8 @@ class Mika extends Client {
 				),
 			)
 			.on("debug", (name, content) => {
-				if (NODE_ENV === "development") {
-					this.logger.warn(content, name);
+				if (NODE_ENV === "debug") {
+					this.logger.debug(content, name);
 				}
 			})
 			.on("error", (name, error) => this.logger.error(error, name));
