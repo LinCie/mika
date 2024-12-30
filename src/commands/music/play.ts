@@ -54,6 +54,20 @@ async function execute(
 			}
 			break;
 		}
+		case LoadType.TRACK: {
+			const track = result.data;
+			client.queue.content.push(track!);
+			if (client.queue.content.length === 1) {
+				client.player?.playTrack({
+					volume: 50,
+					track: track,
+				});
+				await interaction.reply(`${track?.info.title} is currently playing`);
+			} else {
+				await interaction.reply(`${track?.info.title} has been added to queue`);
+			}
+			break;
+		}
 		case LoadType.EMPTY: {
 			await interaction.reply(`No result found with query "${query}"`);
 			break;
