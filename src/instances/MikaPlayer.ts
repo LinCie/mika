@@ -42,10 +42,9 @@ class MikaPlayer {
 		this.client.players.set(this.guild, this);
 
 		this.player?.on("end", async () => {
-			if (this.queue.current < this.queue.getLength()) {
+			if (this.queue.current < this.queue.getLength() - 1) {
 				const track = this.queue.playNext();
 				if (track) await this.playMusic(track);
-
 				await this.channel.send(`${track?.info.title} is currently playing`);
 			} else {
 				await this.channel.send("Queue is currently empty");
