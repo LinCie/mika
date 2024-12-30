@@ -51,14 +51,10 @@ export default class Play extends MikaCommands {
 					player.queue.addTrack(track);
 					if (player.queue.getLength() === 1) {
 						player.playMusic(track);
-						await this.interaction.editReply(
-							`${track?.info.title} is currently playing`,
-						);
-					} else {
-						await this.interaction.editReply(
-							`${track?.info.title} has been added to queue`,
-						);
 					}
+					await this.interaction.editReply(
+						`${track?.info.title} has been added to queue`,
+					);
 				}
 				break;
 			}
@@ -68,22 +64,22 @@ export default class Play extends MikaCommands {
 				player.queue.addTrack(track);
 				if (player.queue.getLength() === 1) {
 					player.playMusic(track);
-					await this.interaction.editReply(
-						`${track?.info.title} is currently playing`,
-					);
-				} else {
-					await this.interaction.editReply(
-						`${track?.info.title} has been added to queue`,
-					);
+				} else if (player.queue.current === player.queue.getLength() - 2) {
+					player.playMusic(player.queue.playNext()!);
 				}
+				await this.interaction.editReply(
+					`${track?.info.title} has been added to queue`,
+				);
 				break;
 			}
+
 			case LoadType.EMPTY: {
 				await this.interaction.editReply(
 					`No result found with query "${query}"`,
 				);
 				break;
 			}
+
 			case LoadType.ERROR: {
 				await this.interaction.editReply(
 					"An error had occured. Please try again later <3",
