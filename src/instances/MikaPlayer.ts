@@ -1,22 +1,18 @@
 import type { Mika } from "./Mika";
-import type {
-	Channel,
-	CommandInteraction,
-	GuildChannel,
-	GuildMember,
-	TextChannel,
-} from "discord.js";
+import type { CommandInteraction, GuildMember, TextChannel } from "discord.js";
 
 class MikaPlayer {
 	public readonly client: Mika;
 	public readonly interaction: CommandInteraction;
 	public readonly member: GuildMember;
+	public readonly guild: string;
 	public readonly channel: TextChannel;
 
 	constructor(client: Mika, interaction: CommandInteraction) {
 		this.client = client;
 		this.interaction = interaction;
 		this.member = this.interaction.member as GuildMember;
+		this.guild = this.interaction.guild?.id!;
 		this.channel = this.client.channels.cache.get(
 			this.interaction.channel?.id!,
 		) as TextChannel;

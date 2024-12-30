@@ -18,12 +18,14 @@ import {
 } from "discord.js";
 import { pino, type BaseLogger } from "pino";
 import { Connectors, type Player, Shoukaku, type Track } from "shoukaku";
+import type { MikaPlayer } from "./MikaPlayer";
 
 class Mika extends Client {
 	public readonly shoukaku: Shoukaku;
 	public readonly logger: BaseLogger;
 	public readonly rest: REST;
 	public queue: { current: number; content: Denque<Track> };
+	public players: Array<MikaPlayer>;
 	public player: Player | null = null;
 
 	constructor(options: ClientOptions) {
@@ -37,6 +39,9 @@ class Mika extends Client {
 
 		// Denque
 		this.queue = { current: 0, content: new Denque<Track>() };
+
+		// Player
+		this.players = [];
 
 		// Shoukaku
 		this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), lavalinkNodes);
