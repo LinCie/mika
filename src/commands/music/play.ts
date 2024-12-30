@@ -1,8 +1,10 @@
+import { GLOBAL_COLOR } from "@/config";
 import { DeferReply } from "@/guards";
 import type { Mika } from "@/instances";
 import { MikaPlayer } from "@/instances";
 import {
 	ApplicationCommandOptionType,
+	EmbedBuilder,
 	type CommandInteraction,
 } from "discord.js";
 import { Discord, Guard, Slash, SlashChoice, SlashOption } from "discordx";
@@ -46,29 +48,57 @@ class Play {
 			case LoadType.SEARCH: {
 				const track = result.data.shift();
 				if (track) {
+					const addEmbed = new EmbedBuilder()
+						.setColor(GLOBAL_COLOR)
+						.setAuthor({
+							name: interaction.user.displayName,
+							iconURL: interaction.user.displayAvatarURL(),
+						})
+						.setThumbnail(track?.info.artworkUrl!)
+						.setDescription(
+							`🎶 **${track?.info.title}** has been added to queue 🎶`,
+						);
 					player.queue.addTrack(track);
-					await interaction.editReply(
-						`${track?.info.title} has been added to queue`,
-					);
+					await interaction.editReply({ embeds: [addEmbed] });
 				}
 				break;
 			}
 
 			case LoadType.TRACK: {
 				const track = result.data;
-				player.queue.addTrack(track);
-				await interaction.editReply(
-					`${track?.info.title} has been added to queue`,
-				);
+				if (track) {
+					const addEmbed = new EmbedBuilder()
+						.setColor(GLOBAL_COLOR)
+						.setAuthor({
+							name: interaction.user.displayName,
+							iconURL: interaction.user.displayAvatarURL(),
+						})
+						.setThumbnail(track?.info.artworkUrl!)
+						.setDescription(
+							`🎶 **${track?.info.title}** has been added to queue 🎶`,
+						);
+					player.queue.addTrack(track);
+					await interaction.editReply({ embeds: [addEmbed] });
+				}
 				break;
 			}
 
 			case LoadType.PLAYLIST: {
 				const tracks = result.data.tracks;
-				player.queue.addTracks(tracks);
-				await interaction.editReply(
-					`${tracks.length} ${tracks.length > 1 ? "tracks" : "track"} has been added to queue from playlist ${result.data.info.name}`,
-				);
+				if (tracks) {
+					const addEmbed = new EmbedBuilder()
+						.setColor(GLOBAL_COLOR)
+						.setAuthor({
+							name: interaction.user.displayName,
+							iconURL: interaction.user.displayAvatarURL(),
+						})
+						.setThumbnail(tracks.shift()?.info.artworkUrl!)
+						.setDescription(
+							`🎶 ${tracks.length} tracks from playlist **${result.data.info.name}** has been added to queue 🎶`,
+						);
+					player.queue.addTracks(tracks);
+					await interaction.editReply({ embeds: [addEmbed] });
+				}
 				break;
 			}
 

@@ -1,7 +1,13 @@
 import type { Mika } from "./Mika";
-import type { CommandInteraction, GuildMember, TextChannel } from "discord.js";
+import {
+	EmbedBuilder,
+	type CommandInteraction,
+	type GuildMember,
+	type TextChannel,
+} from "discord.js";
 import { MikaQueue, QueueEvents } from "./MikaQueue";
 import type { Player, Track } from "shoukaku";
+import { GLOBAL_COLOR } from "@/config";
 
 class MikaPlayer {
 	public readonly client: Mika;
@@ -66,7 +72,54 @@ class MikaPlayer {
 		this.client.players.set(this.guild, this);
 
 		this.player?.on("start", async (data) => {
-			await this.channel.send(`${data.track.info.title} is currently playing`);
+			const length = `<t:${Math.floor(Date.now() / 1000) + Math.floor(data.track.info.length / 1000)}:R>`;
+			const playEmbed = new EmbedBuilder()
+				.setColor(GLOBAL_COLOR)
+				.setTitle(data.track.info.title)
+				.setURL(data.track.info.uri!)
+				.setAuthor({
+					name: this.member.nickname!,
+					iconURL: this.member.avatarURL()!,
+				})
+				.setDescription(
+					`🎶 **${data.track.info.title}** is currently playing 🎶`,
+				)
+				.setThumbnail(data.track.info.artworkUrl!)
+				.addFields(
+					{
+						name: "Title",
+						value: data.track.info.title,
+						inline: true,
+					},
+					{
+						name: "Author",
+						value: data.track.info.author,
+						inline: true,
+					},
+					{
+						name: "Source",
+						value: data.track.info.sourceName,
+						inline: true,
+					},
+					{
+						name: "Next track in",
+						value: length,
+						inline: true,
+					},
+					{
+						name: "Next in queue",
+						value: this.queue.getNext()?.info.title || "No track left",
+						inline: true,
+					},
+				)
+				.setTimestamp()
+				.setFooter({
+					text: "Made with 🩷 by LinCie",
+					iconURL:
+						"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+				});
+
+			await this.channel.send({ embeds: [playEmbed] });
 		});
 
 		this.player?.on("end", async () => {
