@@ -103,7 +103,7 @@ class MikaPlayer {
 			this.client.shoukaku.nodes,
 		);
 		if (!node) {
-			this.client.logger.error("No node was found");
+			this.client.pino.error("No node was found");
 			return;
 		}
 		return node;

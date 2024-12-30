@@ -1,55 +1,53 @@
+import { DeferReply } from "@/guards";
 import type { Mika } from "@/instances";
-import { MikaCommands, MikaPlayer } from "@/instances";
-import { type CommandInteraction, SlashCommandBuilder } from "discord.js";
+import { MikaPlayer } from "@/instances";
+import {
+	ApplicationCommandOptionType,
+	type CommandInteraction,
+} from "discord.js";
+import { Discord, Guard, Slash, SlashChoice, SlashOption } from "discordx";
 import { LoadType } from "shoukaku";
 
-const data = new SlashCommandBuilder()
-	.setName("play")
-	.setDescription("play a music")
-	.addStringOption((option) =>
-		option
-			.setName("query")
-			.setDescription("could be the name of the music or a URL")
-			.setRequired(true),
-	)
-	.addStringOption((option) =>
-		option
-			.setName("method")
-			.setDescription("the search method, defaults to soundcloud search")
-			.addChoices(
-				{ name: "Soundcloud", value: "scsearch" },
-				{ name: "Youtube", value: "ytsearch" },
-				{ name: "Youtube Music", value: "ytmsearch" },
-			),
-	)
-	.toJSON();
-
-export default class Play extends MikaCommands {
-	constructor(client: Mika, interaction: CommandInteraction) {
-		super(client, interaction);
-		this.commandOptions = { isDeferred: true };
-	}
-
-	async main() {
+@Discord()
+class Play {
+	@Slash({ description: "play" })
+	@Guard(DeferReply)
+	async play(
+		@SlashOption({
+			name: "query",
+			description: "The search query. Could be name or URL",
+			required: true,
+			type: ApplicationCommandOptionType.String,
+		})
+		query: string,
+		@SlashChoice({ name: "Soundcloud", value: "scsearch" })
+		@SlashChoice({ name: "Youtube", value: "ytsearch" })
+		@SlashChoice({ name: "Youtube Music", value: "ytmsearch" })
+		@SlashOption({
+			name: "method",
+			description: "The search method. Defaults to Soundcloud",
+			required: false,
+			type: ApplicationCommandOptionType.String,
+		})
+		method: string | undefined,
+		interaction: CommandInteraction,
+		client: Mika,
+	): Promise<void> {
 		let player: MikaPlayer;
-		if (this.client.players.has(this.interaction.guild?.id!)) {
-			player = this.client.players.get(this.interaction.guild?.id!)!;
+		if (client.players.has(interaction.guild?.id!)) {
+			player = client.players.get(interaction.guild?.id!)!;
 		} else {
-			player = await new MikaPlayer(this.client, this.interaction).init();
+			player = await new MikaPlayer(client, interaction).init();
 		}
 
-		const query = this.interaction.options.get("query", true).value as string;
-		const method = (this.interaction.options.get("method")?.value ??
-			"scsearch") as string;
-
-		const result = await player.searchMusic(query, method);
+		const result = await player.searchMusic(query, method ?? "scsearch");
 
 		switch (result?.loadType) {
 			case LoadType.SEARCH: {
 				const track = result.data.shift();
 				if (track) {
 					player.queue.addTrack(track);
-					await this.interaction.editReply(
+					await interaction.editReply(
 						`${track?.info.title} has been added to queue`,
 					);
 				}
@@ -59,7 +57,7 @@ export default class Play extends MikaCommands {
 			case LoadType.TRACK: {
 				const track = result.data;
 				player.queue.addTrack(track);
-				await this.interaction.editReply(
+				await interaction.editReply(
 					`${track?.info.title} has been added to queue`,
 				);
 				break;
@@ -68,28 +66,26 @@ export default class Play extends MikaCommands {
 			case LoadType.PLAYLIST: {
 				const tracks = result.data.tracks;
 				player.queue.addTracks(tracks);
-				await this.interaction.editReply(
+				await interaction.editReply(
 					`${tracks.length} ${tracks.length > 1 ? "tracks" : "track"} has been added to queue from playlist ${result.data.info.name}`,
 				);
 				break;
 			}
 
 			case LoadType.EMPTY: {
-				await this.interaction.editReply(
-					`No result found with query "${query}"`,
-				);
+				await interaction.editReply(`No result found with query "${query}"`);
 				break;
 			}
 
 			case LoadType.ERROR: {
-				await this.interaction.editReply(
+				await interaction.editReply(
 					"An error had occured. Please try again later <3",
 				);
-				this.client.logger.error(result.data.message, result.data.cause);
+				client.pino.error(result.data.message, result.data.cause);
 				break;
 			}
 		}
 	}
 }
 
-export { data };
+export { Play };

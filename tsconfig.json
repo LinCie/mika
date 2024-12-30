@@ -24,6 +24,10 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
 
+    // Decorators
+    "emitDecoratorMetadata": false, // required
+    "experimentalDecorators": true,
+
     // Paths
     "baseUrl": "./",
     "paths": {
