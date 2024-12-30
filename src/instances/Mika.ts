@@ -1,8 +1,13 @@
-import { NODE_ENV, lavalinkNodes } from "@/config";
+import { GLOBAL_COLOR, NODE_ENV, lavalinkNodes } from "@/config";
 import { pino, type BaseLogger } from "pino";
 import { Connectors, Shoukaku } from "shoukaku";
 import type { MikaPlayer } from "./MikaPlayer";
 import { Client, type ClientOptions } from "discordx";
+import {
+	EmbedBuilder,
+	type CommandInteraction,
+	type GuildMember,
+} from "discord.js";
 
 class Mika extends Client {
 	public readonly shoukaku: Shoukaku;
@@ -38,6 +43,21 @@ class Mika extends Client {
 				}
 			})
 			.on("error", (name, error) => this.pino.error(error, name));
+	}
+
+	async sendMessageEmbed(
+		interaction: CommandInteraction,
+		member: GuildMember,
+		message: string,
+	) {
+		const embed = new EmbedBuilder()
+			.setColor(GLOBAL_COLOR)
+			.setAuthor({
+				name: member?.displayName!,
+				iconURL: member?.displayAvatarURL(),
+			})
+			.setDescription(message);
+		await interaction.editReply({ embeds: [embed] });
 	}
 }
 
