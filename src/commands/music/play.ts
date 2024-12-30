@@ -12,7 +12,7 @@ import { LoadType } from "shoukaku";
 
 @Discord()
 class Play {
-	@Slash({ description: "play" })
+	@Slash({ description: "Play a music" })
 	@Guard(DeferReply)
 	async play(
 		@SlashOption({
