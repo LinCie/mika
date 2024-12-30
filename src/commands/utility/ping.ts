@@ -1,20 +1,15 @@
-import { MikaCommands, type Mika } from "@/instances";
-import { SlashCommandBuilder, type CommandInteraction } from "discord.js";
+import { DeferReply } from "@/guards";
+import type { Mika } from "@/instances";
+import type { CommandInteraction } from "discord.js";
+import { Discord, Guard, Slash } from "discordx";
 
-const data = new SlashCommandBuilder()
-	.setName("ping")
-	.setDescription("Ping the bot")
-	.toJSON();
-
-export default class Ping extends MikaCommands {
-	constructor(client: Mika, interaction: CommandInteraction) {
-		super(client, interaction);
-		this.commandOptions = { isDeferred: true };
-	}
-
-	async main(): Promise<void> {
-		await this.interaction.editReply("Pong!");
+@Discord()
+class Ping {
+	@Slash({ description: "ping" })
+	@Guard(DeferReply)
+	async ping(interaction: CommandInteraction, client: Mika): Promise<void> {
+		await interaction.editReply("Pong!");
 	}
 }
 
-export { data };
+export { Ping };

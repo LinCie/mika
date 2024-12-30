@@ -15,20 +15,21 @@
     "@discordjs/voice": "^0.18.0",
     "denque": "^2.1.0",
     "discord.js": "^14.16.3",
+    "discordx": "^11.12.2",
     "pino": "^9.6.0",
     "shoukaku": "^4.1.1"
   },
   "scripts": {
-    "start": "bun run index.ts",
+    "start": "bun run src/mika.ts",
     "format": "biome format --write src/**/*.ts",
     "lint": "biome lint --write src/**/*.ts",
     "check": "biome check --write src/**/*.ts",
     "lava": "java -jar lavalink/Lavalink.jar",
     "lava:get": "bun run scripts/getLavalink.js",
-    "dev": "NODE_ENV=development bun run index.ts --watch | pino-pretty",
+    "dev": "NODE_ENV=development bun run src/mika.ts --watch | pino-pretty",
     "dev:conc": "NODE_ENV=development concurrently \"bun dev\" \"bun lava\"",
-    "build": "bun build ./index.ts --outdir ./dist --target bun --minify",
-    "serve": "NODE_ENV=production bun run ./dist/index | pino-pretty",
+    "build": "bun build src/mika.ts --outdir ./dist --target bun --minify",
+    "serve": "NODE_ENV=production bun run ./dist/mika.js | pino-pretty",
     "serve:conc": "NODE_ENV=production concurrently \"bun serve\" \"bun lava\""
   },
   "trustedDependencies": [
