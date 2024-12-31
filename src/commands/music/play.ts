@@ -2,7 +2,6 @@ import { GLOBAL_COLOR } from "@/config";
 import {
 	DeferReply,
 	IsInVoiceChannel,
-	IsPlayerAlreadyExist,
 	IsPlayerCurrent,
 	IsPlayerInit,
 } from "@/guards";
