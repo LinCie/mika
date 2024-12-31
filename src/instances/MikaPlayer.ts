@@ -130,7 +130,13 @@ class MikaPlayer {
 				this.isPlaying = false;
 				const embed = new EmbedBuilder()
 					.setColor(GLOBAL_COLOR)
-					.setDescription("🎶 Queue is currently empty 🎶");
+					.setDescription("🎶 Queue is currently empty 🎶")
+					.setTimestamp()
+					.setFooter({
+						text: "Made with 🩷 by LinCie",
+						iconURL:
+							"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+					});
 				await this.channel.send({ embeds: [embed] });
 			}
 		});

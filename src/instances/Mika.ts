@@ -56,7 +56,13 @@ class Mika extends Client {
 				name: member?.displayName!,
 				iconURL: member?.displayAvatarURL(),
 			})
-			.setDescription(message);
+			.setDescription(message)
+			.setTimestamp()
+			.setFooter({
+				text: "Made with 🩷 by LinCie",
+				iconURL:
+					"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+			});
 		await interaction.editReply({ embeds: [embed] });
 	}
 }
