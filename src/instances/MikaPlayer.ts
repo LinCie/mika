@@ -19,6 +19,7 @@ class MikaPlayer {
 	public player: Player | undefined;
 	public voice: VoiceBasedChannel | null | undefined;
 	public isPlaying: boolean;
+	public isChanging: boolean;
 	public queue: MikaQueue;
 
 	constructor(client: Mika, interaction: CommandInteraction) {
@@ -30,6 +31,7 @@ class MikaPlayer {
 			this.interaction.channel?.id!,
 		) as TextChannel;
 		this.isPlaying = false;
+		this.isChanging = false;
 
 		// Queue
 		this.queue = new MikaQueue();
@@ -129,6 +131,8 @@ class MikaPlayer {
 			if (this.queue.current < this.queue.getLength() - 1) {
 				const track = this.queue.playNext();
 				if (track) await this.playMusic(track);
+			} else if (this.isChanging) {
+				// Do nothing
 			} else {
 				this.isPlaying = false;
 				await this.channel.send("Queue is currently empty");
@@ -205,6 +209,10 @@ class MikaPlayer {
 			volume: 50,
 			track: { encoded: track.encoded },
 		});
+	}
+
+	public async skipMusic() {
+		await this.player?.stopTrack();
 	}
 }
 
