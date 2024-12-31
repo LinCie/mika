@@ -2,19 +2,20 @@ import type { Mika } from "@/instances";
 import type { CommandInteraction, GuildMember } from "discord.js";
 import type { GuardFunction } from "discordx";
 
-const IsInVoiceChannel: GuardFunction<CommandInteraction> = async (
+const IsPlayerCurrent: GuardFunction<CommandInteraction> = async (
 	interaction,
 	client,
 	next,
 ) => {
 	const mika = client as Mika;
 	const member = interaction.member as GuildMember;
+	const player = mika.players.get(interaction.guild?.id!);
 
-	if (!member.voice.channel) {
+	if (player?.channel.id !== member.voice.channel?.id) {
 		await mika.sendMessageEmbed(
 			interaction,
 			member,
-			"You're currently not in a voice channel!",
+			"You're currently not in the same voice channel with the player",
 		);
 		return;
 	}
@@ -23,4 +24,4 @@ const IsInVoiceChannel: GuardFunction<CommandInteraction> = async (
 	return;
 };
 
-export { IsInVoiceChannel };
+export { IsPlayerCurrent };
