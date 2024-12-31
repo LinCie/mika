@@ -34,7 +34,7 @@ class Skip {
 		await client.sendMessageEmbed(
 			interaction,
 			member,
-			`**${current.info.title}** has been sucessfully skipped`,
+			`🎶 **${current.info.title}** has been sucessfully skipped 🎶`,
 		);
 	}
 }
