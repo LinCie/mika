@@ -1,7 +1,7 @@
 import { GLOBAL_COLOR } from "@/config";
-import { DeferReply, IsInVoiceChannel } from "@/guards";
+import { DeferReply, IsInVoiceChannel, IsPlayerInit } from "@/guards";
 import type { Mika } from "@/instances";
-import { MikaPlayer } from "@/instances";
+import type { MikaPlayer } from "@/instances";
 import {
 	ApplicationCommandOptionType,
 	EmbedBuilder,
@@ -13,7 +13,7 @@ import { LoadType } from "shoukaku";
 @Discord()
 class Play {
 	@Slash({ description: "Play a music" })
-	@Guard(DeferReply, IsInVoiceChannel)
+	@Guard(DeferReply, IsInVoiceChannel, IsPlayerInit)
 	async play(
 		@SlashOption({
 			name: "query",
@@ -34,14 +34,9 @@ class Play {
 		method: string | undefined,
 		interaction: CommandInteraction,
 		client: Mika,
+		data: { player: MikaPlayer },
 	): Promise<void> {
-		let player: MikaPlayer;
-		if (client.players.has(interaction.guild?.id!)) {
-			player = client.players.get(interaction.guild?.id!)!;
-		} else {
-			player = await new MikaPlayer(client, interaction).init();
-		}
-
+		const player = data.player;
 		const result = await player.searchMusic(query, method ?? "scsearch");
 
 		switch (result?.loadType) {
