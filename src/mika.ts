@@ -20,9 +20,9 @@ const mika = new Mika({
 	},
 });
 
-mika.once("ready", () => {
+mika.once("ready", async () => {
 	// Make sure all guilds are cached
-	// await bot.guilds.fetch();
+	await mika.guilds.fetch();
 
 	// Synchronize applications commands with Discord
 	void mika.initApplicationCommands();
@@ -31,8 +31,8 @@ mika.once("ready", () => {
 	// This is useful when moving from guild commands to global commands
 	// It must only be executed once
 	//
-	//  await bot.clearApplicationCommands(
-	//    ...bot.guilds.cache.map((g) => g.id)
+	//  await mika.clearApplicationCommands(
+	//    ...mika.guilds.cache.map((g) => g.id)
 	//  );
 
 	mika.pino.info("Mika is alive!");

@@ -21,6 +21,7 @@ class MikaPlayer {
 	public isPlaying: boolean;
 	public isChanging: boolean;
 	public queue: MikaQueue;
+	public isLooping: "current" | "queue" | "off";
 
 	constructor(client: Mika, interaction: CommandInteraction) {
 		this.client = client;
@@ -32,6 +33,7 @@ class MikaPlayer {
 		) as TextChannel;
 		this.isPlaying = false;
 		this.isChanging = false;
+		this.isLooping = "off";
 
 		// Queue
 		this.queue = new MikaQueue();
@@ -121,9 +123,16 @@ class MikaPlayer {
 		});
 
 		this.player?.on("end", async () => {
-			if (this.queue.current < this.queue.getLength() - 1) {
-				const track = this.queue.playNext();
-				if (track) await this.playMusic(track);
+			if (this.isLooping === "current") {
+				await this.playMusic(this.queue.getCurrent()!);
+			} else if (this.queue.current < this.queue.getLength() - 1) {
+				if (this.isLooping === "queue") {
+					this.queue.resetQueue();
+					await this.playMusic(this.queue.playCurrent()!);
+				} else {
+					const track = this.queue.playNext();
+					if (track) await this.playMusic(track);
+				}
 			} else if (this.isChanging) {
 				// Do nothing
 			} else {
