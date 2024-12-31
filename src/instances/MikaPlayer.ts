@@ -130,7 +130,7 @@ class MikaPlayer {
 				this.isPlaying = false;
 				const embed = new EmbedBuilder()
 					.setColor(GLOBAL_COLOR)
-					.setDescription("Queue is currently empty");
+					.setDescription("🎶 Queue is currently empty 🎶");
 				await this.channel.send({ embeds: [embed] });
 			}
 		});
