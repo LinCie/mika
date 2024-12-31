@@ -104,6 +104,15 @@ class MikaQueue extends EventEmitter {
 	}
 
 	/**
+	 * Retrieves the current track in the queue.
+	 *
+	 * @returns {Track | undefined} The current track in the queue, or undefined if the queue is empty or at the beginning.
+	 */
+	public playCurrent(): Track | undefined {
+		return this.getCurrent();
+	}
+
+	/**
 	 * Adds a track to the queue.
 	 *
 	 * The current track index is not changed.
@@ -167,6 +176,17 @@ class MikaQueue extends EventEmitter {
 		}
 
 		this.queue = new Denque<Track>([currentTrack, ...remainingTracks]);
+		this.current = 0;
+	}
+
+	/**
+	 * Resets the queue to the beginning.
+	 *
+	 * Sets the current track index to 0.
+	 *
+	 * @returns {void}
+	 */
+	public resetQueue() {
 		this.current = 0;
 	}
 }
