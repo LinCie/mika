@@ -57,7 +57,25 @@ class Play {
 						.setThumbnail(track?.info.artworkUrl!)
 						.setDescription(
 							`🎶 **${track?.info.title}** has been added to queue 🎶`,
-						);
+						)
+						.addFields(
+							{
+								name: "Title",
+								value: track.info.title,
+								inline: true,
+							},
+							{
+								name: "Artist",
+								value: track.info.author,
+								inline: true,
+							},
+						)
+						.setTimestamp()
+						.setFooter({
+							text: "Made with 🩷 by LinCie",
+							iconURL:
+								"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+						});
 					player.queue.addTrack(track);
 					await interaction.editReply({ embeds: [addEmbed] });
 				}
@@ -76,7 +94,25 @@ class Play {
 						.setThumbnail(track?.info.artworkUrl!)
 						.setDescription(
 							`🎶 **${track?.info.title}** has been added to queue 🎶`,
-						);
+						)
+						.addFields(
+							{
+								name: "Title",
+								value: track.info.title,
+								inline: true,
+							},
+							{
+								name: "Artist",
+								value: track.info.author,
+								inline: true,
+							},
+						)
+						.setTimestamp()
+						.setFooter({
+							text: "Made with 🩷 by LinCie",
+							iconURL:
+								"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+						});
 					player.queue.addTrack(track);
 					await interaction.editReply({ embeds: [addEmbed] });
 				}
@@ -95,7 +131,25 @@ class Play {
 						.setThumbnail(tracks.shift()?.info.artworkUrl!)
 						.setDescription(
 							`🎶 ${tracks.length} tracks from playlist **${result.data.info.name}** has been added to queue 🎶`,
-						);
+						)
+						.addFields(
+							{
+								name: "Title",
+								value: result.data.info.name,
+								inline: true,
+							},
+							{
+								name: "Artist",
+								value: result.data.tracks[0]?.info.author,
+								inline: true,
+							},
+						)
+						.setTimestamp()
+						.setFooter({
+							text: "Made with 🩷 by LinCie",
+							iconURL:
+								"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+						});
 					player.queue.addTracks(tracks);
 					await interaction.editReply({ embeds: [addEmbed] });
 				}
