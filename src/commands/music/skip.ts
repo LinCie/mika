@@ -18,6 +18,20 @@ class Skip {
 		data: { player: MikaPlayer; member: GuildMember },
 	) {
 		const { player, member } = data;
+
+		if (!player.queue.getNext()) {
+			if (player.isLooping === "queue" || player.isLooping === "current") {
+				// Do nothing
+			} else {
+				await client.sendMessageEmbed(
+					interaction,
+					member,
+					"There is no more track in queue",
+				);
+				return;
+			}
+		}
+
 		const current = player.queue.getCurrent()!;
 
 		await player.skipMusic();
