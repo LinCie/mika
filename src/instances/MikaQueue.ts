@@ -79,6 +79,16 @@ class MikaQueue extends EventEmitter {
 	}
 
 	/**
+	 * Retrieves the track at the given index.
+	 *
+	 * @param {number} index The index of the track to retrieve.
+	 * @returns {Track | undefined} The track at the given index, or undefined if the index is out of bounds.
+	 */
+	public getTrack(index: number): Track | undefined {
+		return this.queue.get(index);
+	}
+
+	/**
 	 * Plays the next track in the queue and returns it.
 	 *
 	 * Increments the current track index and retrieves the track at the new index.
@@ -186,7 +196,7 @@ class MikaQueue extends EventEmitter {
 	 *
 	 * @returns {void}
 	 */
-	public resetQueue() {
+	public resetQueue(): void {
 		this.current = 0;
 	}
 }

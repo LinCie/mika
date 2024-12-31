@@ -35,15 +35,6 @@ class Loop {
 		player.isLooping = method || "current";
 
 		switch (method) {
-			case "current": {
-				const current = player.queue.getCurrent()!;
-				await client.sendMessageEmbed(
-					interaction,
-					member,
-					`🎶 Mika is now looping **${current.info.title}** 🎶`,
-				);
-				break;
-			}
 			case "queue": {
 				await client.sendMessageEmbed(
 					interaction,
@@ -57,6 +48,15 @@ class Loop {
 					interaction,
 					member,
 					"🎶 Loop is now off 🎶",
+				);
+				break;
+			}
+			default: {
+				const current = player.queue.getCurrent()!;
+				await client.sendMessageEmbed(
+					interaction,
+					member,
+					`🎶 Mika is now looping **${current.info.title}** 🎶`,
 				);
 				break;
 			}
