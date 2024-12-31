@@ -1,5 +1,11 @@
 import { GLOBAL_COLOR } from "@/config";
-import { DeferReply, IsInVoiceChannel, IsPlayerInit } from "@/guards";
+import {
+	DeferReply,
+	IsInVoiceChannel,
+	IsPlayerAlreadyExist,
+	IsPlayerCurrent,
+	IsPlayerInit,
+} from "@/guards";
 import type { Mika } from "@/instances";
 import type { MikaPlayer } from "@/instances";
 import {
@@ -13,7 +19,7 @@ import { LoadType } from "shoukaku";
 @Discord()
 class Play {
 	@Slash({ description: "Play a music" })
-	@Guard(DeferReply, IsInVoiceChannel, IsPlayerInit)
+	@Guard(DeferReply, IsInVoiceChannel, IsPlayerInit, IsPlayerCurrent)
 	async play(
 		@SlashOption({
 			name: "query",

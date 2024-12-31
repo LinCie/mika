@@ -6,26 +6,15 @@ const IsPlayerInit: GuardFunction<CommandInteraction> = async (
 	interaction,
 	client,
 	next,
-	data: { player: MikaPlayer },
+	data: { player?: MikaPlayer },
 ) => {
 	const mika = client as Mika;
-	const member = interaction.member as GuildMember;
-	const player = mika.players.get(interaction.guild?.id!);
+	const player =
+		data.player ||
+		mika.players.get(interaction.guild?.id!) ||
+		(await new MikaPlayer(mika, interaction).init());
 
-	if (!player) {
-		data.player = await new MikaPlayer(mika, interaction).init();
-	} else {
-		if (player?.channel.id !== member.voice.channel?.id) {
-			await mika.sendMessageEmbed(
-				interaction,
-				member,
-				"You're currently not in the same voice channel with the player",
-			);
-			return;
-		}
-		data.player = player;
-	}
-
+	data.player = player;
 	await next();
 	return;
 };
