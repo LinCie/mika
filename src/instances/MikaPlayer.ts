@@ -17,10 +17,10 @@ class MikaPlayer {
 	public readonly guild: string;
 	public readonly channel: TextChannel;
 	public player: Player | undefined;
+	public queue: MikaQueue;
 	public voice: VoiceBasedChannel | null | undefined;
 	public isPlaying: boolean;
 	public isChanging: boolean;
-	public queue: MikaQueue;
 	public isLooping: "current" | "queue" | "off";
 
 	constructor(client: Mika, interaction: CommandInteraction) {
@@ -80,6 +80,20 @@ class MikaPlayer {
 
 		this.player?.on("start", async (data) => {
 			const length = `<t:${Math.floor(Date.now() / 1000) + Math.floor(data.track.info.length / 1000)}:R>`;
+			let next: Track | undefined;
+			if (this.isLooping === "current") {
+				next = data.track;
+			} else if (this.isLooping === "queue") {
+				const nextTrack = this.queue.getNext();
+				if (nextTrack) {
+					next = nextTrack;
+				} else {
+					next = this.queue.getTrack(0);
+				}
+			} else {
+				next = this.queue.getNext();
+			}
+
 			const playEmbed = new EmbedBuilder()
 				.setColor(GLOBAL_COLOR)
 				.setTitle(data.track.info.title)
@@ -109,7 +123,7 @@ class MikaPlayer {
 					},
 					{
 						name: "Next in queue",
-						value: this.queue.getNext()?.info.title || "No track left",
+						value: next?.info.title! || "No track left",
 					},
 				)
 				.setTimestamp()
@@ -126,27 +140,27 @@ class MikaPlayer {
 			if (this.isLooping === "current") {
 				await this.playMusic(this.queue.getCurrent()!);
 			} else if (this.queue.current < this.queue.getLength() - 1) {
+				const track = this.queue.playNext();
+				if (track) await this.playMusic(track);
+			} else if (this.isChanging) {
+				// Do nothing
+			} else {
 				if (this.isLooping === "queue") {
 					this.queue.resetQueue();
 					await this.playMusic(this.queue.playCurrent()!);
 				} else {
-					const track = this.queue.playNext();
-					if (track) await this.playMusic(track);
+					this.isPlaying = false;
+					const embed = new EmbedBuilder()
+						.setColor(GLOBAL_COLOR)
+						.setDescription("🎶 Queue is currently empty 🎶")
+						.setTimestamp()
+						.setFooter({
+							text: "Made with 🩷 by LinCie",
+							iconURL:
+								"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+						});
+					await this.channel.send({ embeds: [embed] });
 				}
-			} else if (this.isChanging) {
-				// Do nothing
-			} else {
-				this.isPlaying = false;
-				const embed = new EmbedBuilder()
-					.setColor(GLOBAL_COLOR)
-					.setDescription("🎶 Queue is currently empty 🎶")
-					.setTimestamp()
-					.setFooter({
-						text: "Made with 🩷 by LinCie",
-						iconURL:
-							"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
-					});
-				await this.channel.send({ embeds: [embed] });
 			}
 		});
 
