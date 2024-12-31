@@ -2,7 +2,7 @@ import type { Mika, MikaPlayer } from "@/instances";
 import type { CommandInteraction, GuildMember } from "discord.js";
 import type { GuardFunction } from "discordx";
 
-const IsPlayerAlreadyExist: GuardFunction<CommandInteraction> = async (
+const IsPlayerExist: GuardFunction<CommandInteraction> = async (
 	interaction,
 	client,
 	next,
@@ -27,4 +27,4 @@ const IsPlayerAlreadyExist: GuardFunction<CommandInteraction> = async (
 	return;
 };
 
-export { IsPlayerAlreadyExist };
+export { IsPlayerExist };
