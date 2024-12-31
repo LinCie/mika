@@ -97,24 +97,17 @@ class MikaPlayer {
 						inline: true,
 					},
 					{
-						name: "Author",
+						name: "Artist",
 						value: data.track.info.author,
-						inline: true,
-					},
-					{
-						name: "Source",
-						value: data.track.info.sourceName,
 						inline: true,
 					},
 					{
 						name: "Next track in",
 						value: length,
-						inline: true,
 					},
 					{
 						name: "Next in queue",
 						value: this.queue.getNext()?.info.title || "No track left",
-						inline: true,
 					},
 				)
 				.setTimestamp()
