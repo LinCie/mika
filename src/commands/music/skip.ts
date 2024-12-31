@@ -20,12 +20,16 @@ class Skip {
 		const { player, member } = data;
 
 		if (!player.queue.getNext()) {
-			await client.sendMessageEmbed(
-				interaction,
-				member,
-				"There is no more track in queue",
-			);
-			return;
+			if (player.isLooping === "queue" || player.isLooping === "current") {
+				// do nothing
+			} else {
+				await client.sendMessageEmbed(
+					interaction,
+					member,
+					"There is no more track in queue",
+				);
+				return;
+			}
 		}
 
 		const current = player.queue.getCurrent()!;
