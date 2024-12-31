@@ -6,9 +6,10 @@ const IsInVoiceChannel: GuardFunction<CommandInteraction> = async (
 	interaction,
 	client,
 	next,
+	data: { member: GuildMember },
 ) => {
 	const mika = client as Mika;
-	const member = interaction.member as GuildMember;
+	const member = data.member || (interaction.member as GuildMember);
 
 	if (!member.voice.channel) {
 		await mika.sendMessageEmbed(
@@ -19,6 +20,7 @@ const IsInVoiceChannel: GuardFunction<CommandInteraction> = async (
 		return;
 	}
 
+	data.member = member;
 	await next();
 	return;
 };

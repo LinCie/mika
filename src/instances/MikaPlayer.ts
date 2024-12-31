@@ -4,6 +4,7 @@ import {
 	type CommandInteraction,
 	type GuildMember,
 	type TextChannel,
+	type VoiceBasedChannel,
 } from "discord.js";
 import { MikaQueue, QueueEvents } from "./MikaQueue";
 import type { Player, Track } from "shoukaku";
@@ -16,6 +17,7 @@ class MikaPlayer {
 	public readonly guild: string;
 	public readonly channel: TextChannel;
 	public player: Player | undefined;
+	public voice: VoiceBasedChannel | null | undefined;
 	public isPlaying: boolean;
 	public queue: MikaQueue;
 
@@ -70,6 +72,7 @@ class MikaPlayer {
 			deaf: true,
 		});
 		this.client.players.set(this.guild, this);
+		this.voice = this.member.voice.channel;
 
 		this.player?.on("start", async (data) => {
 			const length = `<t:${Math.floor(Date.now() / 1000) + Math.floor(data.track.info.length / 1000)}:R>`;
