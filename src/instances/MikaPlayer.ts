@@ -60,15 +60,16 @@ class MikaPlayer {
 	}
 
 	/**
-	 * Enters the voice channel and sets up the player for music playback.
+	 * Initializes the player by joining the voice channel and setting up event listeners.
 	 *
-	 * It will join the voice channel the member is currently in, and set up the
-	 * player to play the next track in the queue when the current track has
-	 * finished playing.
+	 * @returns {Promise<MikaPlayer>} The initialized MikaPlayer instance.
 	 *
-	 * @throws {Error} If the member is not in a voice channel.
+	 * Joins the voice channel of the member initiating the interaction, stores the player instance,
+	 * and sets up event listeners for track start and end. On track start, it sends an embed message
+	 * to the channel with track information and the next track in queue. On track end, it handles
+	 * looping logic and plays the next track in the queue or notifies if the queue is empty.
 	 */
-	public async init() {
+	public async init(): Promise<MikaPlayer> {
 		this.player = await this.client.shoukaku.joinVoiceChannel({
 			guildId: this.interaction.guild?.id!,
 			channelId: this.member.voice.channel?.id!,
@@ -229,6 +230,11 @@ class MikaPlayer {
 		return await node?.rest.resolve(search);
 	}
 
+	/**
+	 * Plays a track.
+	 *
+	 * @param {Track} track The track to play.
+	 */
 	public async playMusic(track: Track) {
 		await this.player?.playTrack({
 			volume: 50,
@@ -236,6 +242,11 @@ class MikaPlayer {
 		});
 	}
 
+	/**
+	 * Stops the currently playing track.
+	 *
+	 * Skips the current track and moves onto the next one in the queue.
+	 */
 	public async skipMusic() {
 		await this.player?.stopTrack();
 	}
