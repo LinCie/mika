@@ -11,8 +11,8 @@ import type { Player, Track } from "shoukaku";
 import { GLOBAL_COLOR } from "@/config";
 
 class MikaPlayer {
-	public readonly client: Mika;
-	public readonly interaction: CommandInteraction;
+	private readonly client: Mika;
+	private readonly interaction: CommandInteraction;
 	public readonly member: GuildMember;
 	public readonly guild: string;
 	public readonly channel: TextChannel;
@@ -36,7 +36,7 @@ class MikaPlayer {
 		this.isLooping = "off";
 
 		// Queue
-		this.queue = new MikaQueue();
+		this.queue = new MikaQueue(this.client);
 		this.queue.on(QueueEvents.TRACK_ADDED, async (track: Track) => {
 			if (!this.isPlaying) {
 				if (this.queue.current === this.queue.getLength() - 2) {
@@ -52,7 +52,7 @@ class MikaPlayer {
 				if (this.queue.current === this.queue.getLength() - tracks.length - 1) {
 					await this.playMusic(this.queue.playNext()!);
 				} else {
-					await this.playMusic(tracks.shift()!);
+					await this.playMusic(tracks[0]);
 				}
 				this.isPlaying = true;
 			}
