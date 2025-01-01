@@ -128,7 +128,7 @@ class Play {
 							name: interaction.user.displayName,
 							iconURL: interaction.user.displayAvatarURL(),
 						})
-						.setThumbnail(tracks.shift()?.info.artworkUrl!)
+						.setThumbnail(tracks[0].info.artworkUrl!)
 						.setDescription(
 							`🎶 ${tracks.length} tracks from playlist **${result.data.info.name}** has been added to queue 🎶`,
 						)
