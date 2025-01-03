@@ -26,6 +26,7 @@ enum LoopState {
 class MikaPlayer {
 	private readonly client: Mika;
 	private readonly interaction: CommandInteraction;
+	private leaveTimer: Timer | undefined;
 	public readonly member: GuildMember;
 	public readonly guild: string;
 	public readonly channel: TextChannel;
@@ -91,10 +92,13 @@ class MikaPlayer {
 		this.voice = this.member.voice.channel;
 
 		this.player?.on("start", async (data) => {
+			this.handleTimerExist();
 			await this.handleOnPlayerStart(data);
 		});
 
 		this.player?.on("end", async () => {
+			this.handleTimerExist();
+
 			if (this.loopState === LoopState.LoopingCurrent) {
 				await this.handleLoopingCurrent();
 			} else if (this.state === PlayerState.Changing) {
@@ -275,10 +279,13 @@ class MikaPlayer {
 
 				await this.channel.send({ embeds: [embed] });
 
-				this.player?.once("start", () => clearTimeout(timer));
-				const timer = setTimeout(async () => {
+				this.leaveTimer = setTimeout(async () => {
 					await this.removePlayer();
 				}, 120000);
+				this.player?.once("start", () => {
+					clearTimeout(this.leaveTimer);
+					this.leaveTimer = undefined;
+				});
 			}
 		}
 	}
@@ -368,6 +375,13 @@ class MikaPlayer {
 			});
 
 		await this.channel.send({ embeds: [embed] });
+	}
+
+	private handleTimerExist() {
+		if (this.leaveTimer) {
+			clearTimeout(this.leaveTimer);
+			this.leaveTimer = undefined;
+		}
 	}
 }
 
