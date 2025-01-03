@@ -150,10 +150,14 @@ class MikaPlayer {
 					this.queue.resetQueue();
 					await this.playMusic(this.queue.playCurrent()!);
 				} else {
+					const time = `<t:${Math.floor(Date.now() / 1000) + 120}:R>`;
+
 					this.isPlaying = false;
 					const embed = new EmbedBuilder()
 						.setColor(GLOBAL_COLOR)
-						.setDescription("🎶 Queue is currently empty 🎶")
+						.setDescription(
+							`🎶 Queue is currently empty, leaving voice channel ${time} if no new track is added 🎶`,
+						)
 						.setTimestamp()
 						.setFooter({
 							text: "Made with 🩷 by LinCie",
@@ -161,8 +165,29 @@ class MikaPlayer {
 								"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
 						});
 					await this.channel.send({ embeds: [embed] });
+
+					const timer = setTimeout(async () => {
+						await this.removePlayer();
+					}, 120000);
+					this.player?.once("start", () => clearTimeout(timer));
 				}
 			}
+		});
+
+		this.player?.on("closed", async () => {
+			const embed = new EmbedBuilder()
+				.setColor(GLOBAL_COLOR)
+				.setDescription(
+					"🎶 Leaving voice channel now! Thank you for using Mika 🩷 🎶",
+				)
+				.setTimestamp()
+				.setFooter({
+					text: "Made with 🩷 by LinCie",
+					iconURL:
+						"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+				});
+
+			await this.channel.send({ embeds: [embed] });
 		});
 
 		return this;
@@ -249,6 +274,14 @@ class MikaPlayer {
 	 */
 	public async skipMusic() {
 		await this.player?.stopTrack();
+	}
+
+	public async removePlayer() {
+		if (!this.isPlaying && !this.isChanging) {
+			await this.leaveVoiceChannel();
+			await this.player?.destroy();
+			this.client.players.delete(this.guild);
+		}
 	}
 }
 
