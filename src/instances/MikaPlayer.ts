@@ -7,7 +7,7 @@ import {
 	type VoiceBasedChannel,
 } from "discord.js";
 import { MikaQueue, QueueEvents } from "./MikaQueue";
-import type { Player, Track } from "shoukaku";
+import type { Player, Track, TrackStartEvent } from "shoukaku";
 import { GLOBAL_COLOR } from "@/config";
 
 class MikaPlayer {
@@ -82,117 +82,22 @@ class MikaPlayer {
 		this.voice = this.member.voice.channel;
 
 		this.player?.on("start", async (data) => {
-			const length = `<t:${Math.floor(Date.now() / 1000) + Math.floor(data.track.info.length / 1000)}:R>`;
-			let next: Track | undefined;
-			if (this.isLooping === "current") {
-				next = data.track;
-			} else if (this.isLooping === "queue") {
-				const nextTrack = this.queue.getNext();
-				if (nextTrack) {
-					next = nextTrack;
-				} else {
-					next = this.queue.getTrack(0);
-				}
-			} else {
-				next = this.queue.getNext();
-			}
-
-			const playEmbed = new EmbedBuilder()
-				.setColor(GLOBAL_COLOR)
-				.setTitle(data.track.info.title)
-				.setURL(data.track.info.uri!)
-				.setAuthor({
-					name: this.member.nickname!,
-					iconURL: this.member.avatarURL()!,
-				})
-				.setDescription(
-					`🎶 **${data.track.info.title}** is currently playing 🎶`,
-				)
-				.setThumbnail(data.track.info.artworkUrl!)
-				.addFields(
-					{
-						name: "Title",
-						value: data.track.info.title,
-						inline: true,
-					},
-					{
-						name: "Artist",
-						value: data.track.info.author,
-						inline: true,
-					},
-					{
-						name: "Next track in",
-						value: length,
-					},
-					{
-						name: "Next in queue",
-						value: next?.info.title! || "No track left",
-					},
-				)
-				.setTimestamp()
-				.setFooter({
-					text: "Made with 🩷 by LinCie",
-					iconURL:
-						"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
-				});
-
-			await this.channel.send({ embeds: [playEmbed] });
+			await this.handleOnPlayerStart(data);
 		});
 
 		this.player?.on("end", async () => {
 			if (this.isLooping === "current") {
-				await this.playMusic(this.queue.getCurrent()!);
-			} else if (this.queue.current < this.queue.getLength() - 1) {
-				const track = this.queue.playNext();
-				if (track) await this.playMusic(track);
+				await this.handleLoopingCurrent();
 			} else if (this.isChanging) {
-				// Do nothing
-			} else {
-				if (this.isLooping === "queue") {
-					this.queue.resetQueue();
-					await this.playMusic(this.queue.playCurrent()!);
-				} else {
-					const time = `<t:${Math.floor(Date.now() / 1000) + 120}:R>`;
-
-					this.isPlaying = false;
-					const embed = new EmbedBuilder()
-						.setColor(GLOBAL_COLOR)
-						.setDescription(
-							`🎶 Queue is currently empty, leaving voice channel ${time} if no new track is added 🎶`,
-						)
-						.setTimestamp()
-						.setFooter({
-							text: "Made with 🩷 by LinCie",
-							iconURL:
-								"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
-						});
-
-					if (!this.isStopping) {
-						await this.channel.send({ embeds: [embed] });
-
-						const timer = setTimeout(async () => {
-							await this.removePlayer();
-						}, 120000);
-						this.player?.once("start", () => clearTimeout(timer));
-					}
-				}
+			} else if (this.queue.current < this.queue.getLength() - 1) {
+				await this.handlePlayNext();
+			} else if (this.queue.current === this.queue.getLength() - 1) {
+				await this.handleLastTrack();
 			}
 		});
 
 		this.player?.on("closed", async () => {
-			const embed = new EmbedBuilder()
-				.setColor(GLOBAL_COLOR)
-				.setDescription(
-					"🎶 Leaving voice channel now! Thank you for using Mika 🩷 🎶",
-				)
-				.setTimestamp()
-				.setFooter({
-					text: "Made with 🩷 by LinCie",
-					iconURL:
-						"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
-				});
-
-			await this.channel.send({ embeds: [embed] });
+			await this.handleOnPlayerClosed();
 		});
 
 		return this;
@@ -290,6 +195,159 @@ class MikaPlayer {
 		await this.leaveVoiceChannel();
 		await this.player?.destroy();
 		this.client.players.delete(this.guild);
+	}
+
+	/**
+	 * Handles when the player should loop the current track.
+	 *
+	 * @private
+	 * @returns {Promise<void>}
+	 */
+	private async handleLoopingCurrent(): Promise<void> {
+		await this.playMusic(this.queue.getCurrent()!);
+	}
+
+	/**
+	 * Handles when the player should loop the entire queue.
+	 *
+	 * Resets the queue to the beginning and plays the first track in the queue.
+	 * @private
+	 * @returns {Promise<void>}
+	 */
+	private async handleLoopingQueue(): Promise<void> {
+		this.queue.resetQueue();
+		await this.playMusic(this.queue.playCurrent()!);
+	}
+
+	/**
+	 * Handles when the player should play the next track.
+	 *
+	 * Retrieves the next track in the queue and plays it.
+	 * @private
+	 * @returns {Promise<void>}
+	 */
+	private async handlePlayNext(): Promise<void> {
+		const track = this.queue.playNext();
+		if (track) await this.playMusic(track);
+	}
+
+	/**
+	 * Handles when the player is finished playing tracks.
+	 *
+	 * If the player is set to loop the queue, resets the queue and plays the first track.
+	 * Otherwise, sends a message to the channel that the queue is empty and will leave the voice channel in 2 minutes if no new track is added,
+	 * and waits for 2 minutes before leaving the voice channel if no new track is added.
+	 * @private
+	 * @returns {Promise<void>}
+	 */
+	private async handleLastTrack(): Promise<void> {
+		if (this.isLooping === "queue") {
+			this.queue.resetQueue();
+			await this.playMusic(this.queue.playCurrent()!);
+		} else {
+			const time = `<t:${Math.floor(Date.now() / 1000) + 120}:R>`;
+
+			this.isPlaying = false;
+			const embed = new EmbedBuilder()
+				.setColor(GLOBAL_COLOR)
+				.setDescription(
+					`🎶 Queue is currently empty, leaving voice channel ${time} if no new track is added 🎶`,
+				)
+				.setTimestamp()
+				.setFooter({
+					text: "Made with 🩷 by LinCie",
+					iconURL:
+						"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+				});
+
+			if (!this.isStopping) {
+				await this.channel.send({ embeds: [embed] });
+
+				const timer = setTimeout(async () => {
+					await this.removePlayer();
+				}, 120000);
+				this.player?.once("start", () => clearTimeout(timer));
+			}
+		}
+	}
+
+	private async handleOnPlayerStart(data: TrackStartEvent): Promise<void> {
+		const length = `<t:${Math.floor(Date.now() / 1000) + Math.floor(data.track.info.length / 1000)}:R>`;
+		let next: Track | undefined;
+		if (this.isLooping === "current") {
+			next = data.track;
+		} else if (this.isLooping === "queue") {
+			const nextTrack = this.queue.getNext();
+			if (nextTrack) {
+				next = nextTrack;
+			} else {
+				next = this.queue.getTrack(0);
+			}
+		} else {
+			next = this.queue.getNext();
+		}
+
+		const playEmbed = new EmbedBuilder()
+			.setColor(GLOBAL_COLOR)
+			.setTitle(data.track.info.title)
+			.setURL(data.track.info.uri!)
+			.setAuthor({
+				name: this.member.nickname!,
+				iconURL: this.member.avatarURL()!,
+			})
+			.setDescription(`🎶 **${data.track.info.title}** is currently playing 🎶`)
+			.setThumbnail(data.track.info.artworkUrl!)
+			.addFields(
+				{
+					name: "Title",
+					value: data.track.info.title,
+					inline: true,
+				},
+				{
+					name: "Artist",
+					value: data.track.info.author,
+					inline: true,
+				},
+				{
+					name: "Next track in",
+					value: length,
+				},
+				{
+					name: "Next in queue",
+					value: next?.info.title! || "No track left",
+				},
+			)
+			.setTimestamp()
+			.setFooter({
+				text: "Made with 🩷 by LinCie",
+				iconURL:
+					"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+			});
+
+		await this.channel.send({ embeds: [playEmbed] });
+	}
+
+	/**
+	 * Handles when the player is closed.
+	 *
+	 * Sends a message to the text channel the player was created in, thanking the user for using Mika.
+	 * @private
+	 * @returns {Promise<void>}
+	 */
+	private async handleOnPlayerClosed(): Promise<void> {
+		const embed = new EmbedBuilder()
+			.setColor(GLOBAL_COLOR)
+			.setDescription(
+				"🎶 Leaving voice channel now! Thank you for using Mika 🩷 🎶",
+			)
+			.setTimestamp()
+			.setFooter({
+				text: "Made with 🩷 by LinCie",
+				iconURL:
+					"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
+			});
+
+		await this.channel.send({ embeds: [embed] });
 	}
 }
 
