@@ -277,18 +277,14 @@ class MikaPlayer {
 	}
 
 	/**
-	 * Removes the player from the voice channel and stops the player.
+	 * Removes the player from the server.
 	 *
-	 * If a track is currently playing or changing, it will not be removed.
-	 *
-	 * @returns {Promise<void>}
+	 * Leaves the voice channel, destroys the player, and removes the player from the client's player map.
 	 */
 	public async removePlayer(): Promise<void> {
-		if (!this.isPlaying && !this.isChanging) {
-			await this.leaveVoiceChannel();
-			await this.player?.destroy();
-			this.client.players.delete(this.guild);
-		}
+		await this.leaveVoiceChannel();
+		await this.player?.destroy();
+		this.client.players.delete(this.guild);
 	}
 }
 
