@@ -22,6 +22,7 @@ class MikaPlayer {
 	public isPlaying: boolean;
 	public isChanging: boolean;
 	public isLooping: "current" | "queue" | "off";
+	public isStopping: boolean;
 
 	constructor(client: Mika, interaction: CommandInteraction) {
 		this.client = client;
@@ -34,6 +35,7 @@ class MikaPlayer {
 		this.isPlaying = false;
 		this.isChanging = false;
 		this.isLooping = "off";
+		this.isStopping = false;
 
 		// Queue
 		this.queue = new MikaQueue(this.client);
@@ -164,12 +166,15 @@ class MikaPlayer {
 							iconURL:
 								"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
 						});
-					await this.channel.send({ embeds: [embed] });
 
-					const timer = setTimeout(async () => {
-						await this.removePlayer();
-					}, 120000);
-					this.player?.once("start", () => clearTimeout(timer));
+					if (!this.isStopping) {
+						await this.channel.send({ embeds: [embed] });
+
+						const timer = setTimeout(async () => {
+							await this.removePlayer();
+						}, 120000);
+						this.player?.once("start", () => clearTimeout(timer));
+					}
 				}
 			}
 		});
