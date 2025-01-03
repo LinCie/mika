@@ -203,7 +203,10 @@ class MikaPlayer {
 	 */
 	public async removePlayer(): Promise<void> {
 		await this.leaveVoiceChannel();
+		this.player?.removeAllListeners();
 		await this.player?.destroy();
+		this.player = undefined;
+		this.queue.destroy();
 		this.client.players.delete(this.guild);
 	}
 
@@ -272,10 +275,10 @@ class MikaPlayer {
 
 				await this.channel.send({ embeds: [embed] });
 
+				this.player?.once("start", () => clearTimeout(timer));
 				const timer = setTimeout(async () => {
 					await this.removePlayer();
 				}, 120000);
-				this.player?.once("start", () => clearTimeout(timer));
 			}
 		}
 	}

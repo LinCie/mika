@@ -202,6 +202,12 @@ class MikaQueue extends EventEmitter {
 	public resetQueue(): void {
 		this.current = 0;
 	}
+
+	public destroy(): void {
+		this.removeAllListeners();
+		this.queue.clear();
+		this.resetQueue();
+	}
 }
 
 export { MikaQueue, QueueEvents };
