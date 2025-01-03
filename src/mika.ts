@@ -73,7 +73,7 @@ process.on("SIGINT", () => {
 	if (lavalinkProcess) {
 		try {
 			mika.pino.warn("Shutting down lavalink...");
-			lavalinkProcess.kill();
+			lavalinkProcess.kill("SIGINT");
 		} catch (error) {
 			mika.pino.error(error, "There is an error while shutting down lavalink");
 		}
