@@ -276,7 +276,14 @@ class MikaPlayer {
 		await this.player?.stopTrack();
 	}
 
-	public async removePlayer() {
+	/**
+	 * Removes the player from the voice channel and stops the player.
+	 *
+	 * If a track is currently playing or changing, it will not be removed.
+	 *
+	 * @returns {Promise<void>}
+	 */
+	public async removePlayer(): Promise<void> {
 		if (!this.isPlaying && !this.isChanging) {
 			await this.leaveVoiceChannel();
 			await this.player?.destroy();
