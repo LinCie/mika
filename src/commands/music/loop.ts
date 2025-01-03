@@ -4,7 +4,7 @@ import {
 	IsPlayerExist,
 	IsPlayerCurrent,
 } from "@/guards";
-import type { Mika, MikaPlayer } from "@/instances";
+import { LoopState, type Mika, type MikaPlayer } from "@/instances";
 import {
 	type GuildMember,
 	type CommandInteraction,
@@ -17,25 +17,25 @@ class Loop {
 	@Slash({ description: "Loop track" })
 	@Guard(DeferReply, IsInVoiceChannel, IsPlayerExist, IsPlayerCurrent)
 	async loop(
-		@SlashChoice({ name: "Off", value: "off" })
-		@SlashChoice({ name: "Current", value: "current" })
-		@SlashChoice({ name: "Queue", value: "queue" })
+		@SlashChoice({ name: "Off", value: LoopState.LoopingNone })
+		@SlashChoice({ name: "Current", value: LoopState.LoopingCurrent })
+		@SlashChoice({ name: "Queue", value: LoopState.LoopingQueue })
 		@SlashOption({
 			name: "method",
-			description: "The looping method. Defaults to current",
+			description: "The looping method. Defaults to off",
 			required: false,
 			type: ApplicationCommandOptionType.String,
 		})
-		method: "current" | "queue" | "off" | undefined,
+		method: LoopState | undefined,
 		interaction: CommandInteraction,
 		client: Mika,
 		data: { player: MikaPlayer; member: GuildMember },
 	) {
 		const { player, member } = data;
-		player.isLooping = method || "current";
+		player.loopState = method || LoopState.LoopingNone;
 
 		switch (method) {
-			case "queue": {
+			case LoopState.LoopingQueue: {
 				await client.sendMessageEmbed(
 					interaction,
 					member,
@@ -43,7 +43,7 @@ class Loop {
 				);
 				break;
 			}
-			case "off": {
+			case LoopState.LoopingNone: {
 				await client.sendMessageEmbed(
 					interaction,
 					member,
@@ -51,7 +51,7 @@ class Loop {
 				);
 				break;
 			}
-			default: {
+			case LoopState.LoopingCurrent: {
 				const current = player.queue.getCurrent()!;
 				await client.sendMessageEmbed(
 					interaction,

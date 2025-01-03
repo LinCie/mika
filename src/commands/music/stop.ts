@@ -4,7 +4,7 @@ import {
 	IsPlayerExist,
 	IsPlayerCurrent,
 } from "@/guards";
-import type { Mika, MikaPlayer } from "@/instances";
+import { PlayerState, type Mika, type MikaPlayer } from "@/instances";
 import type { GuildMember, CommandInteraction } from "discord.js";
 import { Discord, Guard, Slash } from "discordx";
 
@@ -19,7 +19,7 @@ class Stop {
 	) {
 		const { player } = data;
 
-		player.isStopping = true;
+		player.state = PlayerState.Stopping;
 		await player.removePlayer();
 		await interaction.deleteReply();
 	}

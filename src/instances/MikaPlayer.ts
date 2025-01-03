@@ -10,6 +10,19 @@ import { MikaQueue, QueueEvents } from "./MikaQueue";
 import type { Player, Track, TrackStartEvent } from "shoukaku";
 import { GLOBAL_COLOR } from "@/config";
 
+enum PlayerState {
+	Idle = "idle",
+	Playing = "playing",
+	Changing = "changing",
+	Stopping = "stopping",
+}
+
+enum LoopState {
+	LoopingNone = "loopingNone",
+	LoopingCurrent = "loopingCurrent",
+	LoopingQueue = "loopingQueue",
+}
+
 class MikaPlayer {
 	private readonly client: Mika;
 	private readonly interaction: CommandInteraction;
@@ -19,10 +32,8 @@ class MikaPlayer {
 	public player: Player | undefined;
 	public queue: MikaQueue;
 	public voice: VoiceBasedChannel | null | undefined;
-	public isPlaying: boolean;
-	public isChanging: boolean;
-	public isLooping: "current" | "queue" | "off";
-	public isStopping: boolean;
+	public state: PlayerState;
+	public loopState: LoopState;
 
 	constructor(client: Mika, interaction: CommandInteraction) {
 		this.client = client;
@@ -32,31 +43,29 @@ class MikaPlayer {
 		this.channel = this.client.channels.cache.get(
 			this.interaction.channel?.id!,
 		) as TextChannel;
-		this.isPlaying = false;
-		this.isChanging = false;
-		this.isLooping = "off";
-		this.isStopping = false;
+		this.state = PlayerState.Idle;
+		this.loopState = LoopState.LoopingNone;
 
 		// Queue
 		this.queue = new MikaQueue(this.client);
 		this.queue.on(QueueEvents.TRACK_ADDED, async (track: Track) => {
-			if (!this.isPlaying) {
+			if (this.state === PlayerState.Idle) {
 				if (this.queue.current === this.queue.getLength() - 2) {
 					await this.playMusic(this.queue.playNext()!);
 				} else {
 					await this.playMusic(track);
 				}
-				this.isPlaying = true;
+				this.state = PlayerState.Playing;
 			}
 		});
 		this.queue.on(QueueEvents.TRACKS_ADDED, async (tracks: Array<Track>) => {
-			if (!this.isPlaying) {
+			if (this.state === PlayerState.Idle) {
 				if (this.queue.current === this.queue.getLength() - tracks.length - 1) {
 					await this.playMusic(this.queue.playNext()!);
 				} else {
 					await this.playMusic(tracks[0]);
 				}
-				this.isPlaying = true;
+				this.state = PlayerState.Playing;
 			}
 		});
 	}
@@ -86,9 +95,10 @@ class MikaPlayer {
 		});
 
 		this.player?.on("end", async () => {
-			if (this.isLooping === "current") {
+			if (this.loopState === LoopState.LoopingCurrent) {
 				await this.handleLoopingCurrent();
-			} else if (this.isChanging) {
+			} else if (this.state === PlayerState.Changing) {
+				this.state = PlayerState.Playing;
 			} else if (this.queue.current < this.queue.getLength() - 1) {
 				await this.handlePlayNext();
 			} else if (this.queue.current === this.queue.getLength() - 1) {
@@ -241,13 +251,10 @@ class MikaPlayer {
 	 * @returns {Promise<void>}
 	 */
 	private async handleLastTrack(): Promise<void> {
-		if (this.isLooping === "queue") {
-			this.queue.resetQueue();
-			await this.playMusic(this.queue.playCurrent()!);
+		if (this.loopState === LoopState.LoopingQueue) {
+			await this.handleLoopingQueue();
 		} else {
 			const time = `<t:${Math.floor(Date.now() / 1000) + 120}:R>`;
-
-			this.isPlaying = false;
 			const embed = new EmbedBuilder()
 				.setColor(GLOBAL_COLOR)
 				.setDescription(
@@ -260,7 +267,9 @@ class MikaPlayer {
 						"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
 				});
 
-			if (!this.isStopping) {
+			if (this.state !== PlayerState.Stopping) {
+				this.state = PlayerState.Idle;
+
 				await this.channel.send({ embeds: [embed] });
 
 				const timer = setTimeout(async () => {
@@ -274,17 +283,25 @@ class MikaPlayer {
 	private async handleOnPlayerStart(data: TrackStartEvent): Promise<void> {
 		const length = `<t:${Math.floor(Date.now() / 1000) + Math.floor(data.track.info.length / 1000)}:R>`;
 		let next: Track | undefined;
-		if (this.isLooping === "current") {
-			next = data.track;
-		} else if (this.isLooping === "queue") {
-			const nextTrack = this.queue.getNext();
-			if (nextTrack) {
-				next = nextTrack;
-			} else {
-				next = this.queue.getTrack(0);
+
+		switch (this.loopState) {
+			case LoopState.LoopingCurrent: {
+				next = data.track;
+				break;
 			}
-		} else {
-			next = this.queue.getNext();
+			case LoopState.LoopingQueue: {
+				const nextTrack = this.queue.getNext();
+				if (nextTrack) {
+					next = nextTrack;
+				} else {
+					next = this.queue.getTrack(0);
+				}
+				break;
+			}
+			default: {
+				next = this.queue.getNext();
+				break;
+			}
 		}
 
 		const playEmbed = new EmbedBuilder()
@@ -351,4 +368,4 @@ class MikaPlayer {
 	}
 }
 
-export { MikaPlayer };
+export { MikaPlayer, PlayerState, LoopState };
