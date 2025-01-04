@@ -24,7 +24,18 @@ class Mika extends Client {
 		this.players = new Map<string, MikaPlayer>();
 
 		// Shoukaku
-		this.shoukaku = new Shoukaku(new Connectors.DiscordJS(this), lavalinkNodes);
+		this.shoukaku = new Shoukaku(
+			new Connectors.DiscordJS(this),
+			lavalinkNodes,
+			{
+				resumeTimeout: 30,
+				resume: true,
+				resumeByLibrary: true,
+				moveOnDisconnect: true,
+				reconnectTries: 10,
+				reconnectInterval: 10,
+			},
+		);
 		this.shoukaku
 			.on("ready", (name) => this.pino.info(`Lavalink ${name} is now ready <3`))
 			.on("disconnect", (name) =>
