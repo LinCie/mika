@@ -4,8 +4,6 @@ import { dirname, importx } from "@discordx/importer";
 import { Mika } from "@/instances";
 import { DISCORD_TOKEN } from "./config";
 
-const lavalinkProcess = Bun.spawn(["java", "-jar", "lavalink/Lavalink.jar"]);
-
 const mika = new Mika({
 	partials: [Partials.Channel, Partials.GuildMember, Partials.User],
 	intents: [
@@ -68,18 +66,5 @@ async function run() {
 	// Log in with your bot token
 	await mika.login(DISCORD_TOKEN);
 }
-
-process.on("SIGINT", () => {
-	if (lavalinkProcess) {
-		try {
-			mika.pino.warn("Shutting down lavalink...");
-			lavalinkProcess.kill("SIGINT");
-		} catch (error) {
-			mika.pino.error(error, "There is an error while shutting down lavalink");
-		}
-	}
-	mika.pino.info("All child processes have been killed, shutting down Mika now!");
-	process.exit();
-});
 
 void run();
