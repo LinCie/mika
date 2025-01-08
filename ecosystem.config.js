@@ -6,8 +6,6 @@ export const apps = [
 		env: {
 			PATH: `${process.env.HOME}/.bun/bin:${process.env.PATH}`,
 		},
-		exec_mode: "cluster",
-		instances: "max",
 		watch: false,
 		autorestart: true,
 		max_memory_restart: "200M",
