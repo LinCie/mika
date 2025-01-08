@@ -28,8 +28,10 @@
 		"lava": "java -jar lavalink/Lavalink.jar",
 		"lava:get": "bun run scripts/getLavalink.js",
 		"dev": "NODE_ENV=development bun run src/mika.ts --watch | pino-pretty",
+		"dev:conc": "NODE_ENV=development concurrently \"bun dev\" \"bun lava\"",
 		"build": "bun build src/mika.ts --outdir ./dist --target node",
-		"serve": "NODE_ENV=production bun run ./dist/mika.js | pino-pretty"
+		"serve": "NODE_ENV=production bun run ./dist/mika.js | pino-pretty",
+		"serve:conc": "NODE_ENV=production concurrently \"bun serve\" \"bun lava\""
 	},
 	"trustedDependencies": ["@biomejs/biome"]
 }
