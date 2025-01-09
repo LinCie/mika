@@ -6,7 +6,7 @@ import {
 	type TextChannel,
 	type VoiceBasedChannel,
 } from "discord.js";
-import { MikaQueue, QueueEvents } from "./MikaQueue";
+import { MikaQueue, QueueEvents } from "./Queue";
 import type { Player, Track, TrackStartEvent } from "shoukaku";
 import { GLOBAL_COLOR } from "@/config";
 

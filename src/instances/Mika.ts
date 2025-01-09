@@ -1,7 +1,7 @@
 import { GLOBAL_COLOR, NODE_ENV, lavalinkNodes } from "@/config";
 import { pino, type BaseLogger } from "pino";
 import { Connectors, Shoukaku } from "shoukaku";
-import type { MikaPlayer } from "./MikaPlayer";
+import type { MikaPlayer } from "./Player";
 import { Client, type ClientOptions } from "discordx";
 import {
 	EmbedBuilder,
