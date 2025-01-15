@@ -1,16 +1,16 @@
 import {
-	DeferReply,
-	IsInVoiceChannel,
-	IsPlayerExist,
-	IsPlayerCurrent,
-} from "@/guards";
-import { LoopState, type Mika, type MikaPlayer } from "@/instances";
-import {
 	type GuildMember,
 	type CommandInteraction,
 	ApplicationCommandOptionType,
 } from "discord.js";
 import { Discord, Guard, Slash, SlashChoice, SlashOption } from "discordx";
+import { EMBEDTYPE, LoopState, type Mika, type MikaPlayer } from "@/instances";
+import {
+	DeferReply,
+	IsInVoiceChannel,
+	IsPlayerExist,
+	IsPlayerCurrent,
+} from "@/guards";
 
 @Discord()
 class Loop {
@@ -26,7 +26,8 @@ class Loop {
 			required: false,
 			type: ApplicationCommandOptionType.String,
 		})
-		method: LoopState | undefined,
+		method: LoopState = LoopState.LoopingNone,
+
 		interaction: CommandInteraction,
 		client: Mika,
 		data: { player: MikaPlayer; member: GuildMember },
@@ -34,30 +35,35 @@ class Loop {
 		const { player, member } = data;
 		player.loopState = method || LoopState.LoopingNone;
 
-		switch (method) {
-			case LoopState.LoopingQueue: {
-				await client.sendMessageEmbed(
-					interaction,
-					member,
-					"🎶 Mika is now looping queue 🎶",
-				);
-				break;
-			}
+		switch (player.loopState) {
 			case LoopState.LoopingNone: {
-				await client.sendMessageEmbed(
-					interaction,
-					member,
+				const embed = client.embed.createMessageEmbedWithAuthor(
 					"🎶 Loop is now off 🎶",
+					member,
+					EMBEDTYPE.SUCCESS,
 				);
+				await client.interaction.replyEmbed(interaction, embed);
 				break;
 			}
+
 			case LoopState.LoopingCurrent: {
 				const current = player.queue.getCurrent()!;
-				await client.sendMessageEmbed(
-					interaction,
-					member,
+				const embed = client.embed.createMessageEmbedWithAuthor(
 					`🎶 Mika is now looping **${current.info.title}** 🎶`,
+					member,
+					EMBEDTYPE.SUCCESS,
 				);
+				await client.interaction.replyEmbed(interaction, embed);
+				break;
+			}
+
+			case LoopState.LoopingQueue: {
+				const embed = client.embed.createMessageEmbedWithAuthor(
+					"🎶 Mika is now looping queue 🎶",
+					member,
+					EMBEDTYPE.SUCCESS,
+				);
+				await client.interaction.replyEmbed(interaction, embed);
 				break;
 			}
 		}

@@ -1,5 +1,5 @@
 import { DeferReply } from "@/guards";
-import type { Mika } from "@/instances";
+import { EMBEDTYPE, type Mika } from "@/instances";
 import type { CommandInteraction } from "discord.js";
 import { Discord, Guard, Slash } from "discordx";
 
@@ -8,7 +8,10 @@ class Ping {
 	@Slash({ description: "ping" })
 	@Guard(DeferReply)
 	async ping(interaction: CommandInteraction, client: Mika): Promise<void> {
-		await interaction.editReply("Pong!");
+		const embed = client.embed.createMessageEmbed("Pong!", EMBEDTYPE.GLOBAL);
+		await client.interaction.replyEmbed(interaction, embed, {
+			ephemeral: false,
+		});
 	}
 }
 

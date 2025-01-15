@@ -1,17 +1,16 @@
-import { GLOBAL_COLOR, NODE_ENV, lavalinkNodes } from "@/config";
-import { pino, type BaseLogger } from "pino";
-import { Connectors, Shoukaku } from "shoukaku";
-import type { MikaPlayer } from "./Player";
 import { Client, type ClientOptions } from "discordx";
-import {
-	EmbedBuilder,
-	type CommandInteraction,
-	type GuildMember,
-} from "discord.js";
+import { Connectors, Shoukaku } from "shoukaku";
+import { pino, type BaseLogger } from "pino";
+import { NODE_ENV, lavalinkNodes } from "@/config";
+import type { MikaPlayer } from "./Player";
+import { EmbedManager } from "./manager/EmbedManager";
+import { InteractionManager } from "./manager/InteractionManager";
 
 class Mika extends Client {
 	public readonly shoukaku: Shoukaku;
 	public readonly pino: BaseLogger;
+	public readonly embed: EmbedManager;
+	public readonly interaction: InteractionManager;
 	public players: Map<string, MikaPlayer>;
 
 	constructor(options: ClientOptions) {
@@ -22,6 +21,12 @@ class Mika extends Client {
 
 		// Player
 		this.players = new Map<string, MikaPlayer>();
+
+		// Embed
+		this.embed = new EmbedManager();
+
+		// Interaction
+		this.interaction = new InteractionManager();
 
 		// Shoukaku
 		this.shoukaku = new Shoukaku(
@@ -54,27 +59,6 @@ class Mika extends Client {
 				}
 			})
 			.on("error", (name, error) => this.pino.error(error, name));
-	}
-
-	async sendMessageEmbed(
-		interaction: CommandInteraction,
-		member: GuildMember,
-		message: string,
-	) {
-		const embed = new EmbedBuilder()
-			.setColor(GLOBAL_COLOR)
-			.setAuthor({
-				name: member?.displayName!,
-				iconURL: member?.displayAvatarURL(),
-			})
-			.setDescription(message)
-			.setTimestamp()
-			.setFooter({
-				text: "Made with 🩷 by LinCie",
-				iconURL:
-					"https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png",
-			});
-		await interaction.editReply({ embeds: [embed] });
 	}
 }
 

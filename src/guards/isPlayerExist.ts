@@ -1,6 +1,6 @@
-import type { Mika, MikaPlayer } from "@/instances";
 import type { CommandInteraction, GuildMember } from "discord.js";
 import type { GuardFunction } from "discordx";
+import { EMBEDTYPE, type Mika, type MikaPlayer } from "@/instances";
 
 const IsPlayerExist: GuardFunction<CommandInteraction> = async (
 	interaction,
@@ -13,11 +13,13 @@ const IsPlayerExist: GuardFunction<CommandInteraction> = async (
 	const player = data.player || mika.players.get(interaction.guild?.id!);
 
 	if (!player) {
-		await mika.sendMessageEmbed(
-			interaction,
-			member,
+		const embed = mika.embed.createMessageEmbedWithAuthor(
 			"There is no active player in this server",
+			member,
+			EMBEDTYPE.ERROR,
 		);
+
+		await mika.interaction.replyEmbed(interaction, embed, { ephemeral: true });
 		return;
 	}
 

@@ -1,16 +1,16 @@
+import type { GuildMember, CommandInteraction } from "discord.js";
+import { Discord, Guard, Slash } from "discordx";
+import { EMBEDTYPE, type Mika, type MikaPlayer } from "@/instances";
 import {
 	DeferReply,
 	IsInVoiceChannel,
 	IsPlayerExist,
 	IsPlayerCurrent,
 } from "@/guards";
-import type { Mika, MikaPlayer } from "@/instances";
-import type { GuildMember, CommandInteraction } from "discord.js";
-import { Discord, Guard, Slash } from "discordx";
 
 @Discord()
 class Shuffle {
-	@Slash({ description: "Shuffle current queue" })
+	@Slash({ description: "Shuffles current queue" })
 	@Guard(DeferReply, IsInVoiceChannel, IsPlayerExist, IsPlayerCurrent)
 	async shuffle(
 		interaction: CommandInteraction,
@@ -18,13 +18,13 @@ class Shuffle {
 		data: { player: MikaPlayer; member: GuildMember },
 	) {
 		const { player, member } = data;
-
 		player.queue.shuffleQueue();
-		await client.sendMessageEmbed(
-			interaction,
-			member,
+		const embed = client.embed.createMessageEmbedWithAuthor(
 			"🎶 Queue has been shuffled 🎶",
+			member,
+			EMBEDTYPE.SUCCESS,
 		);
+		await client.interaction.replyEmbed(interaction, embed);
 	}
 }
 

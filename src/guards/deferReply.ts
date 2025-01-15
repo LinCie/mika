@@ -1,4 +1,3 @@
-import type { Mika } from "@/instances";
 import { CommandInteraction } from "discord.js";
 import { SimpleCommandMessage, type GuardFunction } from "discordx";
 
