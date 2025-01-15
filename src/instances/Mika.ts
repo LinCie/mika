@@ -11,7 +11,7 @@ class Mika extends Client {
 	public readonly pino: BaseLogger;
 	public readonly embed: EmbedManager;
 	public readonly interaction: InteractionManager;
-	public players: Map<string, MikaPlayer>;
+	public readonly players: Map<string, MikaPlayer>;
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -42,13 +42,13 @@ class Mika extends Client {
 			},
 		);
 		this.shoukaku
-			.on("ready", (name) => this.pino.info(`Lavalink ${name} is now ready <3`))
+			.on("ready", (name) => this.pino.info(`Lavalink node ${name} is now ready <3`))
 			.on("disconnect", (name) =>
-				this.pino.warn(`${name} has been disconnected`),
+				this.pino.warn(`Lavalink node ${name} has been disconnected`),
 			)
 			.on("reconnecting", (name, left) =>
 				this.pino.warn(
-					`${name} is attempting to reconnect\n${left} ${
+					`Lavalink node ${name} is attempting to reconnect\n${left} ${
 						left < 2 ? "try" : "tries"
 					} left`,
 				),
