@@ -89,16 +89,17 @@ class Queue {
 		const guildName = interaction.guild?.name || "Server";
 		const queueContent =
 			currentTracks
-				.map((track, index) => `${startIndex + index + 1}. ${track.info.title}`)
+				.map(
+					(track, index) =>
+						`${startIndex + index + 1}. [${track.info.title}](${track.info.uri}) ~ ${track.info.author}`,
+				)
 				.join("\n") || "No tracks in the queue.";
 
 		const embedDescription = `### ${guildName}'s Queue\n\n${queueContent}\n-# Page ${this.page} of ${this.pages}`;
 
-		const embed = client.embed.createMessageEmbedWithAuthor(
-			embedDescription,
-			member!,
-			EMBEDTYPE.GLOBAL,
-		);
+		const embed = client.embed
+			.createMessageEmbedWithAuthor(embedDescription, member!, EMBEDTYPE.GLOBAL)
+			.setThumbnail(interaction.guild?.iconURL()!);
 
 		await client.interaction.replyEmbedWithButton(
 			interaction,
