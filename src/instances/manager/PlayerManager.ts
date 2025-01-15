@@ -160,7 +160,7 @@ class PlayerManager {
 	// Utils
 
 	public async leaveVoiceChannel() {
-		await this.client.shoukaku.leaveVoiceChannel(this.voice?.id!);
+		await this.client.shoukaku.leaveVoiceChannel(this.guild.id!);
 	}
 
 	public async searchMusic(query: string, method: string) {
