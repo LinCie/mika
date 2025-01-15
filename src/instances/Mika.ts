@@ -2,7 +2,7 @@ import { Client, type ClientOptions } from "discordx";
 import { Connectors, Shoukaku } from "shoukaku";
 import { pino, type BaseLogger } from "pino";
 import { NODE_ENV, lavalinkNodes } from "@/config";
-import type { MikaPlayer } from "./Player";
+import type { PlayerManager } from "./manager/PlayerManager";
 import { EmbedManager } from "./manager/EmbedManager";
 import { InteractionManager } from "./manager/InteractionManager";
 
@@ -11,7 +11,7 @@ class Mika extends Client {
 	public readonly pino: BaseLogger;
 	public readonly embed: EmbedManager;
 	public readonly interaction: InteractionManager;
-	public readonly players: Map<string, MikaPlayer>;
+	public readonly players: Map<string, PlayerManager>;
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -20,7 +20,7 @@ class Mika extends Client {
 		this.pino = pino();
 
 		// Player
-		this.players = new Map<string, MikaPlayer>();
+		this.players = new Map<string, PlayerManager>();
 
 		// Embed
 		this.embed = new EmbedManager();

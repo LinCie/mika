@@ -1,7 +1,7 @@
 import Denque from "denque";
 import { EventEmitter } from "node:events";
 import type { Track } from "shoukaku";
-import type { Mika } from "./Mika";
+import type { Mika } from "../Mika";
 
 enum QueueEvents {
 	TRACK_ADDED = "trackAdded",
@@ -9,15 +9,15 @@ enum QueueEvents {
 }
 
 /**
- * The MikaQueue class represents a queue of tracks, with methods to manipulate the queue and retrieve information about the tracks.
+ * The QueueManager class represents a queue of tracks, with methods to manipulate the queue and retrieve information about the tracks.
  */
-class MikaQueue extends EventEmitter {
+class QueueManager extends EventEmitter {
 	private readonly client: Mika;
 	public queue: Denque<Track>;
 	public current: number;
 
 	/**
-	 * Constructor for MikaQueue.
+	 * Constructor for QueueManager.
 	 *
 	 * Initializes the queue with the given tracks and sets the current track index to 0.
 	 *
@@ -210,4 +210,4 @@ class MikaQueue extends EventEmitter {
 	}
 }
 
-export { MikaQueue, QueueEvents };
+export { QueueManager, QueueEvents };

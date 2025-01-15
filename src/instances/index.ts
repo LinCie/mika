@@ -1,5 +1,5 @@
 export * from "./Mika";
-export * from "./Player";
-export * from "./Queue";
+export * from "./manager/PlayerManager";
+export * from "./manager/QueueManager";
 export * from "./manager/EmbedManager";
 export * from "./manager/InteractionManager";

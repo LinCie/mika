@@ -4,7 +4,7 @@ import {
 	IsPlayerExist,
 	IsPlayerCurrent,
 } from "@/guards";
-import { EMBEDTYPE, LoopState, type Mika, type MikaPlayer } from "@/instances";
+import { EMBEDTYPE, LoopState, type Mika, type PlayerManager } from "@/instances";
 import type { GuildMember, CommandInteraction } from "discord.js";
 import { Discord, Guard, Slash } from "discordx";
 
@@ -15,7 +15,7 @@ class Skip {
 	async skip(
 		interaction: CommandInteraction,
 		client: Mika,
-		data: { player: MikaPlayer; member: GuildMember },
+		data: { player: PlayerManager; member: GuildMember },
 	) {
 		const { player, member } = data;
 
