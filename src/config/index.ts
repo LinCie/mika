@@ -1,5 +1,12 @@
 export * from "./lavalink";
 
+export enum COLORS {
+	GLOBAL = 0xffe9f3,
+	SUCCESS = 0xa3be8c,
+	WARNING = 0xebcb8b,
+	ERROR = 0xbf616a,
+}
+
 export const GLOBAL_COLOR = 0xffe9f3;
 
 export const NODE_ENV = Bun.env.NODE_ENV!;

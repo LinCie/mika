@@ -1,6 +1,6 @@
-import type { Mika, MikaPlayer } from "@/instances";
 import type { CommandInteraction, GuildMember } from "discord.js";
 import type { GuardFunction } from "discordx";
+import { EMBEDTYPE, type Mika, type MikaPlayer } from "@/instances";
 
 const IsPlayerCurrent: GuardFunction<CommandInteraction> = async (
 	interaction,
@@ -13,11 +13,13 @@ const IsPlayerCurrent: GuardFunction<CommandInteraction> = async (
 	const player = data.player || mika.players.get(interaction.guild?.id!);
 
 	if (player?.voice?.id !== member.voice.channel?.id) {
-		await mika.sendMessageEmbed(
-			interaction,
-			member,
+		const embed = mika.embed.createMessageEmbedWithAuthor(
 			"You're currently not in the same voice channel with the player",
+			member,
+			EMBEDTYPE.ERROR,
 		);
+
+		await mika.interaction.replyEmbed(interaction, embed, { ephemeral: true });
 		return;
 	}
 

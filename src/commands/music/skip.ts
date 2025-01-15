@@ -4,7 +4,7 @@ import {
 	IsPlayerExist,
 	IsPlayerCurrent,
 } from "@/guards";
-import { LoopState, type Mika, type MikaPlayer } from "@/instances";
+import { EMBEDTYPE, LoopState, type Mika, type MikaPlayer } from "@/instances";
 import type { GuildMember, CommandInteraction } from "discord.js";
 import { Discord, Guard, Slash } from "discordx";
 
@@ -20,22 +20,26 @@ class Skip {
 		const { player, member } = data;
 
 		if (!player.queue.getNext() && player.loopState === LoopState.LoopingNone) {
-			await client.sendMessageEmbed(
-				interaction,
-				member,
+			const embed = client.embed.createMessageEmbedWithAuthor(
 				"There is no more track in queue",
+				member,
+				EMBEDTYPE.ERROR,
 			);
+			await client.interaction.replyEmbed(interaction, embed, {
+				ephemeral: true,
+			});
 			return;
 		}
 
-		const current = player.queue.getCurrent()!;
-
 		await player.skipMusic();
-		await client.sendMessageEmbed(
-			interaction,
-			member,
+
+		const current = player.queue.getCurrent()!;
+		const embed = client.embed.createMessageEmbedWithAuthor(
 			`🎶 **${current.info.title}** has been sucessfully skipped 🎶`,
+			member,
+			EMBEDTYPE.SUCCESS,
 		);
+		await client.interaction.replyEmbed(interaction, embed);
 	}
 }
 
