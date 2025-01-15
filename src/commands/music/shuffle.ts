@@ -1,6 +1,6 @@
 import type { GuildMember, CommandInteraction } from "discord.js";
 import { Discord, Guard, Slash } from "discordx";
-import { EMBEDTYPE, type Mika, type MikaPlayer } from "@/instances";
+import { EMBEDTYPE, type Mika, type PlayerManager } from "@/instances";
 import {
 	DeferReply,
 	IsInVoiceChannel,
@@ -15,7 +15,7 @@ class Shuffle {
 	async shuffle(
 		interaction: CommandInteraction,
 		client: Mika,
-		data: { player: MikaPlayer; member: GuildMember },
+		data: { player: PlayerManager; member: GuildMember },
 	) {
 		const { player, member } = data;
 		player.queue.shuffleQueue();

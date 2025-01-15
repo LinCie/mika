@@ -6,9 +6,9 @@ import type {
 	VoiceBasedChannel,
 } from "discord.js";
 import type { Player, Track, TrackStartEvent } from "shoukaku";
-import type { Mika } from "./Mika";
-import { MikaQueue, QueueEvents } from "./Queue";
-import { EMBEDTYPE } from "./manager/EmbedManager";
+import type { Mika } from "../Mika";
+import { QueueManager, QueueEvents } from "./QueueManager";
+import { EMBEDTYPE } from "./EmbedManager";
 
 enum PlayerState {
 	Idle = "idle",
@@ -23,12 +23,12 @@ enum LoopState {
 	LoopingQueue = "loopingQueue",
 }
 
-class MikaPlayer {
+class PlayerManager {
 	private readonly client: Mika;
 	private leaveTimer: Timer | undefined;
 	public readonly guild: Guild;
 	public readonly channel: TextChannel;
-	public readonly queue: MikaQueue;
+	public readonly queue: QueueManager;
 	public player: Player | undefined;
 	public voice: VoiceBasedChannel | undefined;
 	public state: PlayerState;
@@ -44,7 +44,7 @@ class MikaPlayer {
 		this.loopState = LoopState.LoopingNone;
 
 		// Queue
-		this.queue = new MikaQueue(this.client);
+		this.queue = new QueueManager(this.client);
 		this.queue.on(QueueEvents.TRACK_ADDED, async (track: Track) => {
 			if (this.state === PlayerState.Idle) {
 				if (this.queue.current === this.queue.getLength() - 2) {
@@ -67,7 +67,7 @@ class MikaPlayer {
 		});
 	}
 
-	public async init(interaction: CommandInteraction): Promise<MikaPlayer> {
+	public async init(interaction: CommandInteraction): Promise<PlayerManager> {
 		const member = interaction.member as GuildMember;
 
 		this.player = await this.client.shoukaku.joinVoiceChannel({
@@ -251,4 +251,4 @@ class MikaPlayer {
 	}
 }
 
-export { MikaPlayer, PlayerState, LoopState };
+export { PlayerManager, PlayerState, LoopState };

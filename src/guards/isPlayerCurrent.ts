@@ -1,12 +1,12 @@
 import type { CommandInteraction, GuildMember } from "discord.js";
 import type { GuardFunction } from "discordx";
-import { EMBEDTYPE, type Mika, type MikaPlayer } from "@/instances";
+import { EMBEDTYPE, type Mika, type PlayerManager } from "@/instances";
 
 const IsPlayerCurrent: GuardFunction<CommandInteraction> = async (
 	interaction,
 	client,
 	next,
-	data: { member?: GuildMember; player?: MikaPlayer },
+	data: { member?: GuildMember; player?: PlayerManager },
 ) => {
 	const mika = client as Mika;
 	const member = data.member || (interaction.member as GuildMember);

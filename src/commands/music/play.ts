@@ -7,7 +7,7 @@ import {
 import { Discord, Guard, Slash, SlashChoice, SlashOption } from "discordx";
 import { LoadType } from "shoukaku";
 import { EMBEDTYPE } from "@/instances";
-import type { Mika, MikaPlayer } from "@/instances";
+import type { Mika, PlayerManager } from "@/instances";
 import {
 	DeferReply,
 	IsInVoiceChannel,
@@ -41,7 +41,7 @@ class Play {
 
 		interaction: CommandInteraction,
 		client: Mika,
-		data: { player: MikaPlayer; member: GuildMember },
+		data: { player: PlayerManager; member: GuildMember },
 	): Promise<void> {
 		const { player, member } = data;
 		const result = await player.searchMusic(query, method);

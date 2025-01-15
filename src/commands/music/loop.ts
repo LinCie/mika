@@ -4,7 +4,7 @@ import {
 	ApplicationCommandOptionType,
 } from "discord.js";
 import { Discord, Guard, Slash, SlashChoice, SlashOption } from "discordx";
-import { EMBEDTYPE, LoopState, type Mika, type MikaPlayer } from "@/instances";
+import { EMBEDTYPE, LoopState, type Mika, type PlayerManager } from "@/instances";
 import {
 	DeferReply,
 	IsInVoiceChannel,
@@ -30,7 +30,7 @@ class Loop {
 
 		interaction: CommandInteraction,
 		client: Mika,
-		data: { player: MikaPlayer; member: GuildMember },
+		data: { player: PlayerManager; member: GuildMember },
 	) {
 		const { player, member } = data;
 		player.loopState = method || LoopState.LoopingNone;

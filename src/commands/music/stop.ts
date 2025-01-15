@@ -4,7 +4,7 @@ import {
 	IsPlayerExist,
 	IsPlayerCurrent,
 } from "@/guards";
-import { PlayerState, type Mika, type MikaPlayer } from "@/instances";
+import { PlayerState, type Mika, type PlayerManager } from "@/instances";
 import type { GuildMember, CommandInteraction } from "discord.js";
 import { Discord, Guard, Slash } from "discordx";
 
@@ -15,7 +15,7 @@ class Stop {
 	async stop(
 		interaction: CommandInteraction,
 		client: Mika,
-		data: { player: MikaPlayer; member: GuildMember },
+		data: { player: PlayerManager; member: GuildMember },
 	) {
 		const { player } = data;
 
