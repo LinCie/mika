@@ -12,7 +12,7 @@ const IsPlayerInit: GuardFunction<CommandInteraction> = async (
 	const player =
 		data.player ||
 		mika.players.get(interaction.guild?.id!) ||
-		(await new MikaPlayer(mika, interaction).init());
+		(await new MikaPlayer(mika, interaction).init(interaction));
 
 	data.player = player;
 	await next();

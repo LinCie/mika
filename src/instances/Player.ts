@@ -1,12 +1,13 @@
-import type { Mika } from "./Mika";
 import type {
 	CommandInteraction,
+	Guild,
 	GuildMember,
 	TextChannel,
 	VoiceBasedChannel,
 } from "discord.js";
-import { MikaQueue, QueueEvents } from "./Queue";
 import type { Player, Track, TrackStartEvent } from "shoukaku";
+import type { Mika } from "./Mika";
+import { MikaQueue, QueueEvents } from "./Queue";
 import { EMBEDTYPE } from "./manager/EmbedManager";
 
 enum PlayerState {
@@ -24,24 +25,20 @@ enum LoopState {
 
 class MikaPlayer {
 	private readonly client: Mika;
-	private readonly interaction: CommandInteraction;
 	private leaveTimer: Timer | undefined;
-	public readonly member: GuildMember;
-	public readonly guild: string;
+	public readonly guild: Guild;
 	public readonly channel: TextChannel;
+	public readonly queue: MikaQueue;
 	public player: Player | undefined;
-	public queue: MikaQueue;
-	public voice: VoiceBasedChannel | null | undefined;
+	public voice: VoiceBasedChannel | undefined;
 	public state: PlayerState;
 	public loopState: LoopState;
 
 	constructor(client: Mika, interaction: CommandInteraction) {
 		this.client = client;
-		this.interaction = interaction;
-		this.member = this.interaction.member as GuildMember;
-		this.guild = this.interaction.guild?.id!;
+		this.guild = interaction.guild!;
 		this.channel = this.client.channels.cache.get(
-			this.interaction.channel?.id!,
+			interaction.channel?.id!,
 		) as TextChannel;
 		this.state = PlayerState.Idle;
 		this.loopState = LoopState.LoopingNone;
@@ -70,15 +67,17 @@ class MikaPlayer {
 		});
 	}
 
-	public async init(): Promise<MikaPlayer> {
+	public async init(interaction: CommandInteraction): Promise<MikaPlayer> {
+		const member = interaction.member as GuildMember;
+
 		this.player = await this.client.shoukaku.joinVoiceChannel({
-			guildId: this.interaction.guild?.id!,
-			channelId: this.member.voice.channel?.id!,
+			guildId: interaction.guild?.id!,
+			channelId: member?.voice.channel?.id!,
 			shardId: 0,
 			deaf: true,
 		});
-		this.client.players.set(this.guild, this);
-		this.voice = this.member.voice.channel;
+		this.client.players.set(this.guild.id, this);
+		this.voice = member.voice.channel!;
 
 		this.player?.on("start", async (data) => {
 			this.handleTimerExist();
@@ -161,7 +160,7 @@ class MikaPlayer {
 	// Utils
 
 	public async leaveVoiceChannel() {
-		await this.client.shoukaku.leaveVoiceChannel(this.interaction.guild?.id!);
+		await this.client.shoukaku.leaveVoiceChannel(this.voice?.id!);
 	}
 
 	public async searchMusic(query: string, method: string) {
@@ -187,7 +186,7 @@ class MikaPlayer {
 		await this.player?.destroy();
 		this.player = undefined;
 		this.queue.destroy();
-		this.client.players.delete(this.guild);
+		this.client.players.delete(this.guild.id);
 	}
 
 	// Handles
