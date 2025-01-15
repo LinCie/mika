@@ -18,12 +18,12 @@ class Remove {
 	@Guard(DeferReply, IsInVoiceChannel, IsPlayerExist, IsPlayerCurrent)
 	async remove(
 		@SlashOption({
-			name: "query",
-			description: "The search query. Could be name or URL",
+			name: "position",
+			description: "The position of removed track",
 			required: true,
 			type: ApplicationCommandOptionType.Number,
 		})
-		index: number,
+		position: number,
 
 		interaction: CommandInteraction,
 		client: Mika,
@@ -31,9 +31,9 @@ class Remove {
 	) {
 		const { player, member } = data;
 
-		if (index > player.queue.getLength() || index < 0) {
+		if (position > player.queue.getLength() || position < 0) {
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				"Removed index is out of range",
+				"Removed position is out of range",
 				member,
 				EMBEDTYPE.ERROR,
 			);
@@ -43,8 +43,8 @@ class Remove {
 			});
 		}
 
-		const removedTrack = player.queue.getTrack(index - 1);
-		player.queue.removeTrack(index - 1);
+		const removedTrack = player.queue.getTrack(position - 1);
+		player.queue.removeTrack(position - 1);
 
 		const embed = client.embed.createMessageEmbedWithAuthor(
 			`🎶 **${removedTrack?.info.title}** has been sucessfully skipped 🎶`,
