@@ -47,7 +47,7 @@ class Remove {
 		player.queue.removeTrack(position - 1);
 
 		const embed = client.embed.createMessageEmbedWithAuthor(
-			`🎶 **${removedTrack?.info.title}** has been sucessfully skipped 🎶`,
+			`🎶 **${removedTrack?.info.title}** has been sucessfully removed 🎶`,
 			member,
 			EMBEDTYPE.SUCCESS,
 		);
