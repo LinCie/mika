@@ -1,5 +1,5 @@
-import { relations } from "drizzle-orm";
-import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import { integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
 	id: integer("id").primaryKey(),
@@ -14,6 +14,7 @@ export const playlists = pgTable("playlists", {
 	id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
 	ownerId: integer("owner_id").references(() => users.id),
 	name: varchar("name", { length: 255 }).notNull(),
+	list: text("list").array().notNull().default(sql`ARRAY[]::text[]`),
 });
 
 export const playlistsRelations = relations(playlists, ({ one }) => ({

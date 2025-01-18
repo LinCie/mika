@@ -1,0 +1,1 @@
+ALTER TABLE "playlists" ADD COLUMN "list" text[] DEFAULT ARRAY[]::text[] NOT NULL;
