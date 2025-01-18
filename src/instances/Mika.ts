@@ -1,7 +1,8 @@
 import { Client, type ClientOptions } from "discordx";
 import { Connectors, Shoukaku } from "shoukaku";
 import { pino, type BaseLogger } from "pino";
-import { NODE_ENV, lavalinkNodes } from "@/config";
+import { drizzle } from "drizzle-orm/neon-http";
+import { DATABASE_URL, NODE_ENV, lavalinkNodes } from "@/config";
 import type { PlayerManager } from "./manager/PlayerManager";
 import { EmbedManager } from "./manager/EmbedManager";
 import { InteractionManager } from "./manager/InteractionManager";
@@ -12,6 +13,7 @@ class Mika extends Client {
 	public readonly embed: EmbedManager;
 	public readonly interaction: InteractionManager;
 	public readonly players: Map<string, PlayerManager>;
+	public readonly db;
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -28,6 +30,9 @@ class Mika extends Client {
 		// Interaction
 		this.interaction = new InteractionManager();
 
+		// Database
+		this.db = drizzle(DATABASE_URL);
+
 		// Shoukaku
 		this.shoukaku = new Shoukaku(
 			new Connectors.DiscordJS(this),
@@ -42,7 +47,9 @@ class Mika extends Client {
 			},
 		);
 		this.shoukaku
-			.on("ready", (name) => this.pino.info(`Lavalink node ${name} is now ready <3`))
+			.on("ready", (name) =>
+				this.pino.info(`Lavalink node ${name} is now ready <3`),
+			)
 			.on("disconnect", (name) =>
 				this.pino.warn(`Lavalink node ${name} has been disconnected`),
 			)
