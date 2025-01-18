@@ -189,6 +189,10 @@ class PlayerManager {
 		this.client.players.delete(this.guild.id);
 	}
 
+	public async changeVolume(volume: number): Promise<void> {
+		await this.player?.setGlobalVolume(volume);
+	}
+
 	// Handles
 
 	private async handleLoopingCurrent(): Promise<void> {
