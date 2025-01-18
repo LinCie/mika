@@ -1,9 +1,9 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { pgTable, varchar } from "drizzle-orm/pg-core";
 import { playlists } from "./playlists";
 
 const users = pgTable("users", {
-	id: integer("id").primaryKey(),
+	id: varchar("id", { length: 255 }).primaryKey(),
 	username: varchar("username", { length: 255 }).notNull().unique(),
 });
 
