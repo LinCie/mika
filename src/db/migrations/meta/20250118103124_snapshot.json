@@ -1,6 +1,6 @@
 {
-  "id": "96cf8852-ce1c-4011-9d2c-201a0beb772c",
-  "prevId": "6da19f34-e2d6-474a-8182-0d27e0af1893",
+  "id": "9c2ae6a0-e440-4978-b940-18471ab70a3d",
+  "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -27,7 +27,7 @@
         },
         "owner_id": {
           "name": "owner_id",
-          "type": "integer",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
@@ -73,7 +73,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "varchar(255)",
           "primaryKey": true,
           "notNull": true
         },

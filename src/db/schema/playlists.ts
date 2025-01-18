@@ -4,7 +4,7 @@ import { users } from "./users";
 
 const playlists = pgTable("playlists", {
 	id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-	ownerId: integer("owner_id").references(() => users.id),
+	ownerId: varchar("owner_id", { length: 255 }).references(() => users.id),
 	name: varchar("name", { length: 255 }).notNull(),
 	list: text("list").array().notNull().default(sql`ARRAY[]::text[]`),
 });
