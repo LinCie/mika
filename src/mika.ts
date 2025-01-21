@@ -1,11 +1,12 @@
-import { GatewayIntentBits, Partials } from "discord.js";
+import { GatewayIntentBits } from "discord.js";
 import type { Interaction, Message } from "discord.js";
 import { dirname, importx } from "@discordx/importer";
+import { NotBot } from "@discordx/utilities";
 import { Mika } from "@/instances";
 import { DISCORD_TOKEN } from "./config";
+import { GuildOnly } from "./guards";
 
 const mika = new Mika({
-	partials: [Partials.Channel, Partials.GuildMember, Partials.User],
 	intents: [
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMessages,
@@ -18,6 +19,8 @@ const mika = new Mika({
 	simpleCommand: {
 		prefix: "mika!",
 	},
+
+	guards: [GuildOnly, NotBot],
 });
 
 mika.once("ready", async () => {
