@@ -14,3 +14,4 @@ export const DISCORD_TOKEN = Bun.env.DISCORD_TOKEN!;
 export const DEV_GUILD_ID = Bun.env.DEV_GUILD_ID!;
 export const BOT_CLIENT_ID = Bun.env.BOT_CLIENT_ID!;
 export const DATABASE_URL = Bun.env.DATABASE_URL!;
+export const OWNER_ID = Bun.env.OWNER_ID!;
