@@ -10,7 +10,7 @@ const GuildOnly: GuardFunction<CommandInteraction> = async (
 		interaction.reply("DM commands are not allowed");
 		return;
 	}
-	next();
+	await next();
 };
 
 export { GuildOnly };
