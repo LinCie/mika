@@ -33,6 +33,7 @@ class PlayerManager {
 	public voice: VoiceBasedChannel | undefined;
 	public state: PlayerState;
 	public loopState: LoopState;
+	public volume = 50;
 
 	constructor(client: Mika, interaction: CommandInteraction) {
 		this.client = client;
@@ -171,7 +172,7 @@ class PlayerManager {
 
 	public async playMusic(track: Track) {
 		await this.player?.playTrack({
-			volume: 50,
+			volume: this.volume,
 			track: { encoded: track.encoded },
 		});
 	}
@@ -190,6 +191,7 @@ class PlayerManager {
 	}
 
 	public async changeVolume(volume: number): Promise<void> {
+		this.volume = volume;
 		await this.player?.setGlobalVolume(volume);
 	}
 
