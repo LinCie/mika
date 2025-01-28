@@ -1,4 +1,4 @@
-import { GatewayIntentBits } from "discord.js";
+import { ActivityType, GatewayIntentBits } from "discord.js";
 import type { Interaction, Message } from "discord.js";
 import { dirname, importx } from "@discordx/importer";
 import { NotBot } from "@discordx/utilities";
@@ -39,6 +39,15 @@ mika.once("ready", async () => {
 	//  );
 
 	mika.pino.info("Mika is alive!");
+
+	// Presence
+	mika.user?.setPresence({
+		activities: [{
+			name: "/play",
+			type: ActivityType.Listening
+		}],
+		status: "online"
+	});
 });
 
 mika.on("interactionCreate", (interaction: Interaction) => {
