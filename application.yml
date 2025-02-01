@@ -19,7 +19,7 @@ plugins:
 lavalink:
   plugins:
     # Replace VERSION with the current version as shown by the Releases tab or a long commit hash for snapshots.
-    - dependency: "dev.lavalink.youtube:youtube-plugin:1.11.3"
+    - dependency: "dev.lavalink.youtube:youtube-plugin:1.11.4"
       snapshot: false # Set to true if you want to use a snapshot version.
     #  - dependency: "com.github.example:example-plugin:1.0.0" # required, the coordinates of your plugin
     #    repository: "https://maven.example.com/releases" # optional, defaults to the Lavalink releases repository by default
