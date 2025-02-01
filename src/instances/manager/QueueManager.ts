@@ -75,6 +75,7 @@ class QueueManager extends EventEmitter {
 	}
 
 	public removeTrack(index: number): void {
+		if (this.current >= index) this.current--;
 		this.queue.removeOne(index);
 	}
 
