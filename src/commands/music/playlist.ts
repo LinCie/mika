@@ -22,6 +22,7 @@ import {
 	IsInVoiceChannel,
 	IsPlayerExist,
 	IsPlayerCurrent,
+	IsPlayerInit,
 } from "@/guards";
 import { LoadType, type Track } from "shoukaku";
 
@@ -66,7 +67,7 @@ class Playlist {
 		}
 	}
 
-	@Slash({ description: "Create a playlist" })
+	@Slash({ description: "Add a music to playlist" })
 	@Guard(DeferReply, IsPlayerExist)
 	async add(
 		@SlashOption({
@@ -78,7 +79,7 @@ class Playlist {
 		name: string,
 
 		@SlashOption({
-			name: "name",
+			name: "url",
 			description: "The song url",
 			required: false,
 			type: ApplicationCommandOptionType.String,
@@ -156,6 +157,48 @@ class Playlist {
 
 			const embed = client.embed.createMessageEmbedWithAuthor(
 				"There is an error while adding music to playlist",
+				member,
+				EMBEDTYPE.ERROR,
+			);
+			await client.interaction.replyEmbed(interaction, embed);
+		}
+	}
+
+	@Slash({ description: "Play a playlist" })
+	@Guard(DeferReply, IsInVoiceChannel, IsPlayerInit, IsPlayerCurrent)
+	async play(
+		@SlashOption({
+			name: "name",
+			description: "The playlist name",
+			required: true,
+			type: ApplicationCommandOptionType.String,
+		})
+		name: string,
+
+		interaction: CommandInteraction,
+		client: Mika,
+		data: { player: PlayerManager; member: GuildMember },
+	) {
+		const { player, member } = data;
+
+		try {
+			const playlist = await client.playlist.getPlaylistByName(name);
+
+			for (const song of playlist.songs) {
+				await player.addMusic(song, "", member, true);
+			}
+
+			const embed = client.embed.createMessageEmbedWithAuthor(
+				`\'${playlist.name}\' has been added to queue`,
+				member,
+				EMBEDTYPE.SUCCESS,
+			);
+			await client.interaction.replyEmbed(interaction, embed);
+		} catch (error) {
+			client.pino.error(error);
+
+			const embed = client.embed.createMessageEmbedWithAuthor(
+				"There is an error while adding playlist to queue",
 				member,
 				EMBEDTYPE.ERROR,
 			);
