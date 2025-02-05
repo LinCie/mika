@@ -1,6 +1,6 @@
 import type { GuildMember } from "discord.js";
 import type { Track } from "shoukaku";
-import { sql, type Insertable, type Selectable } from "kysely";
+import { sql, type Insertable, type Selectable, type Updateable } from "kysely";
 import type { Playlist } from "@/db";
 import type { Mika } from "../Mika";
 
@@ -50,15 +50,13 @@ class PlaylistManager {
 	}
 
 	public async addTrackToPlaylist(
-		track: Track,
-		playlistId: number,
-		member: GuildMember,
+		id: number,
+		playlist: Updateable<Playlist>,
 	): Promise<Selectable<Playlist>> {
 		return this.client.db
 			.updateTable("Playlist")
-			.set({ songs: sql`array_append(songs, \'${track.info.uri}\')` })
-			.where("userId", "=", member.user.id)
-			.where("id", "=", playlistId)
+			.set(playlist)
+			.where("id", "=", id)
 			.returningAll()
 			.executeTakeFirstOrThrow();
 	}
