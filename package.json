@@ -37,7 +37,9 @@
 		"dev:conc": "NODE_ENV=development concurrently \"bun dev\" \"bun lava\"",
 		"build": "bun build src/mika.ts --outdir ./dist --target node",
 		"serve": "NODE_ENV=production bun run ./dist/mika.js | pino-pretty",
-		"serve:conc": "NODE_ENV=production concurrently \"bun serve\" \"bun lava\""
+		"serve:conc": "NODE_ENV=production concurrently \"bun serve\" \"bun lava\"",
+		"prisma:migrate": "prisma migrate dev",
+		"prisma:generate": "prisma generate"
 	},
 	"trustedDependencies": [
 		"@biomejs/biome",
