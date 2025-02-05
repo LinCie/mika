@@ -1,2 +1,2 @@
-export * from "./schema/users";
-export * from "./schema/playlists";
+export * from "./database";
+export * from "./types";

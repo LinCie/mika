@@ -1,8 +1,8 @@
 import type { GuildMember } from "discord.js";
 import type { Track } from "shoukaku";
+import { sql, type Insertable, type Selectable } from "kysely";
+import type { Playlist } from "@/db";
 import type { Mika } from "../Mika";
-import { playlists, type NewPlaylist, type Playlist } from "@/db";
-import { eq } from "drizzle-orm";
 
 class PlaylistManager {
 	private readonly client: Mika;
@@ -11,33 +11,56 @@ class PlaylistManager {
 		this.client = client;
 	}
 
-	public createPlaylist(name: string, member: GuildMember) {
-		const playlist: NewPlaylist = { name, ownerId: member.id };
-		return this.client.db.insert(playlists).values(playlist).returning();
+	public createPlaylist(
+		name: string,
+		member: GuildMember,
+	): Promise<Selectable<Playlist>> {
+		const playlist: Insertable<Playlist> = { userId: member.id, name };
+		return this.client.db
+			.insertInto("Playlist")
+			.values(playlist)
+			.returningAll()
+			.executeTakeFirstOrThrow();
 	}
 
-	public async getPlaylist(playlistId: number) {
-		const result = await this.client.db
-			.select()
-			.from(playlists)
-			.where(eq(playlists.id, playlistId));
-		return result.shift();
+	public async getPlaylistByName(name: string): Promise<Selectable<Playlist>> {
+		return this.client.db
+			.selectFrom("Playlist")
+			.where("name", "=", name)
+			.selectAll()
+			.executeTakeFirstOrThrow();
+	}
+
+	public async getPlaylistById(id: number): Promise<Selectable<Playlist>> {
+		return this.client.db
+			.selectFrom("Playlist")
+			.where("id", "=", id)
+			.selectAll()
+			.executeTakeFirstOrThrow();
+	}
+
+	public async getUserPlaylists(
+		member: GuildMember,
+	): Promise<Selectable<Playlist>[]> {
+		return this.client.db
+			.selectFrom("Playlist")
+			.where("userId", "=", member.user.id)
+			.selectAll()
+			.execute();
 	}
 
 	public async addTrackToPlaylist(
 		track: Track,
 		playlistId: number,
 		member: GuildMember,
-	) {
-		const playlist = await this.getPlaylist(playlistId);
-		if (!playlist) return;
-		if (playlist.ownerId !== member.id) return;
-
-		const newPlaylist = [...playlist.list, track.info.uri!];
+	): Promise<Selectable<Playlist>> {
 		return this.client.db
-			.update(playlists)
-			.set({ list: newPlaylist })
-			.where(eq(playlists.id, playlistId));
+			.updateTable("Playlist")
+			.set({ songs: sql`array_append(songs, \'${track.info.uri}\')` })
+			.where("userId", "=", member.user.id)
+			.where("id", "=", playlistId)
+			.returningAll()
+			.executeTakeFirstOrThrow();
 	}
 }
 
