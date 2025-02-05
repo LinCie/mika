@@ -13,7 +13,7 @@ export const apps = [
 	{
 		name: "lavalink",
 		script: "java",
-		args: "-Xms256M -Xmx512M -jar lavalink/Lavalink.jar",
+		args: "-jar lavalink/Lavalink.jar",
 		max_memory_restart: "500M",
 		watch: false,
 		autorestart: true,
