@@ -7,6 +7,7 @@ import { db, type DB } from "@/db";
 import type { PlayerManager } from "./manager/PlayerManager";
 import { EmbedManager } from "./manager/EmbedManager";
 import { InteractionManager } from "./manager/InteractionManager";
+import { PlaylistManager } from "./manager/PlaylistManager";
 
 class Mika extends Client {
 	public readonly shoukaku: Shoukaku;
@@ -15,6 +16,7 @@ class Mika extends Client {
 	public readonly interaction: InteractionManager;
 	public readonly players: Map<string, PlayerManager>;
 	public readonly db: Kysely<DB>;
+	public readonly playlist: PlaylistManager;
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -33,6 +35,9 @@ class Mika extends Client {
 
 		// Database
 		this.db = db;
+
+		// Playlist
+		this.playlist = new PlaylistManager(this);
 
 		// Shoukaku
 		this.shoukaku = new Shoukaku(
