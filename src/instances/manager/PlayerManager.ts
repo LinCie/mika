@@ -5,7 +5,12 @@ import type {
 	TextChannel,
 	VoiceBasedChannel,
 } from "discord.js";
-import type { Player, Track, TrackStartEvent } from "shoukaku";
+import {
+	LoadType,
+	type Player,
+	type Track,
+	type TrackStartEvent,
+} from "shoukaku";
 import type { Mika } from "../Mika";
 import { QueueManager, QueueEvents } from "./QueueManager";
 import { EMBEDTYPE } from "./EmbedManager";
@@ -193,6 +198,84 @@ class PlayerManager {
 	public async changeVolume(volume: number): Promise<void> {
 		this.volume = volume;
 		await this.player?.setGlobalVolume(volume);
+	}
+
+	public async addMusic(
+		query: string,
+		method: string,
+		member: GuildMember,
+		playlist?: boolean,
+	) {
+		const result = await this.searchMusic(query, method);
+
+		switch (result?.loadType) {
+			case LoadType.SEARCH: {
+				const track = result.data.shift();
+				if (track) {
+					this.queue.addTrack(track);
+					if (!playlist) {
+						const embed = this.client.embed.createAddTrackEmbed(track, member);
+						await this.client.interaction.sendEmbed(this.channel, embed);
+					}
+				}
+				break;
+			}
+
+			case LoadType.TRACK: {
+				const track = result.data;
+				if (track) {
+					this.queue.addTrack(track);
+					if (!playlist) {
+						const embed = this.client.embed.createAddTrackEmbed(track, member);
+						await this.client.interaction.sendEmbed(this.channel, embed);
+					}
+				}
+				break;
+			}
+
+			case LoadType.PLAYLIST: {
+				const tracks = result.data.tracks;
+				if (tracks) {
+					this.queue.addTracks(tracks);
+					if (!playlist) {
+						const embed = this.client.embed.createAddPlaylistEmbed(
+							tracks,
+							result,
+							member,
+						);
+						await this.client.interaction.sendEmbed(this.channel, embed);
+					}
+				}
+				break;
+			}
+
+			case LoadType.EMPTY: {
+				if (!playlist) {
+					const embed = this.client.embed.createMessageEmbed(
+						`No result found with query "${query}"`,
+						EMBEDTYPE.ERROR,
+					);
+					await this.client.interaction.sendEmbed(this.channel, embed, {
+						ephemeral: true,
+					});
+				}
+				break;
+			}
+
+			case LoadType.ERROR: {
+				if (!playlist) {
+					const embed = this.client.embed.createMessageEmbed(
+						"An error had occured. Please try again later </3",
+						EMBEDTYPE.ERROR,
+					);
+					await this.client.interaction.sendEmbed(this.channel, embed, {
+						ephemeral: true,
+					});
+					this.client.pino.error(result.data.message, result.data.cause);
+				}
+				break;
+			}
+		}
 	}
 
 	// Handles
