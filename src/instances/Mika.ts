@@ -31,7 +31,7 @@ class Mika extends Client {
 		this.embed = new EmbedManager();
 
 		// Interaction
-		this.interaction = new InteractionManager();
+		this.interaction = new InteractionManager(this);
 
 		// Database
 		this.db = db;
