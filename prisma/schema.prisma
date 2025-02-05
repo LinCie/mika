@@ -14,16 +14,9 @@ generator kysely {
   enumFileName = "enums.ts"
 }
 
-model User {
-  id       String     @id @db.VarChar(255)
-  username String     @unique @db.VarChar(255)
-  Playlist Playlist[]
-}
-
 model Playlist {
-  id     Int   @id @default(autoincrement())
+  id     Int      @id @default(autoincrement())
   userId String   @db.VarChar(255)
   name   String   @unique @db.VarChar(255)
   songs  String[] @default([])
-  users  User     @relation(fields: [userId], references: [id])
 }
