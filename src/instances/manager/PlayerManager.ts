@@ -204,6 +204,7 @@ class PlayerManager {
 		query: string,
 		method: string,
 		member: GuildMember,
+		interaction: CommandInteraction,
 		playlist?: boolean,
 	) {
 		const result = await this.searchMusic(query, method);
@@ -215,7 +216,7 @@ class PlayerManager {
 					this.queue.addTrack(track);
 					if (!playlist) {
 						const embed = this.client.embed.createAddTrackEmbed(track, member);
-						await this.client.interaction.sendEmbed(this.channel, embed);
+						await this.client.interaction.replyEmbed(interaction, embed);
 					}
 				}
 				break;
@@ -227,7 +228,7 @@ class PlayerManager {
 					this.queue.addTrack(track);
 					if (!playlist) {
 						const embed = this.client.embed.createAddTrackEmbed(track, member);
-						await this.client.interaction.sendEmbed(this.channel, embed);
+						await this.client.interaction.replyEmbed(interaction, embed);
 					}
 				}
 				break;
@@ -243,7 +244,7 @@ class PlayerManager {
 							result,
 							member,
 						);
-						await this.client.interaction.sendEmbed(this.channel, embed);
+						await this.client.interaction.replyEmbed(interaction, embed);
 					}
 				}
 				break;
@@ -255,7 +256,7 @@ class PlayerManager {
 						`⛔ No result found with query **${query}** ⛔`,
 						EMBEDTYPE.ERROR,
 					);
-					await this.client.interaction.sendEmbed(this.channel, embed, {
+					await this.client.interaction.replyEmbed(interaction, embed, {
 						ephemeral: true,
 					});
 				}
@@ -268,7 +269,7 @@ class PlayerManager {
 						"⛔ An error had occured. Please try again later </3 ⛔",
 						EMBEDTYPE.ERROR,
 					);
-					await this.client.interaction.sendEmbed(this.channel, embed, {
+					await this.client.interaction.replyEmbed(interaction, embed, {
 						ephemeral: true,
 					});
 					this.client.pino.error(result.data.message, result.data.cause);
