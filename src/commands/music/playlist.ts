@@ -3,20 +3,8 @@ import {
 	type CommandInteraction,
 	ApplicationCommandOptionType,
 } from "discord.js";
-import {
-	Discord,
-	Guard,
-	Slash,
-	SlashChoice,
-	SlashGroup,
-	SlashOption,
-} from "discordx";
-import {
-	EMBEDTYPE,
-	LoopState,
-	type Mika,
-	type PlayerManager,
-} from "@/instances";
+import { Discord, Guard, Slash, SlashGroup, SlashOption } from "discordx";
+import { EMBEDTYPE, type Mika, type PlayerManager } from "@/instances";
 import {
 	DeferReply,
 	IsInVoiceChannel,
