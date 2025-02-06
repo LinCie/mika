@@ -18,6 +18,9 @@ import { LoadType, type Track } from "shoukaku";
 @SlashGroup({ name: "playlist", description: "Playlist Manager" })
 @SlashGroup("playlist")
 class Playlist {
+	/**
+	 *	Create playlist command
+	 */
 	@Slash({ description: "Create a playlist" })
 	@Guard(DeferReply)
 	async create(
@@ -38,7 +41,7 @@ class Playlist {
 			const playlist = await client.playlist.createPlaylist(name, member);
 
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				`Created playlist with name \'${playlist.name}\'`,
+				`🎶 Playlist **${playlist.name}** has been created 🎶`,
 				member,
 				EMBEDTYPE.SUCCESS,
 			);
@@ -47,14 +50,19 @@ class Playlist {
 			client.pino.error(error);
 
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				"There is an error while adding playlist",
+				"⛔ There is an error while adding playlist ⛔",
 				member,
 				EMBEDTYPE.ERROR,
 			);
-			await client.interaction.replyEmbed(interaction, embed);
+			await client.interaction.replyEmbed(interaction, embed, {
+				ephemeral: true,
+			});
 		}
 	}
 
+	/**
+	 *	Add music to playlist command
+	 */
 	@Slash({ description: "Add a music to playlist" })
 	@Guard(DeferReply, IsPlayerExist)
 	async add(
@@ -103,11 +111,13 @@ class Playlist {
 
 			if (playlist.userId !== member.user.id) {
 				const embed = client.embed.createMessageEmbedWithAuthor(
-					"You're not the owner of this playlist",
+					"⛔ You're not the owner of this playlist ⛔",
 					member,
 					EMBEDTYPE.ERROR,
 				);
-				await client.interaction.replyEmbed(interaction, embed);
+				await client.interaction.replyEmbed(interaction, embed, {
+					ephemeral: true,
+				});
 				return;
 			}
 
@@ -127,14 +137,14 @@ class Playlist {
 
 			if (Array.isArray(song)) {
 				const embed = client.embed.createMessageEmbedWithAuthor(
-					`Successfully added your playlist to playlist \'${playlist.name}\'`,
+					`🎶 Musics has been added to playlist **${playlist.name}** 🎶`,
 					member,
 					EMBEDTYPE.SUCCESS,
 				);
 				await client.interaction.replyEmbed(interaction, embed);
 			} else {
 				const embed = client.embed.createMessageEmbedWithAuthor(
-					`Successfully added ${song} to playlist \'${playlist.name}\'`,
+					`🎶 **${song.info.title}** has been added to playlist **${playlist.name}** 🎶`,
 					member,
 					EMBEDTYPE.SUCCESS,
 				);
@@ -144,14 +154,19 @@ class Playlist {
 			client.pino.error(error);
 
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				"There is an error while adding music to playlist",
+				"⛔ There is an error while adding music to playlist ⛔",
 				member,
 				EMBEDTYPE.ERROR,
 			);
-			await client.interaction.replyEmbed(interaction, embed);
+			await client.interaction.replyEmbed(interaction, embed, {
+				ephemeral: true,
+			});
 		}
 	}
 
+	/**
+	 *	Play a playlist command
+	 */
 	@Slash({ description: "Play a playlist" })
 	@Guard(DeferReply, IsInVoiceChannel, IsPlayerInit, IsPlayerCurrent)
 	async play(
@@ -177,7 +192,7 @@ class Playlist {
 			}
 
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				`\'${playlist.name}\' has been added to queue`,
+				`🎶 Playlist **${playlist.name}** has been added to queue 🎶`,
 				member,
 				EMBEDTYPE.SUCCESS,
 			);
@@ -186,11 +201,13 @@ class Playlist {
 			client.pino.error(error);
 
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				"There is an error while adding playlist to queue",
+				"⛔ There is an error while adding playlist to queue ⛔",
 				member,
 				EMBEDTYPE.ERROR,
 			);
-			await client.interaction.replyEmbed(interaction, embed);
+			await client.interaction.replyEmbed(interaction, embed, {
+				ephemeral: true,
+			});
 		}
 	}
 }
