@@ -1,7 +1,6 @@
 import {
 	type GuildMember,
 	type CommandInteraction,
-	type EmbedBuilder,
 	ApplicationCommandOptionType,
 } from "discord.js";
 import { Discord, Guard, Slash, SlashOption } from "discordx";
@@ -34,7 +33,7 @@ class Volume {
 
 		if (volume < 0) {
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				"Volume should not be less than 0",
+				"⛔ Volume should not be less than **0** ⛔",
 				member,
 				EMBEDTYPE.ERROR,
 			);
@@ -44,7 +43,7 @@ class Volume {
 
 		if (volume > 1000) {
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				"Volume should not exceed 1000",
+				"⛔ Volume should not exceed **1000** ⛔",
 				member,
 				EMBEDTYPE.ERROR,
 			);
@@ -55,7 +54,7 @@ class Volume {
 		await player.changeVolume(volume);
 
 		const embed = client.embed.createMessageEmbedWithAuthor(
-			`Volume has been successfully changed to ${volume}`,
+			`🎶 Volume has been successfully changed to **${volume}** 🎶`,
 			member,
 			EMBEDTYPE.SUCCESS,
 		);

@@ -81,7 +81,7 @@ class EmbedManager {
 
 	public createAddTrackEmbed(track: Track, member: GuildMember): EmbedBuilder {
 		return new EmbedBuilder()
-			.setColor(COLORS.GLOBAL)
+			.setColor(COLORS.SUCCESS)
 			.setAuthor({
 				name: member.displayName,
 				iconURL: member.displayAvatarURL(),
@@ -114,7 +114,7 @@ class EmbedManager {
 		member: GuildMember,
 	) {
 		return new EmbedBuilder()
-			.setColor(COLORS.GLOBAL)
+			.setColor(COLORS.SUCCESS)
 			.setAuthor({
 				name: member.displayName,
 				iconURL: member.displayAvatarURL(),

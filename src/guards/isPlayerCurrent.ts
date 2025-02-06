@@ -14,7 +14,7 @@ const IsPlayerCurrent: GuardFunction<CommandInteraction> = async (
 
 	if (player?.voice?.id !== member.voice.channel?.id) {
 		const embed = mika.embed.createMessageEmbedWithAuthor(
-			"You're currently not in the same voice channel with the player",
+			"⛔ You're currently not in the same voice channel with the player ⛔",
 			member,
 			EMBEDTYPE.ERROR,
 		);

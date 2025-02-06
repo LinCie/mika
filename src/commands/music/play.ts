@@ -1,6 +1,5 @@
 import {
 	ApplicationCommandOptionType,
-	EmbedBuilder,
 	type GuildMember,
 	type CommandInteraction,
 } from "discord.js";
@@ -50,7 +49,7 @@ class Play {
 		} catch (error) {
 			client.pino.error(error);
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				"There is an error while trying to play music",
+				"⛔ There is an error while trying to play music ⛔",
 				member,
 				EMBEDTYPE.ERROR,
 			);

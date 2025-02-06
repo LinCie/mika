@@ -14,7 +14,7 @@ const IsPlayerExist: GuardFunction<CommandInteraction> = async (
 
 	if (!player) {
 		const embed = mika.embed.createMessageEmbedWithAuthor(
-			"There is no active player in this server",
+			"⛔ There is no active player in this server ⛔",
 			member,
 			EMBEDTYPE.ERROR,
 		);
