@@ -188,7 +188,7 @@ class Playlist {
 			const playlist = await client.playlist.getPlaylistByName(name);
 
 			for (const song of playlist.songs) {
-				await player.addMusic(song, "", member, true);
+				await player.addMusic(song, "", member, interaction, true);
 			}
 
 			const embed = client.embed.createMessageEmbedWithAuthor(
