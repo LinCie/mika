@@ -33,7 +33,7 @@ class Remove {
 
 		if (position > player.queue.getLength() || position < 0) {
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				"Removed position is out of range",
+				"⛔ Removed position is out of range ⛔",
 				member,
 				EMBEDTYPE.ERROR,
 			);

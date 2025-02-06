@@ -1,3 +1,5 @@
+import type { GuildMember, CommandInteraction } from "discord.js";
+import { Discord, Guard, Slash } from "discordx";
 import {
 	DeferReply,
 	IsInVoiceChannel,
@@ -5,8 +7,6 @@ import {
 	IsPlayerCurrent,
 } from "@/guards";
 import { PlayerState, type Mika, type PlayerManager } from "@/instances";
-import type { GuildMember, CommandInteraction } from "discord.js";
-import { Discord, Guard, Slash } from "discordx";
 
 @Discord()
 class Stop {

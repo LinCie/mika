@@ -252,7 +252,7 @@ class PlayerManager {
 			case LoadType.EMPTY: {
 				if (!playlist) {
 					const embed = this.client.embed.createMessageEmbed(
-						`No result found with query "${query}"`,
+						`⛔ No result found with query **${query}** ⛔`,
 						EMBEDTYPE.ERROR,
 					);
 					await this.client.interaction.sendEmbed(this.channel, embed, {
@@ -265,7 +265,7 @@ class PlayerManager {
 			case LoadType.ERROR: {
 				if (!playlist) {
 					const embed = this.client.embed.createMessageEmbed(
-						"An error had occured. Please try again later </3",
+						"⛔ An error had occured. Please try again later </3 ⛔",
 						EMBEDTYPE.ERROR,
 					);
 					await this.client.interaction.sendEmbed(this.channel, embed, {
@@ -300,7 +300,7 @@ class PlayerManager {
 		} else {
 			const time = `<t:${Math.floor(Date.now() / 1000) + 120}:R>`;
 			const embed = this.client.embed.createMessageEmbed(
-				`🎶 Queue is currently empty, leaving voice channel ${time} if no new track is added 🎶`,
+				`⚠️ Queue is currently empty, leaving voice channel ${time} if no new track is added ⚠️`,
 				EMBEDTYPE.WARNING,
 			);
 

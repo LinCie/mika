@@ -13,7 +13,7 @@ const IsInVoiceChannel: GuardFunction<CommandInteraction> = async (
 
 	if (!member.voice.channel) {
 		const embed = mika.embed.createMessageEmbedWithAuthor(
-			"You're currently not in a voice channel!",
+			"⛔ You're currently not in a voice channel! ⛔",
 			member,
 			EMBEDTYPE.ERROR,
 		);

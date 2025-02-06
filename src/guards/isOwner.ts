@@ -13,7 +13,7 @@ const IsOwner: GuardFunction<CommandInteraction> = async (
 	const member = data.member || (interaction.member as GuildMember);
 	if (interaction.user.id !== OWNER_ID) {
 		const embed = mika.embed.createMessageEmbedWithAuthor(
-			"This is a developer only commands",
+			"⛔ This is a developer only commands ⛔",
 			member,
 			EMBEDTYPE.ERROR,
 		);

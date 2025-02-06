@@ -1,14 +1,20 @@
+import type { CommandInteraction, GuildMember } from "discord.js";
+import { Discord, Guard, Slash } from "discordx";
 import { DeferReply } from "@/guards";
 import { EMBEDTYPE, type Mika } from "@/instances";
-import type { CommandInteraction } from "discord.js";
-import { Discord, Guard, Slash } from "discordx";
 
 @Discord()
 class Ping {
 	@Slash({ description: "ping" })
 	@Guard(DeferReply)
 	async ping(interaction: CommandInteraction, client: Mika): Promise<void> {
-		const embed = client.embed.createMessageEmbed("Pong!", EMBEDTYPE.GLOBAL);
+		const member = interaction.member as GuildMember;
+
+		const embed = client.embed.createMessageEmbedWithAuthor(
+			"Pong!",
+			member,
+			EMBEDTYPE.GLOBAL,
+		);
 		await client.interaction.replyEmbed(interaction, embed, {
 			ephemeral: false,
 		});

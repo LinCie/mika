@@ -4,7 +4,12 @@ import {
 	IsPlayerExist,
 	IsPlayerCurrent,
 } from "@/guards";
-import { EMBEDTYPE, LoopState, type Mika, type PlayerManager } from "@/instances";
+import {
+	EMBEDTYPE,
+	LoopState,
+	type Mika,
+	type PlayerManager,
+} from "@/instances";
 import type { GuildMember, CommandInteraction } from "discord.js";
 import { Discord, Guard, Slash } from "discordx";
 
@@ -21,7 +26,7 @@ class Skip {
 
 		if (!player.queue.getNext() && player.loopState === LoopState.LoopingNone) {
 			const embed = client.embed.createMessageEmbedWithAuthor(
-				"There is no more track in queue",
+				"⛔ There is no more track in queue ⛔",
 				member,
 				EMBEDTYPE.ERROR,
 			);
