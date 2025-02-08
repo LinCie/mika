@@ -3,11 +3,11 @@ import { Connectors, Shoukaku } from "shoukaku";
 import type { Kysely } from "kysely";
 import { pino, type BaseLogger } from "pino";
 import { NODE_ENV, lavalinkNodes } from "@/config";
-import { db, type DB } from "@/db";
 import type { PlayerManager } from "./manager/PlayerManager";
 import { EmbedManager } from "./manager/EmbedManager";
 import { InteractionManager } from "./manager/InteractionManager";
 import { PlaylistManager } from "./manager/PlaylistManager";
+import { prisma } from "@/db/database";
 
 class Mika extends Client {
 	public readonly shoukaku: Shoukaku;
@@ -15,8 +15,8 @@ class Mika extends Client {
 	public readonly embed: EmbedManager;
 	public readonly interaction: InteractionManager;
 	public readonly players: Map<string, PlayerManager>;
-	public readonly db: Kysely<DB>;
 	public readonly playlist: PlaylistManager;
+	public readonly prisma;
 
 	constructor(options: ClientOptions) {
 		super(options);
@@ -34,7 +34,7 @@ class Mika extends Client {
 		this.interaction = new InteractionManager(this);
 
 		// Database
-		this.db = db;
+		this.prisma = prisma;
 
 		// Playlist
 		this.playlist = new PlaylistManager(this);
