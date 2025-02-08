@@ -46,6 +46,10 @@ class PlaylistManager {
 			data: playlist,
 		});
 	}
+
+	public async deletePlaylist(name: string) {
+		return this.prisma.playlist.delete({ where: { name } });
+	}
 }
 
 export { PlaylistManager };
