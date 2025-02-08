@@ -203,21 +203,18 @@ class PlayerManager {
 	public async addMusic(
 		query: string,
 		method: string,
-		member: GuildMember,
 		interaction: CommandInteraction,
-		playlist?: boolean,
 	) {
 		const result = await this.searchMusic(query, method);
+		const member = interaction.member as GuildMember;
 
 		switch (result?.loadType) {
 			case LoadType.SEARCH: {
 				const track = result.data.shift();
 				if (track) {
 					this.queue.addTrack(track);
-					if (!playlist) {
-						const embed = this.client.embed.createAddTrackEmbed(track, member);
-						await this.client.interaction.replyEmbed(interaction, embed);
-					}
+					const embed = this.client.embed.createAddTrackEmbed(track, member);
+					await this.client.interaction.replyEmbed(interaction, embed);
 				}
 				break;
 			}
@@ -226,10 +223,8 @@ class PlayerManager {
 				const track = result.data;
 				if (track) {
 					this.queue.addTrack(track);
-					if (!playlist) {
-						const embed = this.client.embed.createAddTrackEmbed(track, member);
-						await this.client.interaction.replyEmbed(interaction, embed);
-					}
+					const embed = this.client.embed.createAddTrackEmbed(track, member);
+					await this.client.interaction.replyEmbed(interaction, embed);
 				}
 				break;
 			}
@@ -238,42 +233,36 @@ class PlayerManager {
 				const tracks = result.data.tracks;
 				if (tracks) {
 					this.queue.addTracks(tracks);
-					if (!playlist) {
-						const embed = this.client.embed.createAddPlaylistEmbed(
-							tracks,
-							result,
-							member,
-						);
-						await this.client.interaction.replyEmbed(interaction, embed);
-					}
+					const embed = this.client.embed.createAddPlaylistEmbed(
+						tracks,
+						result,
+						member,
+					);
+					await this.client.interaction.replyEmbed(interaction, embed);
 				}
 				break;
 			}
 
 			case LoadType.EMPTY: {
-				if (!playlist) {
-					const embed = this.client.embed.createMessageEmbed(
-						`⛔ No result found with query **${query}** ⛔`,
-						EMBEDTYPE.ERROR,
-					);
-					await this.client.interaction.replyEmbed(interaction, embed, {
-						ephemeral: true,
-					});
-				}
+				const embed = this.client.embed.createMessageEmbed(
+					`⛔ No result found with query **${query}** ⛔`,
+					EMBEDTYPE.ERROR,
+				);
+				await this.client.interaction.replyEmbed(interaction, embed, {
+					ephemeral: true,
+				});
 				break;
 			}
 
 			case LoadType.ERROR: {
-				if (!playlist) {
-					const embed = this.client.embed.createMessageEmbed(
-						"⛔ An error had occured. Please try again later </3 ⛔",
-						EMBEDTYPE.ERROR,
-					);
-					await this.client.interaction.replyEmbed(interaction, embed, {
-						ephemeral: true,
-					});
-					this.client.pino.error(result.data.message, result.data.cause);
-				}
+				const embed = this.client.embed.createMessageEmbed(
+					"⛔ An error had occured. Please try again later </3 ⛔",
+					EMBEDTYPE.ERROR,
+				);
+				await this.client.interaction.replyEmbed(interaction, embed, {
+					ephemeral: true,
+				});
+				this.client.pino.error(result.data.message, result.data.cause);
 				break;
 			}
 		}

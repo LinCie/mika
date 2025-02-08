@@ -1,6 +1,7 @@
 import {
 	type GuildMember,
 	type CommandInteraction,
+	type EmbedBuilder,
 	ApplicationCommandOptionType,
 } from "discord.js";
 import { Discord, Guard, Slash, SlashGroup, SlashOption } from "discordx";
@@ -13,6 +14,7 @@ import {
 	IsPlayerInit,
 } from "@/guards";
 import { LoadType, type Track } from "shoukaku";
+import { Prisma } from "@prisma/client";
 
 @Discord()
 @SlashGroup({ name: "playlist", description: "Playlist Manager" })
@@ -38,7 +40,10 @@ class Playlist {
 		const member = interaction.member as GuildMember;
 
 		try {
-			const playlist = await client.playlist.createPlaylist(name, member);
+			const playlist = await client.playlist.createPlaylist(
+				name.toLowerCase(),
+				member,
+			);
 
 			const embed = client.embed.createMessageEmbedWithAuthor(
 				`🎶 Playlist **${playlist.name}** has been created 🎶`,
@@ -49,11 +54,22 @@ class Playlist {
 		} catch (error) {
 			client.pino.error(error);
 
-			const embed = client.embed.createMessageEmbedWithAuthor(
-				"⛔ There is an error while adding playlist ⛔",
+			let embed: EmbedBuilder = client.embed.createMessageEmbedWithAuthor(
+				`⛔ There is an error while trying to create playlist **${name}** ⛔`,
 				member,
 				EMBEDTYPE.ERROR,
 			);
+
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				if (error.code === "SQLITE_CONSTRAINT") {
+					embed = client.embed.createMessageEmbedWithAuthor(
+						"⛔ Playlist name must be unique ⛔",
+						member,
+						EMBEDTYPE.ERROR,
+					);
+				}
+			}
+
 			await client.interaction.replyEmbed(interaction, embed, {
 				ephemeral: true,
 			});
@@ -76,7 +92,7 @@ class Playlist {
 
 		@SlashOption({
 			name: "url",
-			description: "The song url",
+			description: "The music url",
 			required: false,
 			type: ApplicationCommandOptionType.String,
 		})
@@ -89,29 +105,31 @@ class Playlist {
 		const { player, member } = data;
 
 		try {
-			let song: Track | Track[] | undefined;
+			let music: Track | Track[] | undefined;
 			if (!url) {
-				song = player.queue.getCurrent();
+				music = player.queue.getCurrent();
 			} else {
 				const result = await player.searchMusic(url, "url");
 
 				switch (result?.loadType) {
 					case LoadType.TRACK:
-						song = result.data;
+						music = result.data;
 						break;
 					case LoadType.PLAYLIST:
-						song = result.data.tracks;
+						music = result.data.tracks;
 						break;
 					default:
 						throw new Error("Invalid URL");
 				}
 			}
 
-			const playlist = await client.playlist.getPlaylistByName(name);
+			const playlist = await client.playlist.getPlaylistByName(
+				name.toLowerCase(),
+			);
 
 			if (playlist.userId !== member.user.id) {
 				const embed = client.embed.createMessageEmbedWithAuthor(
-					"⛔ You're not the owner of this playlist ⛔",
+					`⛔ You're not the owner of playlist **${name}** ⛔`,
 					member,
 					EMBEDTYPE.ERROR,
 				);
@@ -121,21 +139,26 @@ class Playlist {
 				return;
 			}
 
-			if (!song) {
+			if (!music) {
 				throw new Error("Empty result");
 			}
 
-			if (Array.isArray(song)) {
-				for (const track of song) {
-					playlist.songs.push(track.info.uri!);
+			const musics: Track[] = JSON.parse(playlist.musics);
+
+			if (Array.isArray(music)) {
+				for (const track of music) {
+					musics.push(track);
 				}
 			} else {
-				playlist.songs.push(song.info.uri!);
+				musics.push(music);
 			}
 
-			await client.playlist.addTrackToPlaylist(playlist.id, playlist);
+			await client.playlist.addTrackToPlaylist(playlist.id, {
+				...playlist,
+				musics: JSON.stringify(musics),
+			});
 
-			if (Array.isArray(song)) {
+			if (Array.isArray(music)) {
 				const embed = client.embed.createMessageEmbedWithAuthor(
 					`🎶 Musics has been added to playlist **${playlist.name}** 🎶`,
 					member,
@@ -144,7 +167,7 @@ class Playlist {
 				await client.interaction.replyEmbed(interaction, embed);
 			} else {
 				const embed = client.embed.createMessageEmbedWithAuthor(
-					`🎶 **${song.info.title}** has been added to playlist **${playlist.name}** 🎶`,
+					`🎶 **${music.info.title}** has been added to playlist **${playlist.name}** 🎶`,
 					member,
 					EMBEDTYPE.SUCCESS,
 				);
@@ -153,11 +176,22 @@ class Playlist {
 		} catch (error) {
 			client.pino.error(error);
 
-			const embed = client.embed.createMessageEmbedWithAuthor(
-				"⛔ There is an error while adding music to playlist ⛔",
+			let embed: EmbedBuilder = client.embed.createMessageEmbedWithAuthor(
+				`⛔ There is an error while trying to add music to playlist **${name}** ⛔`,
 				member,
 				EMBEDTYPE.ERROR,
 			);
+
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				if (error.code === "P2025") {
+					embed = client.embed.createMessageEmbedWithAuthor(
+						`⛔ Playlist **${name}** doesn't exist ⛔`,
+						member,
+						EMBEDTYPE.ERROR,
+					);
+				}
+			}
+
 			await client.interaction.replyEmbed(interaction, embed, {
 				ephemeral: true,
 			});
@@ -185,11 +219,12 @@ class Playlist {
 		const { player, member } = data;
 
 		try {
-			const playlist = await client.playlist.getPlaylistByName(name);
+			const playlist = await client.playlist.getPlaylistByName(
+				name.toLowerCase(),
+			);
 
-			for (const song of playlist.songs) {
-				await player.addMusic(song, "", member, interaction, true);
-			}
+			const tracks: Track[] = JSON.parse(playlist.musics);
+			player.queue.addTracks(tracks);
 
 			const embed = client.embed.createMessageEmbedWithAuthor(
 				`🎶 Playlist **${playlist.name}** has been added to queue 🎶`,
@@ -200,11 +235,22 @@ class Playlist {
 		} catch (error) {
 			client.pino.error(error);
 
-			const embed = client.embed.createMessageEmbedWithAuthor(
-				"⛔ There is an error while adding playlist to queue ⛔",
+			let embed: EmbedBuilder = client.embed.createMessageEmbedWithAuthor(
+				`⛔ There is an error while trying to play music from playlist **${name}** ⛔`,
 				member,
 				EMBEDTYPE.ERROR,
 			);
+
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				if (error.code === "P2025") {
+					embed = client.embed.createMessageEmbedWithAuthor(
+						`⛔ Playlist **${name}** doesn't exist ⛔`,
+						member,
+						EMBEDTYPE.ERROR,
+					);
+				}
+			}
+
 			await client.interaction.replyEmbed(interaction, embed, {
 				ephemeral: true,
 			});

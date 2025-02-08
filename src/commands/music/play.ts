@@ -45,7 +45,7 @@ class Play {
 		const { player, member } = data;
 
 		try {
-			await player.addMusic(query, method, member, interaction);
+			await player.addMusic(query, method, interaction);
 		} catch (error) {
 			client.pino.error(error);
 			const embed = client.embed.createMessageEmbedWithAuthor(
