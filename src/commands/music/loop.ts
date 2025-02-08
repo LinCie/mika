@@ -26,7 +26,7 @@ class Loop {
 			required: false,
 			type: ApplicationCommandOptionType.String,
 		})
-		method: LoopState = LoopState.LoopingNone,
+		method: LoopState = LoopState.LoopingCurrent,
 
 		interaction: CommandInteraction,
 		client: Mika,
