@@ -4,7 +4,12 @@ import {
 	ApplicationCommandOptionType,
 } from "discord.js";
 import { Discord, Guard, Slash, SlashChoice, SlashOption } from "discordx";
-import { EMBEDTYPE, LoopState, type Mika, type PlayerManager } from "@/instances";
+import {
+	EMBEDTYPE,
+	LoopState,
+	type Mika,
+	type PlayerManager,
+} from "@/instances";
 import {
 	DeferReply,
 	IsInVoiceChannel,
@@ -22,7 +27,7 @@ class Loop {
 		@SlashChoice({ name: "Queue", value: LoopState.LoopingQueue })
 		@SlashOption({
 			name: "method",
-			description: "The looping method. Defaults to off",
+			description: "The looping method. Defaults to current",
 			required: false,
 			type: ApplicationCommandOptionType.String,
 		})
@@ -33,7 +38,11 @@ class Loop {
 		data: { player: PlayerManager; member: GuildMember },
 	) {
 		const { player, member } = data;
-		player.loopState = method || LoopState.LoopingNone;
+		if (player.loopState === method) {
+			player.loopState = LoopState.LoopingNone;
+		} else {
+			player.loopState = method;
+		}
 
 		switch (player.loopState) {
 			case LoopState.LoopingNone: {
