@@ -1,64 +1,50 @@
 import type { GuildMember } from "discord.js";
-import type { Track } from "shoukaku";
-import { sql, type Insertable, type Selectable, type Updateable } from "kysely";
-import type { Playlist } from "@/db";
 import type { Mika } from "../Mika";
+import type { PlaylistCreate } from "@/db";
+import type { Playlist } from "@prisma/client";
 
 class PlaylistManager {
-	private readonly client: Mika;
+	private readonly prisma;
 
 	constructor(client: Mika) {
-		this.client = client;
+		this.prisma = client.prisma;
 	}
 
-	public createPlaylist(
-		name: string,
-		member: GuildMember,
-	): Promise<Selectable<Playlist>> {
-		const playlist: Insertable<Playlist> = { userId: member.id, name };
-		return this.client.db
-			.insertInto("Playlist")
-			.values(playlist)
-			.returningAll()
-			.executeTakeFirstOrThrow();
+	public createPlaylist(name: string, member: GuildMember) {
+		const data: PlaylistCreate = {
+			name: name,
+			userId: member.user.id,
+			musics: JSON.stringify([]),
+		};
+		return this.prisma.playlist.create({ data });
 	}
 
-	public async getPlaylistByName(name: string): Promise<Selectable<Playlist>> {
-		return this.client.db
-			.selectFrom("Playlist")
-			.where("name", "=", name)
-			.selectAll()
-			.executeTakeFirstOrThrow();
+	public async getPlaylistByName(name: string) {
+		const playlist = await this.prisma.playlist.findFirstOrThrow({
+			where: { name },
+		});
+		return playlist;
 	}
 
-	public async getPlaylistById(id: number): Promise<Selectable<Playlist>> {
-		return this.client.db
-			.selectFrom("Playlist")
-			.where("id", "=", id)
-			.selectAll()
-			.executeTakeFirstOrThrow();
+	public async getPlaylistById(id: number) {
+		const playlist = await this.prisma.playlist.findFirstOrThrow({
+			where: { id },
+		});
+		return playlist;
 	}
 
-	public async getUserPlaylists(
-		member: GuildMember,
-	): Promise<Selectable<Playlist>[]> {
-		return this.client.db
-			.selectFrom("Playlist")
-			.where("userId", "=", member.user.id)
-			.selectAll()
-			.execute();
+	public async getUserPlaylists(member: GuildMember) {
+		const playlists = await this.prisma.playlist.findMany({
+			where: { userId: member.user.id },
+		});
+		return playlists;
 	}
 
-	public async addTrackToPlaylist(
-		id: number,
-		playlist: Updateable<Playlist>,
-	): Promise<Selectable<Playlist>> {
-		return this.client.db
-			.updateTable("Playlist")
-			.set(playlist)
-			.where("id", "=", id)
-			.returningAll()
-			.executeTakeFirstOrThrow();
+	public async addTrackToPlaylist(id: number, playlist: Playlist) {
+		return this.prisma.playlist.update({
+			where: { id },
+			data: playlist,
+		});
 	}
 }
 

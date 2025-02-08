@@ -1,12 +1,14 @@
-import type { DB } from "./types.ts";
-import { Pool } from "pg";
-import { Kysely, PostgresDialect } from "kysely";
-import { DATABASE_URL } from "@/config/index.ts";
+import { PrismaClient } from "@prisma/client";
+import { PrismaLibSQL } from "@prisma/adapter-libsql";
+import { createClient } from "@libsql/client";
+import { TURSO_AUTH_TOKEN, TURSO_DATABASE_URL } from "@/config";
 
-const dialect = new PostgresDialect({
-	pool: new Pool({ connectionString: DATABASE_URL }),
+const libsql = createClient({
+	url: TURSO_DATABASE_URL,
+	authToken: TURSO_AUTH_TOKEN,
 });
 
-export const db = new Kysely<DB>({
-	dialect,
-});
+const adapter = new PrismaLibSQL(libsql);
+const prisma = new PrismaClient({ adapter });
+
+export { prisma };
