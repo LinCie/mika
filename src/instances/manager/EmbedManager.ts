@@ -1,6 +1,6 @@
 import { EmbedBuilder, type GuildMember } from "discord.js";
 import type { PlaylistResult, Track } from "shoukaku";
-import { COLORS, EMOJI } from "@/config";
+import { COLOR, EMOJI } from "@/config";
 
 enum EMBEDTYPE {
 	GLOBAL = "GLOBAL",
@@ -16,7 +16,7 @@ class EmbedManager {
 		type: EMBEDTYPE,
 	): EmbedBuilder {
 		return new EmbedBuilder()
-			.setColor(COLORS[type])
+			.setColor(COLOR[type])
 			.setAuthor({
 				name: member.displayName,
 				iconURL: member.displayAvatarURL(),
@@ -32,7 +32,7 @@ class EmbedManager {
 
 	public createMessageEmbed(message: string, type: EMBEDTYPE): EmbedBuilder {
 		return new EmbedBuilder()
-			.setColor(COLORS[type])
+			.setColor(COLOR[type])
 			.setDescription(message)
 			.setTimestamp()
 			.setFooter({
@@ -46,7 +46,7 @@ class EmbedManager {
 		const length = `<t:${Math.floor(Date.now() / 1000) + Math.floor(track.info.length / 1000)}:R>`;
 
 		return new EmbedBuilder()
-			.setColor(COLORS.GLOBAL)
+			.setColor(COLOR.GLOBAL)
 			.setTitle(track.info.title)
 			.setURL(track.info.uri!)
 			.setDescription(
@@ -83,7 +83,7 @@ class EmbedManager {
 
 	public createAddTrackEmbed(track: Track, member: GuildMember): EmbedBuilder {
 		return new EmbedBuilder()
-			.setColor(COLORS.SUCCESS)
+			.setColor(COLOR.SUCCESS)
 			.setAuthor({
 				name: member.displayName,
 				iconURL: member.displayAvatarURL(),
@@ -118,7 +118,7 @@ class EmbedManager {
 		member: GuildMember,
 	) {
 		return new EmbedBuilder()
-			.setColor(COLORS.SUCCESS)
+			.setColor(COLOR.SUCCESS)
 			.setAuthor({
 				name: member.displayName,
 				iconURL: member.displayAvatarURL(),

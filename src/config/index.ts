@@ -1,6 +1,6 @@
 export * from "./lavalink";
 
-export enum COLORS {
+export enum COLOR {
 	GLOBAL = 0xffe9f3,
 	SUCCESS = 0xa3be8c,
 	WARNING = 0xebcb8b,

@@ -3,7 +3,7 @@ import { EventEmitter } from "node:events";
 import type { Track } from "shoukaku";
 import type { Mika } from "../Mika";
 
-enum QueueEvents {
+enum QUEUEEVENT {
 	TRACK_ADDED = "trackAdded",
 	TRACKS_ADDED = "tracksAdded",
 }
@@ -63,7 +63,7 @@ class QueueManager extends EventEmitter {
 
 	public addTrack(track: Track): void {
 		this.queue.push(track);
-		this.emit(QueueEvents.TRACK_ADDED, track);
+		this.emit(QUEUEEVENT.TRACK_ADDED, track);
 	}
 
 	public addTracks(tracks: Array<Track>): void {
@@ -71,7 +71,7 @@ class QueueManager extends EventEmitter {
 			const track = tracks[x];
 			this.queue.push(track);
 		}
-		this.emit(QueueEvents.TRACKS_ADDED, tracks);
+		this.emit(QUEUEEVENT.TRACKS_ADDED, tracks);
 	}
 
 	public removeTrack(index: number): void {
@@ -110,4 +110,4 @@ class QueueManager extends EventEmitter {
 	}
 }
 
-export { QueueManager, QueueEvents };
+export { QueueManager, QUEUEEVENT };

@@ -12,7 +12,7 @@ import {
 	type TrackStartEvent,
 } from "shoukaku";
 import type { Mika } from "../Mika";
-import { QueueManager, QueueEvents } from "./QueueManager";
+import { QueueManager, QUEUEEVENT } from "./QueueManager";
 import { EMBEDTYPE } from "./EmbedManager";
 
 enum PlayerState {
@@ -51,7 +51,7 @@ class PlayerManager {
 
 		// Queue
 		this.queue = new QueueManager(this.client);
-		this.queue.on(QueueEvents.TRACK_ADDED, async (track: Track) => {
+		this.queue.on(QUEUEEVENT.TRACK_ADDED, async (track: Track) => {
 			if (this.state === PlayerState.Idle) {
 				if (this.queue.current === this.queue.getLength() - 2) {
 					await this.playMusic(this.queue.playNext()!);
@@ -61,7 +61,7 @@ class PlayerManager {
 				this.state = PlayerState.Playing;
 			}
 		});
-		this.queue.on(QueueEvents.TRACKS_ADDED, async (tracks: Array<Track>) => {
+		this.queue.on(QUEUEEVENT.TRACKS_ADDED, async (tracks: Array<Track>) => {
 			if (this.state === PlayerState.Idle) {
 				if (this.queue.current === this.queue.getLength() - tracks.length - 1) {
 					await this.playMusic(this.queue.playNext()!);
