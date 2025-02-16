@@ -12,6 +12,7 @@ import { ButtonComponent, Discord, Guard, Slash, SlashGroup } from "discordx";
 import type { Playlist as PlaylistType } from "@prisma/client";
 import { EMBEDTYPE, type Mika } from "@/instances";
 import { DeferReply } from "@/guards";
+import type { Track } from "shoukaku";
 
 @Discord()
 @SlashGroup({ name: "playlist", description: "Playlist Manager" })
@@ -103,10 +104,10 @@ class Playlist {
 
 		const listContent =
 			currentTracks
-				.map(
-					(playlist, index) =>
-						`${startIndex + index + 1}. **${playlist.name}** ~ ${this.playlists.length} tracks`,
-				)
+				.map((playlist, index) => {
+					const musics: Track[] = JSON.parse(playlist.musics);
+					return `${startIndex + index + 1}. **${playlist.name}** ~ ${musics.length} tracks`;
+				})
 				.join("\n") || "You have no playlist";
 
 		const embedDescription = `### ${member.displayName}'s Playlists\n\n${listContent}\n-# Page ${this.page} of ${this.pages}`;
