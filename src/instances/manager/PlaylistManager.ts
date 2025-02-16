@@ -1,6 +1,6 @@
 import type { GuildMember } from "discord.js";
 import type { Mika } from "../Mika";
-import type { PlaylistCreate } from "@/db";
+import type { PlaylistCreate } from "@/database";
 import type { Playlist } from "@prisma/client";
 
 class PlaylistManager {

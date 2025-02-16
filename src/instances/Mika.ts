@@ -6,7 +6,7 @@ import type { PlayerManager } from "./manager/PlayerManager";
 import { EmbedManager } from "./manager/EmbedManager";
 import { InteractionManager } from "./manager/InteractionManager";
 import { PlaylistManager } from "./manager/PlaylistManager";
-import { prisma } from "@/db/database";
+import { prisma } from "@/database/database";
 
 class Mika extends Client {
 	public readonly shoukaku: Shoukaku;
