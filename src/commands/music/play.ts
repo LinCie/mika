@@ -28,11 +28,12 @@ class Play {
 		query: string,
 
 		@SlashChoice({ name: "Soundcloud", value: "scsearch" })
-		@SlashChoice({ name: "Youtube", value: "ytsearch" })
 		@SlashChoice({ name: "Youtube Music", value: "ytmsearch" })
+		@SlashChoice({ name: "Youtube", value: "ytsearch" })
+		@SlashChoice({ name: "Spotify", value: "spsearch" })
 		@SlashOption({
-			name: "method",
-			description: "The search method. Defaults to Soundcloud",
+			name: "source",
+			description: "The search source. Defaults to Soundcloud",
 			required: false,
 			type: ApplicationCommandOptionType.String,
 		})
