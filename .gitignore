@@ -177,3 +177,5 @@ dist
 #lavalink
 lavalink
 plugins
+
+application.yml
