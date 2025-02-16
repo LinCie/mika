@@ -20,6 +20,7 @@ enum PlayerState {
 	Playing = "playing",
 	Changing = "changing",
 	Stopping = "stopping",
+	Paused = "paused",
 }
 
 enum LoopState {
@@ -184,6 +185,16 @@ class PlayerManager {
 
 	public async skipMusic() {
 		await this.player?.stopTrack();
+	}
+
+	public async pauseMusic() {
+		this.state = PlayerState.Paused;
+		await this.player?.setPaused(true);
+	}
+
+	public async resumeMusic() {
+		this.state = PlayerState.Playing;
+		await this.player?.setPaused(false);
 	}
 
 	public async removePlayer(): Promise<void> {
