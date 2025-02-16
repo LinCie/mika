@@ -109,7 +109,7 @@ class Playlist {
 				)
 				.join("\n") || "You have no playlist";
 
-		const embedDescription = `### ${member.displayName}'s Tracks\n\n${listContent}\n-# Page ${this.page} of ${this.pages}`;
+		const embedDescription = `### ${member.displayName}'s Playlists\n\n${listContent}\n-# Page ${this.page} of ${this.pages}`;
 
 		const embed = client.embed
 			.createMessageEmbedWithAuthor(embedDescription, member!, EMBEDTYPE.GLOBAL)
