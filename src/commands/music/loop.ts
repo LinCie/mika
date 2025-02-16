@@ -58,7 +58,7 @@ class Loop {
 			case LoopState.LoopingCurrent: {
 				const current = player.queue.getCurrent()!;
 				const embed = client.embed.createMessageEmbedWithAuthor(
-					`🎶 Mika is now looping **${current.info.title}** 🎶`,
+					`🎶 Mika is looping **${current.info.title}** now 🎶`,
 					member,
 					EMBEDTYPE.SUCCESS,
 				);
@@ -68,7 +68,7 @@ class Loop {
 
 			case LoopState.LoopingQueue: {
 				const embed = client.embed.createMessageEmbedWithAuthor(
-					"🎶 Mika is now looping queue 🎶",
+					"🎶 Mika is looping queue now 🎶",
 					member,
 					EMBEDTYPE.SUCCESS,
 				);
