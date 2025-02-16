@@ -1,6 +1,5 @@
 import { Client, type ClientOptions } from "discordx";
 import { Connectors, Shoukaku } from "shoukaku";
-import type { Kysely } from "kysely";
 import { pino, type BaseLogger } from "pino";
 import { NODE_ENV, lavalinkNodes } from "@/config";
 import type { PlayerManager } from "./manager/PlayerManager";
