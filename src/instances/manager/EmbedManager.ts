@@ -1,6 +1,6 @@
 import { EmbedBuilder, type GuildMember } from "discord.js";
 import type { PlaylistResult, Track } from "shoukaku";
-import { COLORS } from "@/config";
+import { COLORS, EMOJI } from "@/config";
 
 enum EMBEDTYPE {
 	GLOBAL = "GLOBAL",
@@ -49,7 +49,9 @@ class EmbedManager {
 			.setColor(COLORS.GLOBAL)
 			.setTitle(track.info.title)
 			.setURL(track.info.uri!)
-			.setDescription(`🎶 **${track.info.title}** is currently playing 🎶`)
+			.setDescription(
+				`${EMOJI[track.info.sourceName as keyof typeof EMOJI]} **${track.info.title}** is currently playing`,
+			)
 			.setThumbnail(track.info.artworkUrl!)
 			.addFields(
 				{
@@ -87,7 +89,9 @@ class EmbedManager {
 				iconURL: member.displayAvatarURL(),
 			})
 			.setThumbnail(track?.info.artworkUrl!)
-			.setDescription(`🎶 **${track?.info.title}** has been added to queue 🎶`)
+			.setDescription(
+				`${EMOJI[track.info.sourceName as keyof typeof EMOJI]} **${track?.info.title}** has been added to queue`,
+			)
 			.addFields(
 				{
 					name: "Title",
@@ -121,7 +125,7 @@ class EmbedManager {
 			})
 			.setThumbnail(tracks[0].info.artworkUrl!)
 			.setDescription(
-				`🎶 ${tracks.length} tracks from playlist **${result.data.info.name}** has been added to queue 🎶`,
+				`${EMOJI[tracks[0].info.sourceName as keyof typeof EMOJI]} ${tracks.length} tracks from playlist **${result.data.info.name}** has been added to queue`,
 			)
 			.addFields(
 				{

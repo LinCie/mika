@@ -7,6 +7,12 @@ export enum COLORS {
 	ERROR = 0xbf616a,
 }
 
+export enum EMOJI {
+	youtube = "<:youtube:1340641837471240233>",
+	soundcloud = "<:soundcloud:1340641801823977563>",
+	spotify = "<:spotify:1340641784371609610>",
+}
+
 export const GLOBAL_COLOR = 0xffe9f3;
 
 export const NODE_ENV = Bun.env.NODE_ENV!;
