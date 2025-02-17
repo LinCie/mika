@@ -197,6 +197,10 @@ class PlayerManager {
 		await this.player?.setPaused(false);
 	}
 
+	public async seekMusic(position: number) {
+		await this.player?.update({ position });
+	}
+
 	public async removePlayer(): Promise<void> {
 		await this.leaveVoiceChannel();
 		this.player?.removeAllListeners();
