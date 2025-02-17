@@ -50,6 +50,13 @@ class PlaylistManager {
 	public async deletePlaylist(name: string) {
 		return this.prisma.playlist.delete({ where: { name } });
 	}
+
+	public async updatePlaylist(playlist: Playlist) {
+		return this.prisma.playlist.update({
+			where: { id: playlist.id },
+			data: playlist,
+		});
+	}
 }
 
 export { PlaylistManager };
