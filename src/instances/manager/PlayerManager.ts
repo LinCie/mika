@@ -109,6 +109,8 @@ class PlayerManager {
 			await this.handleOnPlayerClosed();
 		});
 
+		this.handleVoiceStateChange();
+
 		return this;
 	}
 
@@ -205,7 +207,6 @@ class PlayerManager {
 		await this.leaveVoiceChannel();
 		this.player?.removeAllListeners();
 		await this.player?.destroy();
-		this.player = undefined;
 		this.queue.destroy();
 		this.client.players.delete(this.guild.id);
 	}
@@ -342,6 +343,55 @@ class PlayerManager {
 			clearTimeout(this.leaveTimer);
 			this.leaveTimer = undefined;
 		}
+	}
+
+	private async handleNoUser() {
+		if (this.state === PlayerState.Idle) {
+			return;
+		}
+
+		await this.pauseMusic();
+
+		const time = `<t:${Math.floor(Date.now() / 1000) + 120}:R>`;
+		const embed = this.client.embed.createMessageEmbed(
+			`⚠️ There is currently no one in the voice channel. I will leave the voice channel ${time} if no one enters the voice channel ⚠️`,
+			EMBEDTYPE.WARNING,
+		);
+
+		await this.channel.send({ embeds: [embed] });
+		this.leaveTimer = setTimeout(async () => {
+			this.state = PlayerState.Stopping;
+			await this.removePlayer();
+		}, 120000);
+	}
+
+	private async handleUserRejoin() {
+		this.handleTimerExist();
+		await this.resumeMusic();
+		const current = this.queue.getCurrent();
+		const embed = this.client.embed.createMessageEmbed(
+			`🎶 Mika now resumes **${current?.info.title}** 🎶`,
+			EMBEDTYPE.GLOBAL,
+		);
+		await this.channel.send({ embeds: [embed] });
+	}
+
+	private handleVoiceStateChange() {
+		this.client.on("voiceStateUpdate", async (oldState, newState) => {
+			if (this.state === PlayerState.Stopping) return;
+
+			const humanMembers = this.voice?.members.filter(
+				(member) => !member.user.bot,
+			);
+
+			if (humanMembers?.size === 0) {
+				await this.handleNoUser();
+			} else {
+				if (this.state !== PlayerState.Playing) {
+					await this.handleUserRejoin();
+				}
+			}
+		});
 	}
 }
 
