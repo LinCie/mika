@@ -204,6 +204,7 @@ class PlayerManager {
 	}
 
 	public async removePlayer(): Promise<void> {
+		this.handleTimerExist();
 		await this.leaveVoiceChannel();
 		this.player?.removeAllListeners();
 		await this.player?.destroy();
@@ -317,8 +318,7 @@ class PlayerManager {
 					await this.removePlayer();
 				}, 120000);
 				this.player?.once("start", () => {
-					clearTimeout(this.leaveTimer);
-					this.leaveTimer = undefined;
+					this.handleTimerExist();
 				});
 			}
 		}
