@@ -4,6 +4,7 @@ import type {
 	GuildMember,
 	TextChannel,
 	VoiceBasedChannel,
+	VoiceState,
 } from "discord.js";
 import {
 	LoadType,
@@ -205,6 +206,7 @@ class PlayerManager {
 
 	public async removePlayer(): Promise<void> {
 		this.handleTimerExist();
+		this.cleanup();
 		await this.leaveVoiceChannel();
 		this.player?.removeAllListeners();
 		await this.player?.destroy();
@@ -283,6 +285,10 @@ class PlayerManager {
 				break;
 			}
 		}
+	}
+
+	private async cleanup() {
+		this.client.off("voiceStateUpdate", this.voiceStateHandler);
 	}
 
 	// Handles
@@ -371,29 +377,50 @@ class PlayerManager {
 		await this.resumeMusic();
 		const current = this.queue.getCurrent();
 		const embed = this.client.embed.createMessageEmbed(
-			`🎶 Mika now resumes **${current?.info.title}** 🎶`,
+			`🎶 Welcome back! Resuming **${current?.info.title}** 🎶`,
 			EMBEDTYPE.GLOBAL,
 		);
 		await this.channel.send({ embeds: [embed] });
 	}
 
 	private handleVoiceStateChange() {
-		this.client.on("voiceStateUpdate", async (oldState, newState) => {
-			if (this.state === PlayerState.Stopping) return;
-
-			const humanMembers = this.voice?.members.filter(
-				(member) => !member.user.bot,
-			);
-
-			if (humanMembers?.size === 0) {
-				await this.handleNoUser();
-			} else {
-				if (this.state !== PlayerState.Playing) {
-					await this.handleUserRejoin();
-				}
-			}
-		});
+		this.client.on("voiceStateUpdate", this.voiceStateHandler);
 	}
+
+	// Handler
+
+	private voiceStateHandler = (oldState: VoiceState, newState: VoiceState) => {
+		// Only process events for a specific guild
+		const targetGuildId = this.voice?.guild.id;
+		if (
+			oldState.guild.id !== targetGuildId &&
+			newState.guild.id !== targetGuildId
+		) {
+			return;
+		}
+
+		const member = oldState.member || newState.member;
+		if (!member || member.user.bot) return;
+
+		const oldChannel = oldState.channel;
+		const newChannel = newState.channel;
+
+		// --- Handle a user leaving a channel ---
+		if (oldChannel && (!newChannel || oldChannel.id !== newChannel.id)) {
+			const nonBotMembersOld = oldChannel.members.filter((m) => !m.user.bot);
+			if (nonBotMembersOld.size === 0) {
+				this.handleNoUser();
+			}
+		}
+
+		// --- Handle a user joining a channel ---
+		if (newChannel && (!oldChannel || oldChannel.id !== newChannel.id)) {
+			const nonBotMembersNew = newChannel.members.filter((m) => !m.user.bot);
+			if (nonBotMembersNew.size === 1) {
+				this.handleUserRejoin();
+			}
+		}
+	};
 }
 
 export { PlayerManager, PlayerState, LoopState };
