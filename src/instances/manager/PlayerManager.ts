@@ -315,6 +315,7 @@ class PlayerManager {
 				this.state = PlayerState.Idle;
 				await this.channel.send({ embeds: [embed] });
 				this.leaveTimer = setTimeout(async () => {
+					this.state = PlayerState.Stopping;
 					await this.removePlayer();
 				}, 120000);
 				this.player?.once("start", () => {
