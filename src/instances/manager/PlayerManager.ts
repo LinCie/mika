@@ -107,6 +107,8 @@ class PlayerManager {
 		});
 
 		this.player?.on("closed", async () => {
+			this.handleTimerExist();
+
 			await this.handleOnPlayerClosed();
 		});
 
