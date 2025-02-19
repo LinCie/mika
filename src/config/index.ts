@@ -11,6 +11,7 @@ export enum EMOJI {
 	youtube = "<:youtube:1340641837471240233>",
 	soundcloud = "<:soundcloud:1340641801823977563>",
 	spotify = "<:spotify:1340641784371609610>",
+	music = "<:music:1341795857443586079>",
 }
 
 export const GLOBAL_COLOR = 0xffe9f3;

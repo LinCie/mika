@@ -11,9 +11,11 @@ import { ButtonComponent, Discord, Guard, Slash } from "discordx";
 import type { Track } from "shoukaku";
 import { DeferReply, IsPlayerExist } from "@/guards";
 import { EMBEDTYPE, type Mika, type PlayerManager } from "@/instances";
+import { EMOJI } from "@/config";
 
 @Discord()
 class Queue {
+	private player: PlayerManager | undefined;
 	private tracks: Track[] = [];
 	private page = 1;
 	private get pages(): number {
@@ -55,6 +57,7 @@ class Queue {
 
 		this.tracks = player.queue.getTracks();
 		this.page = 1;
+		this.player = player;
 
 		await this.updateQueueMessage(interaction, client, data.member);
 	}
@@ -67,6 +70,9 @@ class Queue {
 		const startIndex = (this.page - 1) * 10;
 		const endIndex = startIndex + 10;
 		const currentTracks = this.tracks.slice(startIndex, endIndex);
+		const currentlyPlaying = this.player?.queue.getCurrent();
+		const playingEmoji =
+			EMOJI[currentlyPlaying?.info.sourceName as keyof typeof EMOJI];
 
 		const nextButton = new ButtonBuilder()
 			.setStyle(ButtonStyle.Primary)
@@ -89,13 +95,15 @@ class Queue {
 		const guildName = interaction.guild?.name || "Server";
 		const queueContent =
 			currentTracks
-				.map(
-					(track, index) =>
-						`${startIndex + index + 1}. [${track.info.title}](${track.info.uri}) ~ ${track.info.author}`,
-				)
+				.map((track, index) => {
+					if (track === currentlyPlaying) {
+						return `${startIndex + index + 1}. [${track.info.title}](${track.info.uri}) ~ ${track.info.author} ${EMOJI.music}`;
+					}
+					return `${startIndex + index + 1}. [${track.info.title}](${track.info.uri}) ~ ${track.info.author}`;
+				})
 				.join("\n") || "No tracks in the queue.";
 
-		const embedDescription = `### ${guildName}'s Queue\n\n${queueContent}\n-# Page ${this.page} of ${this.pages}`;
+		const embedDescription = `## ${guildName}'s Queue\n${playingEmoji} **${currentlyPlaying?.info.title}** is currently playing\n${queueContent}\n-# Page ${this.page} of ${this.pages}`;
 
 		const embed = client.embed
 			.createMessageEmbedWithAuthor(embedDescription, member!, EMBEDTYPE.GLOBAL)
