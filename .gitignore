@@ -176,3 +176,8 @@ dist
 
 # Outfile
 mika
+
+# Lavalink
+lavalink/
+plugins/
+application.yml

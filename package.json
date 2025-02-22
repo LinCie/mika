@@ -15,7 +15,9 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development bun run ./src/mika.ts | pino-pretty",
-    "start": "NODE_ENV=production bun run ./src/mika.ts | pino-pretty"
+    "start": "NODE_ENV=production bun run ./src/mika.ts | pino-pretty",
+    "lava": "java -jar lavalink/Lavalink.jar",
+    "lava:get": "bun run ./scripts/getLavalink.ts"
   },
   "dependencies": {
     "discord.js": "^14.18.0",
