@@ -12,11 +12,13 @@ import { glob } from 'node:fs/promises'
 import path from 'node:path'
 import type { BaseLogger } from 'pino'
 import { logger } from '@/utilities'
-import { BOT_TOKEN, CLIENT_ID, GUILD_ID } from '@/config'
+import { BOT_TOKEN, CLIENT_ID, getNodes, GUILD_ID, NODE_ENV } from '@/config'
 import { Command } from './Command'
+import { Connectors, Shoukaku } from 'shoukaku'
 
 class Mika extends Client {
     public readonly logger: BaseLogger
+    public readonly shoukaku: Shoukaku
     private commands: Collection<string, Command> = new Collection()
 
     constructor(options: ClientOptions) {
@@ -27,6 +29,40 @@ class Mika extends Client {
 
         // Client events
         this.clientEventHandler()
+
+        // Shoukaku
+        this.shoukaku = new Shoukaku(
+            new Connectors.DiscordJS(this),
+            getNodes(),
+            {
+                resumeTimeout: 30,
+                resume: true,
+                resumeByLibrary: true,
+                moveOnDisconnect: true,
+                reconnectTries: 10,
+                reconnectInterval: 10,
+            }
+        )
+        this.shoukaku
+            .on('ready', (name) =>
+                this.logger.info(`Lavalink node ${name} is now ready 🩷`)
+            )
+            .on('disconnect', (name) =>
+                this.logger.warn(`Lavalink node ${name} has been disconnected`)
+            )
+            .on('reconnecting', (name, left) =>
+                this.logger.warn(
+                    `Lavalink node ${name} is attempting to reconnect\n${left} ${
+                        left < 2 ? 'try' : 'tries'
+                    } left`
+                )
+            )
+            .on('debug', (name, content) => {
+                if (NODE_ENV === 'debug') {
+                    this.logger.debug(content, name)
+                }
+            })
+            .on('error', (name, error) => this.logger.error(error, name))
     }
 
     private clientEventHandler() {
