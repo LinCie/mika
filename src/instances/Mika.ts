@@ -12,7 +12,7 @@ import { glob } from 'node:fs/promises'
 import path from 'node:path'
 import type { BaseLogger } from 'pino'
 import { logger } from '@/utilities'
-import { BOT_TOKEN, CLIENT_ID } from '@/config'
+import { BOT_TOKEN, CLIENT_ID, GUILD_ID } from '@/config'
 import { Command } from './Command'
 
 class Mika extends Client {
@@ -75,13 +75,13 @@ class Mika extends Client {
             const devCommands: RESTPostAPIChatInputApplicationCommandsJSONBody[] =
                 []
 
-            this.commands.forEach((command) => {
+            for (const command of this.commands.values()) {
                 if (command.isGuildOnly) {
                     devCommands.push(command.data)
                 } else {
                     commands.push(command.data)
                 }
-            })
+            }
 
             this.logger.info(
                 `Started refreshing ${commands.length} application (/) commands.`
@@ -89,13 +89,22 @@ class Mika extends Client {
 
             const rest = new REST().setToken(BOT_TOKEN)
 
+            await rest.put(
+                Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
+                { body: devCommands }
+            )
+
+            for (const command of devCommands) {
+                this.logger.info(`Loaded dev command /${command.name}`)
+            }
+
             await rest.put(Routes.applicationCommands(CLIENT_ID), {
                 body: commands,
             })
 
-            commands.forEach((command) => {
-                this.logger.info(`Loaded command /${command.name}`)
-            })
+            for (const command of commands) {
+                this.logger.info(`Loaded global command /${command.name}`)
+            }
         } catch (error) {
             this.logger.error(error)
         }
