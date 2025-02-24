@@ -11,14 +11,26 @@ import { pathToFileURL } from 'bun'
 import { glob } from 'node:fs/promises'
 import path from 'node:path'
 import type { BaseLogger } from 'pino'
+import { Connectors, Shoukaku } from 'shoukaku'
 import { logger } from '@/utilities'
 import { BOT_TOKEN, CLIENT_ID, getNodes, GUILD_ID, NODE_ENV } from '@/config'
-import { Command } from './Command'
-import { Connectors, Shoukaku } from 'shoukaku'
+import {
+    EmbedManager,
+    InteractionManager,
+    PlayerManager,
+    PlaylistManager,
+    Command,
+} from '@/instances'
+import { prisma } from '@/database'
 
 class Mika extends Client {
     public readonly logger: BaseLogger
     public readonly shoukaku: Shoukaku
+    public readonly embed: EmbedManager
+    public readonly interaction: InteractionManager
+    public readonly players: Collection<string, PlayerManager>
+    public readonly playlist: PlaylistManager
+    public readonly prisma = prisma
     private commands: Collection<string, Command> = new Collection()
 
     constructor(options: ClientOptions) {
@@ -26,6 +38,18 @@ class Mika extends Client {
 
         // Logger
         this.logger = logger
+
+        // Player
+        this.players = new Collection<string, PlayerManager>()
+
+        // Embed
+        this.embed = new EmbedManager()
+
+        // Interaction
+        this.interaction = new InteractionManager(this)
+
+        // Playlist
+        this.playlist = new PlaylistManager(this)
 
         // Client events
         this.clientEventHandler()

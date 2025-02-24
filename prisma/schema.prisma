@@ -1,0 +1,16 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Playlist {
+  id     Int    @id @default(autoincrement())
+  userId String
+  name   String @unique()
+  musics String
+}
