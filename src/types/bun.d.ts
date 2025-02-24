@@ -6,5 +6,6 @@ declare module 'bun' {
         NODE_ENV: 'production' | 'development'
         TURSO_AUTH_TOKEN: string
         TURSO_DATABASE_URL: string
+        OWNER_ID: string
     }
 }

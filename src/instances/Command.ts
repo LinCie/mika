@@ -4,11 +4,11 @@ import type {
 } from 'discord.js'
 import type { Mika } from './Mika'
 
-type Middleware = (
+type Middleware<TContext = unknown> = (
     client: Mika,
     interaction: CommandInteraction,
     next: () => Promise<void>,
-    context: unknown
+    context: TContext
 ) => Promise<void>
 
 abstract class Command {

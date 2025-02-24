@@ -1,1 +1,7 @@
 export * from './deferReply'
+export * from './isInVoiceChannel'
+export * from './isPlayerInit'
+export * from './isPlayerExist'
+export * from './isPlayerCurrent'
+export * from './isOwner'
+export * from './guildOnly'
