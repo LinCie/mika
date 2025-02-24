@@ -421,6 +421,7 @@ class PlayerManager {
 
         // --- Handle a user leaving a channel ---
         if (oldChannel && (!newChannel || oldChannel.id !== newChannel.id)) {
+            if (oldChannel.id !== this.voice?.id) return
             const nonBotMembersOld = oldChannel.members.filter(
                 (m) => !m.user.bot
             )
@@ -431,6 +432,7 @@ class PlayerManager {
 
         // --- Handle a user joining a channel ---
         if (newChannel && (!oldChannel || oldChannel.id !== newChannel.id)) {
+            if (newChannel.id !== this.voice?.id) return
             const nonBotMembersNew = newChannel.members.filter(
                 (m) => !m.user.bot
             )
