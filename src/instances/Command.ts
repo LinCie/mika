@@ -61,8 +61,16 @@ abstract class Command {
         await dispatch(0)
     }
 
-    use(...middleware: Middleware[]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    use(...middleware: Middleware<any>[]) {
         middleware.forEach((m) => this.middlewares.push(m))
+    }
+
+    get<TOptionType = unknown>(
+        option: string,
+        interaction: CommandInteraction
+    ): TOptionType {
+        return interaction.options.get(option)?.value as TOptionType
     }
 }
 
