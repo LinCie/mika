@@ -1,7 +1,10 @@
-import { SlashCommandBuilder, type CommandInteraction } from 'discord.js'
-import { Command } from '@/instances/Command'
-import type { Mika } from '@//instances/Mika'
-import { DeferReply } from '@/middlewares'
+import {
+    GuildMember,
+    SlashCommandBuilder,
+    type CommandInteraction,
+} from 'discord.js'
+import { EMBEDTYPE, Command, type Mika } from '@/instances'
+import { DeferReply, GuildOnly } from '@/middlewares'
 
 const data = new SlashCommandBuilder()
     .setName('ping')
@@ -11,11 +14,18 @@ const data = new SlashCommandBuilder()
 class Ping extends Command {
     constructor() {
         super(data)
-        this.use(DeferReply)
+        this.use(GuildOnly, DeferReply)
     }
 
     async command(client: Mika, interaction: CommandInteraction) {
-        await interaction.editReply('Pong!')
+        const member = interaction.member as GuildMember
+        const embed = client.embed.createMessageEmbedWithAuthor(
+            'Pong!',
+            member,
+            EMBEDTYPE.GLOBAL
+        )
+
+        await client.interaction.replyEmbed(interaction, embed)
     }
 }
 
