@@ -1,4 +1,5 @@
 import {
+    ApplicationCommandOptionType,
     Client,
     Collection,
     Events,
@@ -170,7 +171,9 @@ class Mika extends Client {
             })
 
             for (const command of commands) {
-                this.logger.info(`Loaded global command /${command.name}`)
+                this.logger.info(
+                    `Loaded global command /${command.name}${command.options?.map((option) => (option.type === ApplicationCommandOptionType.Subcommand ? ` ${option.name}` : null))}`
+                )
             }
         } catch (error) {
             this.logger.error(error)
