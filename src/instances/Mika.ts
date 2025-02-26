@@ -33,7 +33,7 @@ class Mika extends Client {
     public readonly players: Collection<string, PlayerManager>
     public readonly playlist: PlaylistManager
     public readonly globalMiddlewares: Middleware[]
-    public readonly prisma: typeof prisma
+    public readonly prisma = prisma
     private commands: Collection<string, Command> = new Collection()
 
     constructor(options: ClientOptions) {
@@ -93,9 +93,6 @@ class Mika extends Client {
 
         // Global middlewares
         this.globalMiddlewares = [GuildOnly, DeferReply]
-
-        // Prisma
-        this.prisma = prisma
     }
 
     private clientEventHandler() {
