@@ -6,29 +6,27 @@ import {
 } from 'discord.js'
 import { Prisma } from '@prisma/client'
 import type { Track } from 'shoukaku'
-import { Command, EMBEDTYPE, Mika, PlayerManager } from '@/instances'
+import { EMBEDTYPE, Mika, PlayerManager, Subcommand } from '@/instances'
 import { IsInVoiceChannel, IsPlayerCurrent, IsPlayerInit } from '@/middlewares'
 
-const data = new SlashCommandBuilder()
-    .setName('playlist')
-    .setDescription('Playlist Manager')
-    .addSubcommand((subcommand) =>
-        subcommand
-            .setName('play')
-            .setDescription('Play a playlist')
-            .addStringOption((option) =>
-                option
-                    .setName('name')
-                    .setDescription('The playlist name')
-                    .setRequired(true)
-            )
-    )
-    .toJSON()
-
-class PlaylistPlay extends Command {
+class PlaylistPlay extends Subcommand {
     constructor() {
-        super(data)
+        super()
         this.use(IsInVoiceChannel, IsPlayerInit, IsPlayerCurrent)
+    }
+
+    async configure(data: SlashCommandBuilder): Promise<void> {
+        data.addSubcommand((subcommand) =>
+            subcommand
+                .setName('play')
+                .setDescription('Play a playlist')
+                .addStringOption((option) =>
+                    option
+                        .setName('name')
+                        .setDescription('The playlist name')
+                        .setRequired(true)
+                )
+        )
     }
 
     async command(

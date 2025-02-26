@@ -5,27 +5,21 @@ import {
     SlashCommandBuilder,
 } from 'discord.js'
 import { Prisma } from '@prisma/client'
-import { Command, EMBEDTYPE, Mika } from '@/instances'
+import { EMBEDTYPE, Mika, Subcommand } from '@/instances'
 
-const data = new SlashCommandBuilder()
-    .setName('playlist')
-    .setDescription('Playlist Manager')
-    .addSubcommand((subcommand) =>
-        subcommand
-            .setName('create')
-            .setDescription('create a playlist')
-            .addStringOption((option) =>
-                option
-                    .setName('name')
-                    .setDescription('The playlist name')
-                    .setRequired(true)
-            )
-    )
-    .toJSON()
-
-class PlaylistCreate extends Command {
-    constructor() {
-        super(data)
+class PlaylistCreate extends Subcommand {
+    async configure(data: SlashCommandBuilder): Promise<void> {
+        data.addSubcommand((subcommand) =>
+            subcommand
+                .setName('create')
+                .setDescription('create a playlist')
+                .addStringOption((option) =>
+                    option
+                        .setName('name')
+                        .setDescription('The playlist name')
+                        .setRequired(true)
+                )
+        )
     }
 
     async command(client: Mika, interaction: CommandInteraction) {

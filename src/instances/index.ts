@@ -1,5 +1,6 @@
 export * from './Mika'
 export * from './Command'
+export * from './Subcommand'
 export * from './manager/EmbedManager'
 export * from './manager/InteractionManager'
 export * from './manager/PlayerManager'

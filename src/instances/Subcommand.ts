@@ -1,24 +1,16 @@
-import type {
-    CommandInteraction,
-    RESTPostAPIChatInputApplicationCommandsJSONBody,
-} from 'discord.js'
+import type { CommandInteraction, SlashCommandBuilder } from 'discord.js'
 import type { Mika } from './Mika'
 
-type Middleware<TContext = unknown> = (
+type SubcommandMiddleware<TContext = unknown> = (
     client: Mika,
     interaction: CommandInteraction,
     next: () => Promise<void>,
     context: TContext
 ) => Promise<void>
 
-abstract class Command {
-    public data: RESTPostAPIChatInputApplicationCommandsJSONBody
+abstract class Subcommand {
     public isGuildOnly: boolean = false
-    private middlewares: Middleware[] = []
-
-    constructor(data: RESTPostAPIChatInputApplicationCommandsJSONBody) {
-        this.data = data
-    }
+    private middlewares: SubcommandMiddleware[] = []
 
     abstract command(
         client: Mika,
@@ -26,8 +18,8 @@ abstract class Command {
         context: unknown
     ): Promise<void>
 
-    async execute(client: Mika, interaction: CommandInteraction) {
-        const context: unknown = {}
+    async execute(client: Mika, interaction: CommandInteraction, ctx: unknown) {
+        const context: unknown = ctx
         let index = -1
         const dispatch = async (i: number): Promise<void> => {
             if (i <= index) {
@@ -35,7 +27,7 @@ abstract class Command {
             }
             index = i
             let fn:
-                | Middleware
+                | SubcommandMiddleware
                 | ((
                       client: Mika,
                       interaction: CommandInteraction,
@@ -62,7 +54,7 @@ abstract class Command {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    use(...middleware: Middleware<any>[]) {
+    use(...middleware: SubcommandMiddleware<any>[]) {
         middleware.forEach((m) => this.middlewares.push(m))
     }
 
@@ -72,7 +64,9 @@ abstract class Command {
     ): TOptionType {
         return interaction.options.get(option)?.value as TOptionType
     }
+
+    abstract configure(data: SlashCommandBuilder): Promise<void>
 }
 
-export { Command }
-export type { Middleware }
+export { Subcommand }
+export type { SubcommandMiddleware }

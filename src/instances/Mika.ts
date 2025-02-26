@@ -131,8 +131,6 @@ class Mika extends Client {
                 if (instance instanceof Command) {
                     instance.use(...this.globalMiddlewares)
                     this.commands.set(instance.data.name, instance)
-                } else {
-                    this.logger.warn('test')
                 }
             }
         }
