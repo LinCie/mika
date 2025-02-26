@@ -4,13 +4,7 @@ import {
     SlashCommandBuilder,
 } from 'discord.js'
 import { Command, EMBEDTYPE, Mika, PlayerManager } from '@/instances'
-import {
-    DeferReply,
-    GuildOnly,
-    IsInVoiceChannel,
-    IsPlayerCurrent,
-    IsPlayerInit,
-} from '@/middlewares'
+import { IsInVoiceChannel, IsPlayerCurrent, IsPlayerInit } from '@/middlewares'
 
 const data = new SlashCommandBuilder()
     .setName('play')
@@ -38,13 +32,7 @@ const data = new SlashCommandBuilder()
 class Play extends Command {
     constructor() {
         super(data)
-        this.use(
-            GuildOnly,
-            DeferReply,
-            IsInVoiceChannel,
-            IsPlayerInit,
-            IsPlayerCurrent
-        )
+        this.use(IsInVoiceChannel, IsPlayerInit, IsPlayerCurrent)
     }
 
     async command(

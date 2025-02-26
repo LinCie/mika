@@ -20,8 +20,10 @@ import {
     PlayerManager,
     PlaylistManager,
     Command,
+    type Middleware,
 } from '@/instances'
 import { prisma } from '@/database'
+import { DeferReply, GuildOnly } from '@/middlewares'
 
 class Mika extends Client {
     public readonly logger: BaseLogger
@@ -30,7 +32,8 @@ class Mika extends Client {
     public readonly interaction: InteractionManager
     public readonly players: Collection<string, PlayerManager>
     public readonly playlist: PlaylistManager
-    public readonly prisma = prisma
+    public readonly globalMiddlewares: Middleware[]
+    public readonly prisma: typeof prisma
     private commands: Collection<string, Command> = new Collection()
 
     constructor(options: ClientOptions) {
@@ -87,6 +90,12 @@ class Mika extends Client {
                 }
             })
             .on('error', (name, error) => this.logger.error(error, name))
+
+        // Global middlewares
+        this.globalMiddlewares = [GuildOnly, DeferReply]
+
+        // Prisma
+        this.prisma = prisma
     }
 
     private clientEventHandler() {
@@ -122,6 +131,7 @@ class Mika extends Client {
             if (ClassRef && typeof ClassRef === 'function') {
                 const instance = new ClassRef()
                 if (instance instanceof Command) {
+                    instance.use(...this.globalMiddlewares)
                     this.commands.set(instance.data.name, instance)
                 } else {
                     this.logger.warn('test')

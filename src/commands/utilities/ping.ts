@@ -4,7 +4,6 @@ import {
     type CommandInteraction,
 } from 'discord.js'
 import { EMBEDTYPE, Command, type Mika } from '@/instances'
-import { DeferReply, GuildOnly } from '@/middlewares'
 
 const data = new SlashCommandBuilder()
     .setName('ping')
@@ -14,7 +13,6 @@ const data = new SlashCommandBuilder()
 class Ping extends Command {
     constructor() {
         super(data)
-        this.use(GuildOnly, DeferReply)
     }
 
     async command(client: Mika, interaction: CommandInteraction) {
