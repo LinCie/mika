@@ -16,9 +16,7 @@ function getNodes(index: number = 0, nodes: ILavalinkNode[] = []) {
         url: Bun.env[`LAVALINK_NODE_${index}_URL`] || '',
         auth: Bun.env[`LAVALINK_NODE_${index}_AUTH`] || '',
         secure:
-            Bun.env[`LAVALINK_NODE_${index}_secure`] === 'secure'
-                ? true
-                : false,
+            Bun.env[`LAVALINK_NODE_${index}_SECURE`] === 'true' ? true : false,
     }
     nodes.push(lavalinkNode)
 
