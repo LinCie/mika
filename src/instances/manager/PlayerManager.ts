@@ -111,7 +111,6 @@ class PlayerManager {
 
         this.player?.on('closed', async () => {
             this.handleTimerExist()
-
             await this.handleOnPlayerClosed()
         })
 
@@ -213,8 +212,6 @@ class PlayerManager {
         this.handleTimerExist()
         this.cleanup()
         await this.leaveVoiceChannel()
-        this.player?.removeAllListeners()
-        await this.player?.destroy()
         this.queue.destroy()
         this.client.players.delete(this.guild.id)
     }
@@ -298,7 +295,7 @@ class PlayerManager {
         }
     }
 
-    private async cleanup() {
+    private cleanup() {
         this.client.off('voiceStateUpdate', this.voiceStateHandler)
     }
 
@@ -333,7 +330,7 @@ class PlayerManager {
                 await this.channel.send({ embeds: [embed] })
                 this.leaveTimer = setTimeout(async () => {
                     this.state = PLAYERSTATE.Stopping
-                    await this.removePlayer()
+                    await this.player?.destroy()
                 }, 120000)
                 this.player?.once('start', () => {
                     this.handleTimerExist()
@@ -354,9 +351,10 @@ class PlayerManager {
             EMBEDTYPE.GLOBAL
         )
         await this.channel.send({ embeds: [embed] })
+        await this.removePlayer()
     }
 
-    private handleTimerExist() {
+    private async handleTimerExist() {
         if (this.leaveTimer) {
             clearTimeout(this.leaveTimer)
             this.leaveTimer = undefined
@@ -379,7 +377,7 @@ class PlayerManager {
         await this.channel.send({ embeds: [embed] })
         this.leaveTimer = setTimeout(async () => {
             this.state = PLAYERSTATE.Stopping
-            await this.removePlayer()
+            await this.player?.destroy()
         }, 120000)
     }
 
@@ -400,7 +398,7 @@ class PlayerManager {
 
     // Handler
 
-    private voiceStateHandler = (
+    private voiceStateHandler = async (
         oldState: VoiceState,
         newState: VoiceState
     ) => {
@@ -422,11 +420,18 @@ class PlayerManager {
         // --- Handle a user leaving a channel ---
         if (oldChannel && (!newChannel || oldChannel.id !== newChannel.id)) {
             if (oldChannel.id !== this.voice?.id) return
+
+            if (member.user.id === this.client.user?.id) {
+                if (newChannel) {
+                    this.voice = newChannel
+                }
+            }
+
             const nonBotMembersOld = oldChannel.members.filter(
                 (m) => !m.user.bot
             )
             if (nonBotMembersOld.size === 0) {
-                this.handleNoUser()
+                await this.handleNoUser()
             }
         }
 
@@ -437,7 +442,7 @@ class PlayerManager {
                 (m) => !m.user.bot
             )
             if (nonBotMembersNew.size === 1) {
-                this.handleUserRejoin()
+                await this.handleUserRejoin()
             }
         }
     }
