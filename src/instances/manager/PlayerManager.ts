@@ -209,6 +209,7 @@ class PlayerManager {
     }
 
     public async removePlayer(): Promise<void> {
+        this.state = PLAYERSTATE.Stopping
         this.handleTimerExist()
         this.cleanup()
         await this.leaveVoiceChannel()
@@ -299,6 +300,10 @@ class PlayerManager {
         this.client.off('voiceStateUpdate', this.voiceStateHandler)
     }
 
+    public async stopPlayer() {
+        this.player?.destroy()
+    }
+
     // Handles
 
     private async handleLoopingCurrent(): Promise<void> {
@@ -329,8 +334,7 @@ class PlayerManager {
                 this.state = PLAYERSTATE.Idle
                 await this.channel.send({ embeds: [embed] })
                 this.leaveTimer = setTimeout(async () => {
-                    this.state = PLAYERSTATE.Stopping
-                    await this.player?.destroy()
+                    await this.stopPlayer()
                 }, 120000)
                 this.player?.once('start', () => {
                     this.handleTimerExist()
@@ -376,8 +380,7 @@ class PlayerManager {
 
         await this.channel.send({ embeds: [embed] })
         this.leaveTimer = setTimeout(async () => {
-            this.state = PLAYERSTATE.Stopping
-            await this.player?.destroy()
+            await this.stopPlayer()
         }, 120000)
     }
 
