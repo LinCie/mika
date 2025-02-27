@@ -1,7 +1,7 @@
 import type {
     ActionRowBuilder,
     ButtonInteraction,
-    CommandInteraction,
+    ChatInputCommandInteraction,
     EmbedBuilder,
     MessageActionRowComponentBuilder,
     MessageCreateOptions,
@@ -18,7 +18,7 @@ class InteractionManager {
     }
 
     public replyEmbedWithButton(
-        interaction: CommandInteraction | ButtonInteraction,
+        interaction: ChatInputCommandInteraction | ButtonInteraction,
         embed: EmbedBuilder,
         buttons: ActionRowBuilder<MessageActionRowComponentBuilder>,
         options?: MessagePayloadOption | MessageCreateOptions
@@ -43,7 +43,7 @@ class InteractionManager {
     }
 
     public replyEmbed(
-        interaction: CommandInteraction,
+        interaction: ChatInputCommandInteraction,
         embed: EmbedBuilder,
         options?: MessagePayloadOption | MessageCreateOptions
     ) {

@@ -1,8 +1,4 @@
-import {
-    CommandInteraction,
-    CommandInteractionOptionResolver,
-    SlashCommandBuilder,
-} from 'discord.js'
+import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { Command, Mika } from '@/instances'
 import PlaylistCreate from './playlist/create'
 import PlaylistPlay from './playlist/play'
@@ -24,11 +20,10 @@ class PlaylistCommand extends Command {
 
     async command(
         client: Mika,
-        interaction: CommandInteraction,
+        interaction: ChatInputCommandInteraction,
         context: unknown
     ) {
-        const options = interaction.options as CommandInteractionOptionResolver
-        const subcommand = options.getSubcommand()
+        const subcommand = interaction.options.getSubcommand()
 
         switch (subcommand) {
             case 'create':

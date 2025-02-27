@@ -1,5 +1,5 @@
 import {
-    CommandInteraction,
+    ChatInputCommandInteraction,
     GuildMember,
     SlashCommandBuilder,
 } from 'discord.js'
@@ -36,7 +36,7 @@ class Play extends Command {
 
     async command(
         client: Mika,
-        interaction: CommandInteraction,
+        interaction: ChatInputCommandInteraction,
         context: { player: PlayerManager; member: GuildMember }
     ) {
         const { player, member } = context

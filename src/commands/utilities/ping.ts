@@ -1,7 +1,7 @@
 import {
     GuildMember,
     SlashCommandBuilder,
-    type CommandInteraction,
+    type ChatInputCommandInteraction,
 } from 'discord.js'
 import { EMBEDTYPE, Command, type Mika } from '@/instances'
 
@@ -14,7 +14,7 @@ class Ping extends Command {
         super(data)
     }
 
-    async command(client: Mika, interaction: CommandInteraction) {
+    async command(client: Mika, interaction: ChatInputCommandInteraction) {
         const member = interaction.member as GuildMember
         const embed = client.embed.createMessageEmbedWithAuthor(
             'Pong!',

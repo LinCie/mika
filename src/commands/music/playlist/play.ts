@@ -1,5 +1,5 @@
 import {
-    CommandInteraction,
+    ChatInputCommandInteraction,
     EmbedBuilder,
     GuildMember,
     SlashCommandBuilder,
@@ -31,7 +31,7 @@ class PlaylistPlay extends Subcommand {
 
     async command(
         client: Mika,
-        interaction: CommandInteraction,
+        interaction: ChatInputCommandInteraction,
         context: { player: PlayerManager; member: GuildMember }
     ) {
         const { player, member } = context

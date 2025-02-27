@@ -1,9 +1,12 @@
-import type { CommandInteraction, SlashCommandBuilder } from 'discord.js'
+import type {
+    ChatInputCommandInteraction,
+    SlashCommandBuilder,
+} from 'discord.js'
 import type { Mika } from './Mika'
 
 type Middleware<TContext = unknown> = (
     client: Mika,
-    interaction: CommandInteraction,
+    interaction: ChatInputCommandInteraction,
     next: () => Promise<void>,
     context: TContext
 ) => Promise<void>
@@ -19,11 +22,11 @@ abstract class Command {
 
     abstract command(
         client: Mika,
-        interaction: CommandInteraction,
+        interaction: ChatInputCommandInteraction,
         context: unknown
     ): Promise<void>
 
-    async execute(client: Mika, interaction: CommandInteraction) {
+    async execute(client: Mika, interaction: ChatInputCommandInteraction) {
         const context: unknown = {}
         let index = -1
         const dispatch = async (i: number): Promise<void> => {
@@ -35,7 +38,7 @@ abstract class Command {
                 | Middleware
                 | ((
                       client: Mika,
-                      interaction: CommandInteraction,
+                      interaction: ChatInputCommandInteraction,
                       context: unknown
                   ) => Promise<void>)
             if (i === this.middlewares.length) {
@@ -65,7 +68,7 @@ abstract class Command {
 
     get<TOptionType = unknown>(
         option: string,
-        interaction: CommandInteraction
+        interaction: ChatInputCommandInteraction
     ): TOptionType {
         return interaction.options.get(option)?.value as TOptionType
     }

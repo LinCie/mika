@@ -1,5 +1,5 @@
 import type {
-    CommandInteraction,
+    ChatInputCommandInteraction,
     Guild,
     GuildMember,
     TextChannel,
@@ -42,7 +42,7 @@ class PlayerManager {
     public LOOPSTATE: LOOPSTATE
     public volume = 50
 
-    constructor(client: Mika, interaction: CommandInteraction) {
+    constructor(client: Mika, interaction: ChatInputCommandInteraction) {
         this.client = client
         this.guild = interaction.guild!
         this.channel = this.client.channels.cache.get(
@@ -78,7 +78,7 @@ class PlayerManager {
         })
     }
 
-    public async init(interaction: CommandInteraction): Promise<PlayerManager> {
+    public async init(interaction: ChatInputCommandInteraction): Promise<PlayerManager> {
         const member = interaction.member as GuildMember
 
         this.player = await this.client.shoukaku.joinVoiceChannel({
@@ -225,7 +225,7 @@ class PlayerManager {
     public async addMusic(
         query: string,
         method: string,
-        interaction: CommandInteraction
+        interaction: ChatInputCommandInteraction
     ) {
         const result = await this.searchMusic(query, method)
         const member = interaction.member as GuildMember
