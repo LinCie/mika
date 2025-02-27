@@ -7,21 +7,19 @@ import { Command, Mika } from '@/instances'
 import PlaylistCreate from './playlist/create'
 import PlaylistPlay from './playlist/play'
 
+const data = new SlashCommandBuilder()
+    .setName('playlist')
+    .setDescription('Playlist Manager')
+
 class PlaylistCommand extends Command {
     private readonly playlistCreate = new PlaylistCreate()
     private readonly playlistPlay = new PlaylistPlay()
 
     constructor() {
-        const data = new SlashCommandBuilder()
-            .setName('playlist')
-            .setDescription('Playlist Manager')
+        super(data)
 
-        super(data.toJSON())
-
-        this.playlistCreate.configure(data)
-        this.playlistPlay.configure(data)
-
-        this.data = data.toJSON()
+        this.playlistCreate.configure(this.data)
+        this.playlistPlay.configure(this.data)
     }
 
     async command(

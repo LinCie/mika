@@ -143,9 +143,9 @@ class Mika extends Client {
 
             for (const command of this.commands.values()) {
                 if (command.isGuildOnly) {
-                    devCommands.push(command.data)
+                    devCommands.push(command.data.toJSON())
                 } else {
-                    commands.push(command.data)
+                    commands.push(command.data.toJSON())
                 }
             }
 
@@ -170,7 +170,14 @@ class Mika extends Client {
 
             for (const command of commands) {
                 this.logger.info(
-                    `Loaded global command /${command.name}${command.options?.map((option) => (option.type === ApplicationCommandOptionType.Subcommand ? ` ${option.name}` : null))}`
+                    `Loaded global command /${command.name} ${command.options
+                        ?.filter(
+                            (option) =>
+                                option.type ===
+                                ApplicationCommandOptionType.Subcommand
+                        )
+                        .map((option) => option.name)
+                        .join(', ')}`
                 )
             }
         } catch (error) {

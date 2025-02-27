@@ -27,11 +27,10 @@ const data = new SlashCommandBuilder()
                 { name: 'Spotify', value: 'spsearch' }
             )
     )
-    .toJSON()
 
 class Play extends Command {
     constructor() {
-        super(data)
+        super(data as SlashCommandBuilder)
         this.use(IsInVoiceChannel, IsPlayerInit, IsPlayerCurrent)
     }
 

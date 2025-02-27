@@ -5,3 +5,4 @@ export const NODE_ENV = Bun.env.NODE_ENV
 export const TURSO_DATABASE_URL = Bun.env.TURSO_DATABASE_URL
 export const TURSO_AUTH_TOKEN = Bun.env.TURSO_AUTH_TOKEN
 export const OWNER_ID = Bun.env.OWNER_ID
+export const LOGGER_CHANNEL_ID = Bun.env.LOGGER_CHANNEL_ID

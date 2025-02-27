@@ -1,7 +1,4 @@
-import type {
-    CommandInteraction,
-    RESTPostAPIChatInputApplicationCommandsJSONBody,
-} from 'discord.js'
+import type { CommandInteraction, SlashCommandBuilder } from 'discord.js'
 import type { Mika } from './Mika'
 
 type Middleware<TContext = unknown> = (
@@ -12,11 +9,11 @@ type Middleware<TContext = unknown> = (
 ) => Promise<void>
 
 abstract class Command {
-    public data: RESTPostAPIChatInputApplicationCommandsJSONBody
+    public data: SlashCommandBuilder
     public isGuildOnly: boolean = false
     private middlewares: Middleware[] = []
 
-    constructor(data: RESTPostAPIChatInputApplicationCommandsJSONBody) {
+    constructor(data: SlashCommandBuilder) {
         this.data = data
     }
 

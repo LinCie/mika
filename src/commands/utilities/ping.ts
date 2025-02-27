@@ -8,7 +8,6 @@ import { EMBEDTYPE, Command, type Mika } from '@/instances'
 const data = new SlashCommandBuilder()
     .setName('ping')
     .setDescription('Replies with Pong!')
-    .toJSON()
 
 class Ping extends Command {
     constructor() {
