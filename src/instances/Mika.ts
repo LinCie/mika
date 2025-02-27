@@ -5,6 +5,7 @@ import {
     Events,
     REST,
     Routes,
+    TextChannel,
     type ClientOptions,
     type RESTPostAPIChatInputApplicationCommandsJSONBody,
 } from 'discord.js'
@@ -14,7 +15,15 @@ import path from 'node:path'
 import type { BaseLogger } from 'pino'
 import { Connectors, Shoukaku } from 'shoukaku'
 import { logger } from '@/utilities'
-import { BOT_TOKEN, CLIENT_ID, getNodes, GUILD_ID, NODE_ENV } from '@/config'
+import {
+    BOT_TOKEN,
+    CLIENT_ID,
+    ERROR_LOGGER_CHANNEL_ID,
+    getNodes,
+    GUILD_ID,
+    LOGGER_CHANNEL_ID,
+    NODE_ENV,
+} from '@/config'
 import {
     EmbedManager,
     InteractionManager,
@@ -50,7 +59,7 @@ class Mika extends Client {
         this.embed = new EmbedManager()
 
         // Interaction
-        this.interaction = new InteractionManager(this)
+        this.interaction = new InteractionManager()
 
         // Playlist
         this.playlist = new PlaylistManager(this)
@@ -99,6 +108,7 @@ class Mika extends Client {
     private clientEventHandler() {
         this.once(Events.ClientReady, async () => {
             await this.registerCommands()
+
             this.logger.info('Mika is now ready 🩷')
         })
 
@@ -112,11 +122,26 @@ class Mika extends Client {
                 )
             }
 
-            await command.execute(this, interaction)
+            try {
+                await command.execute(this, interaction)
+            } finally {
+                const loggerEmbed =
+                    this.embed.createSuccessLogerEmbed(interaction)
+                const loggerChannel = this.channels.cache.get(
+                    LOGGER_CHANNEL_ID
+                ) as TextChannel
+                await this.interaction.sendEmbed(loggerChannel, loggerEmbed)
+            }
         })
 
-        this.on(Events.Error, (error) => {
+        this.on(Events.Error, async (error) => {
             this.logger.error(error.message, error)
+
+            const errorEmbed = this.embed.createErrorLoggerEmbed(error)
+            const errorLoggerChannel = this.channels.cache.get(
+                ERROR_LOGGER_CHANNEL_ID
+            ) as TextChannel
+            await this.interaction.sendEmbed(errorLoggerChannel, errorEmbed)
         })
     }
 
@@ -135,53 +160,48 @@ class Mika extends Client {
             }
         }
 
-        try {
-            const commands: RESTPostAPIChatInputApplicationCommandsJSONBody[] =
-                []
-            const devCommands: RESTPostAPIChatInputApplicationCommandsJSONBody[] =
-                []
+        // Start registering command
+        const commands: RESTPostAPIChatInputApplicationCommandsJSONBody[] = []
+        const devCommands: RESTPostAPIChatInputApplicationCommandsJSONBody[] =
+            []
 
-            for (const command of this.commands.values()) {
-                if (command.isGuildOnly) {
-                    devCommands.push(command.data.toJSON())
-                } else {
-                    commands.push(command.data.toJSON())
-                }
+        for (const command of this.commands.values()) {
+            if (command.isGuildOnly) {
+                devCommands.push(command.data.toJSON())
+            } else {
+                commands.push(command.data.toJSON())
             }
+        }
 
+        this.logger.info(
+            `Started refreshing ${commands.length} application (/) commands.`
+        )
+
+        const rest = new REST().setToken(BOT_TOKEN)
+
+        await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), {
+            body: devCommands,
+        })
+
+        for (const command of devCommands) {
+            this.logger.info(`Loaded dev command /${command.name}`)
+        }
+
+        await rest.put(Routes.applicationCommands(CLIENT_ID), {
+            body: commands,
+        })
+
+        for (const command of commands) {
             this.logger.info(
-                `Started refreshing ${commands.length} application (/) commands.`
+                `Loaded global command /${command.name} ${command.options
+                    ?.filter(
+                        (option) =>
+                            option.type ===
+                            ApplicationCommandOptionType.Subcommand
+                    )
+                    .map((option) => option.name)
+                    .join(', ')}`
             )
-
-            const rest = new REST().setToken(BOT_TOKEN)
-
-            await rest.put(
-                Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
-                { body: devCommands }
-            )
-
-            for (const command of devCommands) {
-                this.logger.info(`Loaded dev command /${command.name}`)
-            }
-
-            await rest.put(Routes.applicationCommands(CLIENT_ID), {
-                body: commands,
-            })
-
-            for (const command of commands) {
-                this.logger.info(
-                    `Loaded global command /${command.name} ${command.options
-                        ?.filter(
-                            (option) =>
-                                option.type ===
-                                ApplicationCommandOptionType.Subcommand
-                        )
-                        .map((option) => option.name)
-                        .join(', ')}`
-                )
-            }
-        } catch (error) {
-            this.logger.error(error)
         }
     }
 }

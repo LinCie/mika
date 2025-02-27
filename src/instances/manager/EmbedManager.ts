@@ -1,4 +1,9 @@
-import { EmbedBuilder, type GuildMember } from 'discord.js'
+import {
+    ChatInputCommandInteraction,
+    EmbedBuilder,
+    TextChannel,
+    type GuildMember,
+} from 'discord.js'
 import type { PlaylistResult, Track } from 'shoukaku'
 import { COLOR, EMOJI } from '@/config'
 
@@ -145,6 +150,70 @@ class EmbedManager {
                     inline: true,
                 }
             )
+            .setTimestamp()
+            .setFooter({
+                text: 'Made with 🩷 by LinCie',
+                iconURL:
+                    'https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png',
+            })
+    }
+
+    public createSuccessLogerEmbed(interaction: ChatInputCommandInteraction) {
+        const member = interaction.member as GuildMember
+        const channel = interaction.channel as TextChannel
+
+        return new EmbedBuilder()
+            .setColor(COLOR.GLOBAL)
+            .setAuthor({
+                name: member.displayName,
+                iconURL: member.displayAvatarURL(),
+            })
+            .setThumbnail(interaction.guild?.iconURL() || '')
+            .setDescription(`Someone ran a command`)
+            .addFields(
+                {
+                    name: 'Command',
+                    value: interaction.commandName,
+                    inline: false,
+                },
+                {
+                    name: 'Full Command',
+                    value: interaction.toString(),
+                    inline: false,
+                },
+                {
+                    name: 'Member',
+                    value: member.displayName,
+                    inline: true,
+                },
+                {
+                    name: 'Channel',
+                    value: channel.name,
+                    inline: true,
+                },
+                {
+                    name: 'Guild',
+                    value: interaction.guild?.name || '',
+                    inline: true,
+                }
+            )
+            .setTimestamp()
+            .setFooter({
+                text: 'Made with 🩷 by LinCie',
+                iconURL:
+                    'https://static.wikia.nocookie.net/blue-archive/images/d/dd/Mika_Icon.png',
+            })
+    }
+
+    public createErrorLoggerEmbed(error: Error) {
+        return new EmbedBuilder()
+            .setColor(COLOR.ERROR)
+            .setDescription('# There is an error!')
+            .addFields({
+                name: 'Error Message',
+                value: error.message,
+                inline: false,
+            })
             .setTimestamp()
             .setFooter({
                 text: 'Made with 🩷 by LinCie',

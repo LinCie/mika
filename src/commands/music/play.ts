@@ -48,13 +48,13 @@ class Play extends Command {
         try {
             await player.addMusic(query, method, interaction)
         } catch (error) {
-            client.logger.error(error)
             const embed = client.embed.createMessageEmbedWithAuthor(
                 '⛔ There is an error while trying to play music ⛔',
                 member,
                 EMBEDTYPE.ERROR
             )
             await client.interaction.replyEmbed(interaction, embed)
+            throw error
         }
     }
 }

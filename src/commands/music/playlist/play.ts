@@ -53,8 +53,6 @@ class PlaylistPlay extends Subcommand {
             )
             await client.interaction.replyEmbed(interaction, embed)
         } catch (error) {
-            client.logger.error(error)
-
             let embed: EmbedBuilder = client.embed.createMessageEmbedWithAuthor(
                 `⛔ There is an error while trying to play music from playlist **${name}** ⛔`,
                 member,
@@ -74,6 +72,8 @@ class PlaylistPlay extends Subcommand {
             await client.interaction.replyEmbed(interaction, embed, {
                 ephemeral: true,
             })
+
+            throw error
         }
     }
 }

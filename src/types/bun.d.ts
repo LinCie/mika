@@ -8,5 +8,6 @@ declare module 'bun' {
         TURSO_DATABASE_URL: string
         OWNER_ID: string
         LOGGER_CHANNEL_ID: string
+        ERROR_LOGGER_CHANNEL_ID: string
     }
 }
