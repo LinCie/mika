@@ -30,7 +30,7 @@ class PlaylistCommand extends Command {
         this.playlistDelete.configure(this.data)
         this.playlistRemove.configure(this.data)
         this.playlistGet.configure(this.data)
-        this.playlistGet.configure(this.data)
+        this.playlistList.configure(this.data)
     }
 
     async command(
