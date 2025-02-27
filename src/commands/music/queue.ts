@@ -123,21 +123,27 @@ class Queue extends Command {
             buttonRow
         )
 
-        const buttonResponse = await response.awaitMessageComponent()
+        try {
+            const buttonResponse = await response.awaitMessageComponent({
+                time: 1000 * 60 * 2,
+            })
 
-        switch (buttonResponse.customId) {
-            case 'next_queue':
-                await this.nextQueue(
-                    client,
-                    buttonResponse as ButtonInteraction
-                )
-                break
-            case 'previous_queue':
-                await this.previousQueue(
-                    client,
-                    buttonResponse as ButtonInteraction
-                )
-                break
+            switch (buttonResponse.customId) {
+                case 'next_queue':
+                    await this.nextQueue(
+                        client,
+                        buttonResponse as ButtonInteraction
+                    )
+                    break
+                case 'previous_queue':
+                    await this.previousQueue(
+                        client,
+                        buttonResponse as ButtonInteraction
+                    )
+                    break
+            }
+        } catch {
+            client.logger.debug('Bruh')
         }
     }
 }
