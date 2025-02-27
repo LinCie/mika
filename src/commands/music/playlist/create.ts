@@ -25,7 +25,7 @@ class PlaylistCreate extends Subcommand {
     async command(client: Mika, interaction: ChatInputCommandInteraction) {
         const member = interaction.member as GuildMember
 
-        const name = this.get<string>('name', interaction)
+        const name = interaction.options.getString('name', true)
 
         try {
             const playlist = await client.playlist.createPlaylist(

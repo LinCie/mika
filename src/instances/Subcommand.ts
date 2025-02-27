@@ -65,13 +65,6 @@ abstract class Subcommand {
         middleware.forEach((m) => this.middlewares.push(m))
     }
 
-    get<TOptionType = unknown>(
-        option: string,
-        interaction: ChatInputCommandInteraction
-    ): TOptionType {
-        return interaction.options.get(option)?.value as TOptionType
-    }
-
     abstract configure(data: SlashCommandBuilder): Promise<void>
 }
 

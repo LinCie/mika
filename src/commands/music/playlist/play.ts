@@ -36,7 +36,7 @@ class PlaylistPlay extends Subcommand {
     ) {
         const { player, member } = context
 
-        const name = this.get<string>('name', interaction)
+        const name = interaction.options.getString('name', true)
 
         try {
             const playlist = await client.playlist.getPlaylistByName(

@@ -65,13 +65,6 @@ abstract class Command {
     use(...middleware: Middleware<any>[]) {
         middleware.forEach((m) => this.middlewares.push(m))
     }
-
-    get<TOptionType = unknown>(
-        option: string,
-        interaction: ChatInputCommandInteraction
-    ): TOptionType {
-        return interaction.options.get(option)?.value as TOptionType
-    }
 }
 
 export { Command }

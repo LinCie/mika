@@ -41,9 +41,8 @@ class Play extends Command {
     ) {
         const { player, member } = context
 
-        const query = this.get<string>('query', interaction)
-        const method =
-            this.get<string | undefined>('method', interaction) || 'scsearch'
+        const query = interaction.options.getString('query', true)
+        const method = interaction.options.getString('method') || 'scsearch'
 
         try {
             await player.addMusic(query, method, interaction)
