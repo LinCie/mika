@@ -2,6 +2,7 @@ import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { Command, Mika } from '@/instances'
 import PlaylistCreate from './playlist/create'
 import PlaylistPlay from './playlist/play'
+import PlaylistAdd from './playlist/add'
 
 const data = new SlashCommandBuilder()
     .setName('playlist')
@@ -10,12 +11,14 @@ const data = new SlashCommandBuilder()
 class PlaylistCommand extends Command {
     private readonly playlistCreate = new PlaylistCreate()
     private readonly playlistPlay = new PlaylistPlay()
+    private readonly playlistAdd = new PlaylistAdd()
 
     constructor() {
         super(data)
 
         this.playlistCreate.configure(this.data)
         this.playlistPlay.configure(this.data)
+        this.playlistAdd.configure(this.data)
     }
 
     async command(
@@ -30,6 +33,9 @@ class PlaylistCommand extends Command {
                 await this.playlistCreate.execute(client, interaction, context)
                 break
             case 'play':
+                await this.playlistPlay.execute(client, interaction, context)
+                break
+            case 'add':
                 await this.playlistPlay.execute(client, interaction, context)
                 break
             default:
