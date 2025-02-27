@@ -12,8 +12,8 @@ class PlaylistRemove extends Subcommand {
     async configure(data: SlashCommandBuilder): Promise<void> {
         data.addSubcommand((subcommand) =>
             subcommand
-                .setName('delete')
-                .setDescription('delete a playlist')
+                .setName('remove')
+                .setDescription('remove a track from playlist')
                 .addStringOption((option) =>
                     option
                         .setName('name')
