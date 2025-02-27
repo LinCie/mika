@@ -39,7 +39,7 @@ class PlayerManager {
     public player: Player | undefined
     public voice: VoiceBasedChannel | undefined
     public state: PLAYERSTATE
-    public LOOPSTATE: LOOPSTATE
+    public loopState: LOOPSTATE
     public volume = 50
 
     constructor(client: Mika, interaction: ChatInputCommandInteraction) {
@@ -49,7 +49,7 @@ class PlayerManager {
             interaction.channel?.id || ''
         ) as TextChannel
         this.state = PLAYERSTATE.Idle
-        this.LOOPSTATE = LOOPSTATE.LoopingNone
+        this.loopState = LOOPSTATE.LoopingNone
 
         // Queue
         this.queue = new QueueManager()
@@ -78,7 +78,9 @@ class PlayerManager {
         })
     }
 
-    public async init(interaction: ChatInputCommandInteraction): Promise<PlayerManager> {
+    public async init(
+        interaction: ChatInputCommandInteraction
+    ): Promise<PlayerManager> {
         const member = interaction.member as GuildMember
 
         this.player = await this.client.shoukaku.joinVoiceChannel({
@@ -98,7 +100,7 @@ class PlayerManager {
         this.player?.on('end', async () => {
             this.handleTimerExist()
 
-            if (this.LOOPSTATE === LOOPSTATE.LoopingCurrent) {
+            if (this.loopState === LOOPSTATE.LoopingCurrent) {
                 await this.handleLoopingCurrent()
             } else if (this.state === PLAYERSTATE.Changing) {
                 this.state = PLAYERSTATE.Playing
@@ -147,7 +149,7 @@ class PlayerManager {
 
     public getNextPlaying(): Track | undefined {
         let next: Track | undefined
-        switch (this.LOOPSTATE) {
+        switch (this.loopState) {
             case LOOPSTATE.LoopingCurrent: {
                 next = this.queue.getCurrent()
                 break
@@ -321,7 +323,7 @@ class PlayerManager {
     }
 
     private async handleLastTrack(): Promise<void> {
-        if (this.LOOPSTATE === LOOPSTATE.LoopingQueue) {
+        if (this.loopState === LOOPSTATE.LoopingQueue) {
             await this.handleLoopingQueue()
         } else {
             const time = `<t:${Math.floor(Date.now() / 1000) + 120}:R>`
