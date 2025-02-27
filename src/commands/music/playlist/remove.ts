@@ -6,8 +6,9 @@ import {
 } from 'discord.js'
 import { Prisma } from '@prisma/client'
 import { EMBEDTYPE, Mika, Subcommand } from '@/instances'
+import type { Track } from 'shoukaku'
 
-class PlaylistDelete extends Subcommand {
+class PlaylistRemove extends Subcommand {
     async configure(data: SlashCommandBuilder): Promise<void> {
         data.addSubcommand((subcommand) =>
             subcommand
@@ -19,6 +20,12 @@ class PlaylistDelete extends Subcommand {
                         .setDescription('The playlist name')
                         .setRequired(true)
                 )
+                .addNumberOption((option) =>
+                    option
+                        .setName('position')
+                        .setDescription('The position of removed track')
+                        .setRequired(true)
+                )
         )
     }
 
@@ -26,11 +33,14 @@ class PlaylistDelete extends Subcommand {
         const member = interaction.member as GuildMember
 
         const name = interaction.options.getString('name', true)
+        const position = interaction.options.getNumber('position', true)
 
         try {
             const playlist = await client.playlist.getPlaylistByName(
                 name.toLowerCase()
             )
+            const tracks: Track[] = JSON.parse(playlist.musics)
+            const truePosition = position - 1
 
             if (playlist.userId !== member.user.id) {
                 const embed = client.embed.createMessageEmbedWithAuthor(
@@ -44,17 +54,33 @@ class PlaylistDelete extends Subcommand {
                 return
             }
 
-            await client.playlist.deletePlaylist(name.toLowerCase())
+            if (truePosition < 0 || truePosition > tracks.length) {
+                const embed = client.embed.createMessageEmbedWithAuthor(
+                    `⛔ Position **${position}** is out of range ⛔`,
+                    member,
+                    EMBEDTYPE.ERROR
+                )
+
+                await client.interaction.replyEmbed(interaction, embed, {
+                    ephemeral: true,
+                })
+            }
+
+            const removedTrack = tracks[truePosition]
+            playlist.musics = JSON.stringify(
+                tracks.filter((track, idx) => idx !== truePosition)
+            )
+            await client.playlist.updatePlaylist(playlist)
 
             const embed = client.embed.createMessageEmbedWithAuthor(
-                `🎶 Playlist **${playlist.name}** has been deleted 🎶`,
+                `🎶 **${removedTrack.info.title}** has been removed from playlist **${name}** 🎶`,
                 member,
                 EMBEDTYPE.SUCCESS
             )
             await client.interaction.replyEmbed(interaction, embed)
         } catch (error) {
             let embed: EmbedBuilder = client.embed.createMessageEmbedWithAuthor(
-                `⛔ There is an error while trying to delete playlist **${name}** ⛔`,
+                `⛔ There is an error while trying to remove track from playlist **${name}** ⛔`,
                 member,
                 EMBEDTYPE.ERROR
             )
@@ -78,4 +104,4 @@ class PlaylistDelete extends Subcommand {
     }
 }
 
-export default PlaylistDelete
+export default PlaylistRemove
