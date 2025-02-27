@@ -5,6 +5,7 @@ import PlaylistPlay from './playlist/play'
 import PlaylistAdd from './playlist/add'
 import PlaylistDelete from './playlist/delete'
 import PlaylistRemove from './playlist/remove'
+import PlaylistGet from './playlist/get'
 
 const data = new SlashCommandBuilder()
     .setName('playlist')
@@ -16,6 +17,7 @@ class PlaylistCommand extends Command {
     private readonly playlistAdd = new PlaylistAdd()
     private readonly playlistDelete = new PlaylistDelete()
     private readonly playlistRemove = new PlaylistRemove()
+    private readonly playlistGet = new PlaylistGet()
 
     constructor() {
         super(data)
@@ -25,6 +27,7 @@ class PlaylistCommand extends Command {
         this.playlistAdd.configure(this.data)
         this.playlistDelete.configure(this.data)
         this.playlistRemove.configure(this.data)
+        this.playlistGet.configure(this.data)
     }
 
     async command(
@@ -49,6 +52,9 @@ class PlaylistCommand extends Command {
                 break
             case 'remove':
                 await this.playlistRemove.execute(client, interaction, context)
+                break
+            case 'get':
+                await this.playlistGet.execute(client, interaction, context)
                 break
             default:
                 throw new Error(`Subcommand ${subcommand} not found`)
