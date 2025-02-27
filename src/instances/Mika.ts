@@ -1,4 +1,5 @@
 import {
+    ActivityType,
     ApplicationCommandOptionType,
     Client,
     Collection,
@@ -108,6 +109,17 @@ class Mika extends Client {
     private clientEventHandler() {
         this.once(Events.ClientReady, async () => {
             await this.registerCommands()
+
+            // Presence
+            this.user?.setPresence({
+                activities: [
+                    {
+                        name: '/play',
+                        type: ActivityType.Listening,
+                    },
+                ],
+                status: 'online',
+            })
 
             this.logger.info('Mika is now ready 🩷')
         })
