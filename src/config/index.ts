@@ -10,6 +10,8 @@ export enum EMOJI {
     soundcloud = '<:soundcloud:1340641801823977563>',
     spotify = '<:spotify:1340641784371609610>',
     music = '<:music:1341795857443586079>',
+    next = '<:next:1345047720942899283>',
+    previous = '<:previous:1345047737581699132>',
 }
 
 export * from './env'

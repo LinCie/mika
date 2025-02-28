@@ -12,6 +12,7 @@ import {
 import { EMBEDTYPE, Mika, Subcommand } from '@/instances'
 import type { Playlist } from '@prisma/client'
 import type { Track } from 'shoukaku'
+import { EMOJI } from '@/config'
 
 class PlaylistList extends Subcommand {
     private playlists: Playlist[] = []
@@ -84,16 +85,16 @@ class PlaylistList extends Subcommand {
         const currentTracks = this.playlists.slice(startIndex, endIndex)
 
         const nextButton = new ButtonBuilder()
-            .setStyle(ButtonStyle.Primary)
+            .setStyle(ButtonStyle.Secondary)
             .setCustomId('next_list')
             .setDisabled(this.page >= this.pages)
-            .setEmoji('⏭️')
+            .setEmoji(EMOJI.next)
 
         const previousButton = new ButtonBuilder()
-            .setStyle(ButtonStyle.Primary)
+            .setStyle(ButtonStyle.Secondary)
             .setCustomId('previous_list')
             .setDisabled(this.page <= 1)
-            .setEmoji('⏮️')
+            .setEmoji(EMOJI.previous)
 
         const buttonRow =
             new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(

@@ -79,16 +79,16 @@ class Queue extends Command {
             EMOJI[currentlyPlaying?.info.sourceName as keyof typeof EMOJI]
 
         const nextButton = new ButtonBuilder()
-            .setStyle(ButtonStyle.Primary)
+            .setStyle(ButtonStyle.Secondary)
             .setCustomId('next_queue')
             .setDisabled(this.page >= this.pages)
-            .setEmoji('⏭️')
+            .setEmoji(EMOJI.next)
 
         const previousButton = new ButtonBuilder()
-            .setStyle(ButtonStyle.Primary)
+            .setStyle(ButtonStyle.Secondary)
             .setCustomId('previous_queue')
             .setDisabled(this.page <= 1)
-            .setEmoji('⏮️')
+            .setEmoji(EMOJI.previous)
 
         const buttonRow =
             new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
