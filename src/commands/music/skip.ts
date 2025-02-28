@@ -38,14 +38,14 @@ class Skip extends Command {
             return
         }
 
-        await player.skipMusic()
-
         const current = player.queue.getCurrent()!
         const embed = client.embed.createMessageEmbedWithAuthor(
             `🎶 **${current.info.title}** has been sucessfully skipped 🎶`,
             member,
             EMBEDTYPE.SUCCESS
         )
+
+        await player.skipMusic()
         await client.interaction.replyEmbed(interaction, embed)
     }
 }
