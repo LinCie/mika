@@ -325,23 +325,22 @@ class PlayerManager {
     private async handleLastTrack(): Promise<void> {
         if (this.loopState === LOOPSTATE.LoopingQueue) {
             await this.handleLoopingQueue()
-        } else {
+        } else if (this.state !== PLAYERSTATE.Stopping) {
+            this.state = PLAYERSTATE.Idle
+
             const time = `<t:${Math.floor(Date.now() / 1000) + 120}:R>`
             const embed = this.client.embed.createMessageEmbed(
                 `⚠️ Queue is currently empty, leaving voice channel ${time} if no new track is added ⚠️`,
                 EMBEDTYPE.WARNING
             )
+            await this.channel.send({ embeds: [embed] })
 
-            if (this.state !== PLAYERSTATE.Stopping) {
-                this.state = PLAYERSTATE.Idle
-                await this.channel.send({ embeds: [embed] })
-                this.leaveTimer = setTimeout(async () => {
-                    await this.stopPlayer()
-                }, 120000)
-                this.player?.once('start', () => {
-                    this.handleTimerExist()
-                })
-            }
+            this.leaveTimer = setTimeout(async () => {
+                await this.stopPlayer()
+            }, 120000)
+            this.player?.once('start', () => {
+                this.handleTimerExist()
+            })
         }
     }
 
