@@ -19,7 +19,7 @@ class Stop extends Command {
     ) {
         const { player } = context
 
-        await player.removePlayer()
+        await player.stopPlayer()
         await interaction.deleteReply()
     }
 }

@@ -211,12 +211,11 @@ class PlayerManager {
     }
 
     public async removePlayer(): Promise<void> {
-        this.state = PLAYERSTATE.Stopping
-        this.handleTimerExist()
-        this.cleanup()
+        this.client.players.delete(this.guild.id)
         await this.leaveVoiceChannel()
         this.queue.destroy()
-        this.client.players.delete(this.guild.id)
+        this.cleanup()
+        this.handleTimerExist()
     }
 
     public async changeVolume(volume: number): Promise<void> {
@@ -303,7 +302,8 @@ class PlayerManager {
     }
 
     public async stopPlayer() {
-        this.player?.destroy()
+        this.state = PLAYERSTATE.Stopping
+        await this.player?.destroy()
     }
 
     // Handles
