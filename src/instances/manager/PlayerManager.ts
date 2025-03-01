@@ -108,6 +108,7 @@ class PlayerManager {
         })
 
         this.player?.on('closed', async () => {
+            this.state = PLAYERSTATE.Stopping
             this.handleTimerExist()
             await this.handleOnPlayerClosed()
         })
