@@ -60,7 +60,6 @@ class PlayerManager {
                 } else {
                     await this.playMusic(track)
                 }
-                this.state = PLAYERSTATE.Playing
             }
         })
         this.queue.on(QUEUEEVENT.TRACKS_ADDED, async (tracks: Array<Track>) => {
@@ -73,7 +72,6 @@ class PlayerManager {
                 } else {
                     await this.playMusic(tracks[0])
                 }
-                this.state = PLAYERSTATE.Playing
             }
         })
     }
@@ -102,8 +100,6 @@ class PlayerManager {
 
             if (this.loopState === LOOPSTATE.LoopingCurrent) {
                 await this.handleLoopingCurrent()
-            } else if (this.state === PLAYERSTATE.Changing) {
-                this.state = PLAYERSTATE.Playing
             } else if (this.queue.current < this.queue.getLength() - 1) {
                 await this.handlePlayNext()
             } else if (this.queue.current === this.queue.getLength() - 1) {
@@ -193,6 +189,13 @@ class PlayerManager {
     }
 
     public async skipMusic() {
+        this.state = PLAYERSTATE.Changing
+        await this.player?.stopTrack()
+    }
+
+    public async moveTrack(position: number) {
+        this.state = PLAYERSTATE.Changing
+        this.queue.setCurrent(position - 1)
         await this.player?.stopTrack()
     }
 
@@ -345,6 +348,7 @@ class PlayerManager {
     }
 
     private async handleOnPlayerStart(data: TrackStartEvent): Promise<void> {
+        this.state = PLAYERSTATE.Playing
         const next = this.getNextPlaying()
         const embed = this.client.embed.createPlayingEmbed(data.track, next)
         await this.channel.send({ embeds: [embed] })

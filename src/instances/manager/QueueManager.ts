@@ -105,6 +105,10 @@ class QueueManager extends EventEmitter {
         this.queue.clear()
         this.resetQueue()
     }
+
+    public setCurrent(position: number): void {
+        this.current = position
+    }
 }
 
 export { QueueManager, QUEUEEVENT }

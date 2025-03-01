@@ -3,14 +3,20 @@ import {
     GuildMember,
     SlashCommandBuilder,
 } from 'discord.js'
-import { Command, EMBEDTYPE, LOOPSTATE, Mika, PlayerManager } from '@/instances'
+import { Command, EMBEDTYPE, Mika, PlayerManager } from '@/instances'
 import { IsInVoiceChannel, IsPlayerCurrent, IsPlayerExist } from '@/middlewares'
 
 const data = new SlashCommandBuilder()
-    .setName('skip')
-    .setDescription('Skip current track')
+    .setName('move')
+    .setDescription('Move to specified track position')
+    .addNumberOption((option) =>
+        option
+            .setName('position')
+            .setDescription('The position of the track')
+            .setRequired(true)
+    )
 
-class Skip extends Command {
+class Move extends Command {
     constructor() {
         super(data as SlashCommandBuilder)
         this.use(IsInVoiceChannel, IsPlayerExist, IsPlayerCurrent)
@@ -22,14 +28,15 @@ class Skip extends Command {
         context: { player: PlayerManager; member: GuildMember }
     ) {
         const { player, member } = context
-        const current = player.queue.getCurrent()!
 
-        if (
-            !player.queue.getNext() &&
-            player.loopState === LOOPSTATE.LoopingNone
-        ) {
+        const position = interaction.options.getNumber('position', true)
+
+        const index = position - 1
+        const track = player.queue.getTrack(index)
+
+        if (position < 0 || position > player.queue.getLength()) {
             const embed = client.embed.createMessageEmbedWithAuthor(
-                '⛔ There is no more track in queue ⛔',
+                '⛔ Track position is out of range ⛔',
                 member,
                 EMBEDTYPE.ERROR
             )
@@ -39,10 +46,10 @@ class Skip extends Command {
             return
         }
 
-        await player.skipMusic()
+        await player.moveTrack(index)
 
         const embed = client.embed.createMessageEmbedWithAuthor(
-            `🎶 **${current.info.title}** has been sucessfully skipped 🎶`,
+            `🎶 Player has been successfully moved to **${track?.info.title}** 🎶`,
             member,
             EMBEDTYPE.SUCCESS
         )
@@ -50,4 +57,4 @@ class Skip extends Command {
     }
 }
 
-export default Skip
+export default Move
