@@ -17,8 +17,8 @@ const data = new SlashCommandBuilder()
     )
     .addStringOption((option) =>
         option
-            .setName('method')
-            .setDescription('The search method. Defaults to soundcloud')
+            .setName('source')
+            .setDescription('The search source. Defaults to soundcloud')
             .setRequired(false)
             .addChoices(
                 { name: 'Soundcloud', value: 'scsearch' },
@@ -42,10 +42,10 @@ class Play extends Command {
         const { player, member } = context
 
         const query = interaction.options.getString('query', true)
-        const method = interaction.options.getString('method') || 'scsearch'
+        const source = interaction.options.getString('source') || 'scsearch'
 
         try {
-            await player.addMusic(query, method, interaction)
+            await player.addMusic(query, source, interaction)
         } catch (error) {
             const embed = client.embed.createMessageEmbedWithAuthor(
                 '⛔ There is an error while trying to play music ⛔',
