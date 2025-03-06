@@ -98,12 +98,14 @@ class PlayerManager {
         this.player?.on('end', async () => {
             this.handleTimerExist()
 
-            if (this.loopState === LOOPSTATE.LoopingCurrent) {
-                await this.handleLoopingCurrent()
-            } else if (this.queue.current < this.queue.getLength() - 1) {
-                await this.handlePlayNext()
-            } else if (this.queue.current === this.queue.getLength() - 1) {
-                await this.handleLastTrack()
+            if (this.state !== PLAYERSTATE.Stopping) {
+                if (this.loopState === LOOPSTATE.LoopingCurrent) {
+                    await this.handleLoopingCurrent()
+                } else if (this.queue.current < this.queue.getLength() - 1) {
+                    await this.handlePlayNext()
+                } else if (this.queue.current === this.queue.getLength() - 1) {
+                    await this.handleLastTrack()
+                }
             }
         })
 
@@ -214,12 +216,18 @@ class PlayerManager {
         await this.player?.update({ position })
     }
 
+    public async stopPlayer() {
+        this.state = PLAYERSTATE.Stopping
+        await this.player?.destroy()
+    }
+
     public async removePlayer(): Promise<void> {
         this.client.players.delete(this.guild.id)
         await this.leaveVoiceChannel()
         this.queue.destroy()
         this.cleanup()
         this.handleTimerExist()
+        this.player?.removeAllListeners()
     }
 
     public async changeVolume(volume: number): Promise<void> {
@@ -305,13 +313,6 @@ class PlayerManager {
         this.client.off('voiceStateUpdate', this.voiceStateHandler)
     }
 
-    public async stopPlayer() {
-        this.state = PLAYERSTATE.Stopping
-        this.player?.removeAllListeners()
-        await this.player?.destroy()
-        await this.removePlayer()
-    }
-
     // Handles
 
     private async handleLoopingCurrent(): Promise<void> {
@@ -331,7 +332,7 @@ class PlayerManager {
     private async handleLastTrack(): Promise<void> {
         if (this.loopState === LOOPSTATE.LoopingQueue) {
             await this.handleLoopingQueue()
-        } else if (this.state !== PLAYERSTATE.Stopping) {
+        } else {
             this.state = PLAYERSTATE.Idle
 
             const time = `<t:${Math.floor(Date.now() / 1000) + 120}:R>`
