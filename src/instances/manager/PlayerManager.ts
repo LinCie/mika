@@ -307,7 +307,9 @@ class PlayerManager {
 
     public async stopPlayer() {
         this.state = PLAYERSTATE.Stopping
+        this.player?.removeAllListeners()
         await this.player?.destroy()
+        await this.removePlayer()
     }
 
     // Handles
