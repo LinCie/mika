@@ -65,6 +65,11 @@ abstract class Command {
     use(...middleware: Middleware<any>[]) {
         middleware.forEach((m) => this.middlewares.push(m))
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    useGlobal(...middleware: Middleware<any>[]) {
+        middleware.forEach((m) => this.middlewares.unshift(m))
+    }
 }
 
 export { Command }

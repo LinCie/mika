@@ -166,7 +166,7 @@ class Mika extends Client {
             if (ClassRef && typeof ClassRef === 'function') {
                 const instance = new ClassRef()
                 if (instance instanceof Command) {
-                    instance.use(...this.globalMiddlewares)
+                    instance.useGlobal(...this.globalMiddlewares)
                     this.commands.set(instance.data.name, instance)
                 }
             }
