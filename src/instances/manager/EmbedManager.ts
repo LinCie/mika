@@ -158,7 +158,7 @@ class EmbedManager {
             })
     }
 
-    public createSuccessLogerEmbed(interaction: ChatInputCommandInteraction) {
+    public createSuccessLoggerEmbed(interaction: ChatInputCommandInteraction) {
         const member = interaction.member as GuildMember
         const channel = interaction.channel as TextChannel
 

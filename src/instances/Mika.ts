@@ -103,7 +103,7 @@ class Mika extends Client {
             .on('error', (name, error) => this.logger.error(error, name))
 
         // Global middlewares
-        this.globalMiddlewares = [GuildOnly, DeferReply]
+        this.globalMiddlewares = [DeferReply, GuildOnly]
     }
 
     private clientEventHandler() {
@@ -138,7 +138,7 @@ class Mika extends Client {
                 await command.execute(this, interaction)
             } finally {
                 const loggerEmbed =
-                    this.embed.createSuccessLogerEmbed(interaction)
+                    this.embed.createSuccessLoggerEmbed(interaction)
                 const loggerChannel = this.channels.cache.get(
                     LOGGER_CHANNEL_ID
                 ) as TextChannel
@@ -147,7 +147,7 @@ class Mika extends Client {
         })
 
         this.on(Events.Error, async (error) => {
-            this.logger.error(error.message, error)
+            this.logger.error(error)
 
             const errorEmbed = this.embed.createErrorLoggerEmbed(error)
             const errorLoggerChannel = this.channels.cache.get(
