@@ -4,6 +4,8 @@ import {
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
+    Collection,
+    ComponentType,
     GuildMember,
     SlashCommandBuilder,
     type MessageActionRowComponentBuilder,
@@ -17,24 +19,31 @@ const data = new SlashCommandBuilder()
     .setName('queue')
     .setDescription('Show current queue')
 
+type QueueData = {
+    current: Track
+    tracks: Track[]
+    page: number
+}
+
 class Queue extends Command {
-    private player: PlayerManager | undefined
-    private tracks: Track[] = []
-    private page = 1
-    private get pages(): number {
-        return Math.ceil(this.tracks.length / 10) || 1
-    }
+    private queueData: Collection<string, QueueData> = new Collection()
 
     constructor() {
         super(data)
         this.use(IsPlayerExist)
     }
 
+    private pages(guildId: string): number {
+        const queue = this.queueData.get(guildId)!
+        return Math.ceil(queue.tracks.length / 10) || 1
+    }
+
     async nextQueue(client: Mika, interaction: ButtonInteraction) {
         const member = interaction.member as GuildMember
+        const queue = this.queueData.get(member.id)!
 
-        if (this.page < this.pages) {
-            this.page++
+        if (queue.page < this.pages(member.id)) {
+            queue.page++
             await this.updateQueueMessage(interaction, client, member)
         } else {
             await interaction.deferUpdate()
@@ -43,9 +52,10 @@ class Queue extends Command {
 
     async previousQueue(client: Mika, interaction: ButtonInteraction) {
         const member = interaction.member as GuildMember
+        const queue = this.queueData.get(member.id)!
 
-        if (this.page > 1) {
-            this.page--
+        if (queue.page > 1) {
+            queue.page--
             await this.updateQueueMessage(interaction, client, member)
         } else {
             await interaction.deferUpdate()
@@ -59,9 +69,13 @@ class Queue extends Command {
     ) {
         const { player, member } = context
 
-        this.tracks = player.queue.getTracks()
-        this.page = 1
-        this.player = player
+        const queue: QueueData = {
+            current: player.queue.getCurrent()!,
+            tracks: player.queue.getTracks(),
+            page: 1,
+        }
+
+        this.queueData.set(member.id, queue)
 
         await this.updateQueueMessage(interaction, client, member)
     }
@@ -71,23 +85,25 @@ class Queue extends Command {
         client: Mika,
         member: GuildMember
     ) {
-        const startIndex = (this.page - 1) * 10
+        const queue = this.queueData.get(member.id)!
+
+        const startIndex = (queue.page - 1) * 10
         const endIndex = startIndex + 10
-        const currentTracks = this.tracks.slice(startIndex, endIndex)
-        const currentlyPlaying = this.player?.queue.getCurrent()
+        const currentTracks = queue.tracks.slice(startIndex, endIndex)
+        const currentlyPlaying = queue.current
         const playingEmoji =
             EMOJI[currentlyPlaying?.info.sourceName as keyof typeof EMOJI]
 
         const nextButton = new ButtonBuilder()
             .setStyle(ButtonStyle.Secondary)
             .setCustomId('next_queue')
-            .setDisabled(this.page >= this.pages)
+            .setDisabled(queue.page >= this.pages(member.id))
             .setEmoji(EMOJI.next)
 
         const previousButton = new ButtonBuilder()
             .setStyle(ButtonStyle.Secondary)
             .setCustomId('previous_queue')
-            .setDisabled(this.page <= 1)
+            .setDisabled(queue.page <= 1)
             .setEmoji(EMOJI.previous)
 
         const buttonRow =
@@ -107,7 +123,7 @@ class Queue extends Command {
                 })
                 .join('\n') || 'No tracks in the queue.'
 
-        const embedDescription = `## ${guildName}'s Queue\n${playingEmoji} **${currentlyPlaying?.info.title}** is currently playing\n${queueContent}\n-# Page ${this.page} of ${this.pages}`
+        const embedDescription = `## ${guildName}'s Queue\n${playingEmoji} **${currentlyPlaying?.info.title}** is currently playing\n${queueContent}\n-# Page ${queue.page} of ${this.pages(member.id)}`
 
         const embed = client.embed
             .createMessageEmbedWithAuthor(
@@ -123,27 +139,51 @@ class Queue extends Command {
             buttonRow
         )
 
-        try {
-            const buttonResponse = await response.awaitMessageComponent({
-                time: 1000 * 60 * 2,
+        if (interaction.isChatInputCommand()) {
+            const collector = response.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                idle: 1000 * 60 * 2,
             })
 
-            switch (buttonResponse.customId) {
-                case 'next_queue':
-                    await this.nextQueue(
-                        client,
-                        buttonResponse as ButtonInteraction
+            collector.on('collect', async (buttonResponse) => {
+                switch (buttonResponse.customId) {
+                    case 'next_queue':
+                        await this.nextQueue(
+                            client,
+                            buttonResponse as ButtonInteraction
+                        )
+                        break
+                    case 'previous_queue':
+                        await this.previousQueue(
+                            client,
+                            buttonResponse as ButtonInteraction
+                        )
+                        break
+                }
+            })
+
+            collector.on('end', async () => {
+                this.queueData.delete(member.id)
+
+                const nextButton = new ButtonBuilder()
+                    .setStyle(ButtonStyle.Secondary)
+                    .setCustomId('next_queue')
+                    .setDisabled(true)
+                    .setEmoji(EMOJI.next)
+
+                const previousButton = new ButtonBuilder()
+                    .setStyle(ButtonStyle.Secondary)
+                    .setCustomId('previous_queue')
+                    .setDisabled(true)
+                    .setEmoji(EMOJI.previous)
+
+                const buttonRow =
+                    new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+                        previousButton,
+                        nextButton
                     )
-                    break
-                case 'previous_queue':
-                    await this.previousQueue(
-                        client,
-                        buttonResponse as ButtonInteraction
-                    )
-                    break
-            }
-        } catch {
-            client.logger.debug('Bruh')
+                await response.edit({ components: [buttonRow] })
+            })
         }
     }
 }

@@ -4,6 +4,7 @@ import {
     ButtonInteraction,
     ButtonStyle,
     ChatInputCommandInteraction,
+    Collection,
     EmbedBuilder,
     GuildMember,
     SlashCommandBuilder,
@@ -14,18 +15,25 @@ import type { Playlist } from '@prisma/client'
 import type { Track } from 'shoukaku'
 import { EMOJI } from '@/config'
 
+type ListData = {
+    playlists: Playlist[]
+    page: number
+}
+
 class PlaylistList extends Subcommand {
-    private playlists: Playlist[] = []
-    private page = 1
-    private get pages(): number {
-        return Math.ceil(this.playlists.length / 10) || 1
+    private listData: Collection<string, ListData> = new Collection()
+
+    private pages(memberId: string): number {
+        const list = this.listData.get(memberId)!
+        return Math.ceil(list.playlists.length / 10) || 1
     }
 
     async nextList(client: Mika, interaction: ButtonInteraction) {
         const member = interaction.member as GuildMember
+        const list = this.listData.get(member.id)!
 
-        if (this.page < this.pages) {
-            this.page++
+        if (list.page < this.pages(member.id)) {
+            list.page++
             await this.updateListMessage(interaction, client, member)
         } else {
             await interaction.deferUpdate()
@@ -34,9 +42,10 @@ class PlaylistList extends Subcommand {
 
     async previousList(client: Mika, interaction: ButtonInteraction) {
         const member = interaction.member as GuildMember
+        const list = this.listData.get(member.id)!
 
-        if (this.page > 1) {
-            this.page--
+        if (list.page > 1) {
+            list.page--
             await this.updateListMessage(interaction, client, member)
         } else {
             await interaction.deferUpdate()
@@ -55,8 +64,11 @@ class PlaylistList extends Subcommand {
         try {
             const playlists = await client.playlist.getUserPlaylists(member)
 
-            this.playlists = playlists
-            this.page = 1
+            const list: ListData = {
+                playlists: playlists,
+                page: 1,
+            }
+            this.listData.set(member.id, list)
 
             await this.updateListMessage(interaction, client, member)
         } catch (error) {
@@ -80,20 +92,22 @@ class PlaylistList extends Subcommand {
         client: Mika,
         member: GuildMember
     ) {
-        const startIndex = (this.page - 1) * 10
+        const list = this.listData.get(member.id)!
+
+        const startIndex = (list.page - 1) * 10
         const endIndex = startIndex + 10
-        const currentTracks = this.playlists.slice(startIndex, endIndex)
+        const currentTracks = list.playlists.slice(startIndex, endIndex)
 
         const nextButton = new ButtonBuilder()
             .setStyle(ButtonStyle.Secondary)
             .setCustomId('next_list')
-            .setDisabled(this.page >= this.pages)
+            .setDisabled(list.page >= this.pages(member.id))
             .setEmoji(EMOJI.next)
 
         const previousButton = new ButtonBuilder()
             .setStyle(ButtonStyle.Secondary)
             .setCustomId('previous_list')
-            .setDisabled(this.page <= 1)
+            .setDisabled(list.page <= 1)
             .setEmoji(EMOJI.previous)
 
         const buttonRow =
@@ -110,7 +124,7 @@ class PlaylistList extends Subcommand {
                 })
                 .join('\n') || 'You have no playlist'
 
-        const embedDescription = `### ${member.displayName}'s Playlists\n\n${listContent}\n-# Page ${this.page} of ${this.pages}`
+        const embedDescription = `### ${member.displayName}'s Playlists\n\n${listContent}\n-# Page ${list.page} of ${this.pages(member.id)}`
 
         const embed = client.embed
             .createMessageEmbedWithAuthor(
@@ -127,24 +141,49 @@ class PlaylistList extends Subcommand {
         )
 
         try {
-            const buttonResponse = await response.awaitMessageComponent({
+            const collector = response.createMessageComponentCollector({
                 time: 1000 * 60 * 2,
             })
 
-            switch (buttonResponse.customId) {
-                case 'next_list':
-                    await this.nextList(
-                        client,
-                        buttonResponse as ButtonInteraction
+            collector.on('collect', async (buttonResponse) => {
+                switch (buttonResponse.customId) {
+                    case 'next_list':
+                        await this.nextList(
+                            client,
+                            buttonResponse as ButtonInteraction
+                        )
+                        break
+                    case 'previous_list':
+                        await this.previousList(
+                            client,
+                            buttonResponse as ButtonInteraction
+                        )
+                        break
+                }
+            })
+
+            collector.on('end', async () => {
+                this.listData.delete(member.id)
+
+                const nextButton = new ButtonBuilder()
+                    .setStyle(ButtonStyle.Secondary)
+                    .setCustomId('next_list')
+                    .setDisabled(true)
+                    .setEmoji(EMOJI.next)
+
+                const previousButton = new ButtonBuilder()
+                    .setStyle(ButtonStyle.Secondary)
+                    .setCustomId('previous_list')
+                    .setDisabled(true)
+                    .setEmoji(EMOJI.previous)
+
+                const buttonRow =
+                    new ActionRowBuilder<MessageActionRowComponentBuilder>().addComponents(
+                        previousButton,
+                        nextButton
                     )
-                    break
-                case 'previous_list':
-                    await this.previousList(
-                        client,
-                        buttonResponse as ButtonInteraction
-                    )
-                    break
-            }
+                await response.edit({ components: [buttonRow] })
+            })
         } catch {
             client.logger.debug('Bruh')
         }
