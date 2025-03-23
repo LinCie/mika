@@ -309,6 +309,31 @@ class PlayerManager {
         }
     }
 
+    public async getSearchResult(query: string, method: string) {
+        const result = await this.searchMusic(query, method)
+
+        switch (result?.loadType) {
+            case LoadType.SEARCH: {
+                const tracks = result.data.slice(0, 10)
+                return tracks
+            }
+
+            case LoadType.TRACK: {
+                const track = result.data
+                return [track]
+            }
+
+            case LoadType.PLAYLIST: {
+                const tracks = result.data.tracks.slice(0, 10)
+                return tracks
+            }
+
+            default: {
+                return
+            }
+        }
+    }
+
     private cleanup() {
         this.client.off('voiceStateUpdate', this.voiceStateHandler)
     }
