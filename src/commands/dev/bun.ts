@@ -29,7 +29,7 @@ class BunCommand extends Command {
 
         const command = interaction.options.getString('command', true)
 
-        const pm2 = Bun.spawn(['pm2', ...command.split(' ')])
+        const pm2 = Bun.spawn(['bun', ...command.split(' ')])
         const code = await pm2.exited
 
         if (code === 0) {
