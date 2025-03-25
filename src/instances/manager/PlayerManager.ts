@@ -334,6 +334,20 @@ class PlayerManager {
         }
     }
 
+    public async changeMusicSource(query: string, method: string) {
+        const result = await this.searchMusic(query, method)
+        switch (result?.loadType) {
+            case LoadType.SEARCH: {
+                const tracks = result.data.slice(0, 10)
+                return tracks.shift()
+            }
+
+            default: {
+                return
+            }
+        }
+    }
+
     private cleanup() {
         this.client.off('voiceStateUpdate', this.voiceStateHandler)
     }
