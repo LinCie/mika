@@ -8,7 +8,12 @@ import {
     type MessageActionRowComponentBuilder,
 } from 'discord.js'
 import { Command, EMBEDTYPE, Mika, PlayerManager } from '@/instances'
-import { IsInVoiceChannel, IsPlayerCurrent, IsPlayerExist } from '@/middlewares'
+import {
+    IsInVoiceChannel,
+    IsNotMaintenance,
+    IsPlayerCurrent,
+    IsPlayerExist,
+} from '@/middlewares'
 import youtubeDl from 'youtube-dl-exec'
 import { fetch } from 'bun'
 import { EMOJI } from '@/config'
@@ -20,7 +25,12 @@ const data = new SlashCommandBuilder()
 class Stop extends Command {
     constructor() {
         super(data as SlashCommandBuilder)
-        this.use(IsInVoiceChannel, IsPlayerExist, IsPlayerCurrent)
+        this.use(
+            IsNotMaintenance,
+            IsInVoiceChannel,
+            IsPlayerExist,
+            IsPlayerCurrent
+        )
     }
 
     async command(

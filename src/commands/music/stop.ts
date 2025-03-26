@@ -1,6 +1,11 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js'
 import { Command, Mika, PlayerManager } from '@/instances'
-import { IsInVoiceChannel, IsPlayerCurrent, IsPlayerExist } from '@/middlewares'
+import {
+    IsInVoiceChannel,
+    IsNotMaintenance,
+    IsPlayerCurrent,
+    IsPlayerExist,
+} from '@/middlewares'
 
 const data = new SlashCommandBuilder()
     .setName('stop')
@@ -9,7 +14,12 @@ const data = new SlashCommandBuilder()
 class Stop extends Command {
     constructor() {
         super(data)
-        this.use(IsInVoiceChannel, IsPlayerExist, IsPlayerCurrent)
+        this.use(
+            IsNotMaintenance,
+            IsInVoiceChannel,
+            IsPlayerExist,
+            IsPlayerCurrent
+        )
     }
 
     async command(

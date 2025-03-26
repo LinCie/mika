@@ -7,12 +7,22 @@ import {
 import { Prisma } from '@prisma/client'
 import type { Track } from 'shoukaku'
 import { EMBEDTYPE, Mika, PlayerManager, Subcommand } from '@/instances'
-import { IsInVoiceChannel, IsPlayerCurrent, IsPlayerInit } from '@/middlewares'
+import {
+    IsInVoiceChannel,
+    IsNotMaintenance,
+    IsPlayerCurrent,
+    IsPlayerInit,
+} from '@/middlewares'
 
 class PlaylistPlay extends Subcommand {
     constructor() {
         super()
-        this.use(IsInVoiceChannel, IsPlayerInit, IsPlayerCurrent)
+        this.use(
+            IsNotMaintenance,
+            IsInVoiceChannel,
+            IsPlayerInit,
+            IsPlayerCurrent
+        )
     }
 
     async configure(data: SlashCommandBuilder): Promise<void> {

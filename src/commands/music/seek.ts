@@ -4,7 +4,12 @@ import {
     SlashCommandBuilder,
 } from 'discord.js'
 import { Command, EMBEDTYPE, Mika, PlayerManager } from '@/instances'
-import { IsInVoiceChannel, IsPlayerCurrent, IsPlayerExist } from '@/middlewares'
+import {
+    IsInVoiceChannel,
+    IsNotMaintenance,
+    IsPlayerCurrent,
+    IsPlayerExist,
+} from '@/middlewares'
 
 const data = new SlashCommandBuilder()
     .setName('seek')
@@ -19,7 +24,12 @@ const data = new SlashCommandBuilder()
 class Shuffle extends Command {
     constructor() {
         super(data as SlashCommandBuilder)
-        this.use(IsInVoiceChannel, IsPlayerExist, IsPlayerCurrent)
+        this.use(
+            IsNotMaintenance,
+            IsInVoiceChannel,
+            IsPlayerExist,
+            IsPlayerCurrent
+        )
     }
 
     async command(

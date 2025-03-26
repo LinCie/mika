@@ -45,6 +45,7 @@ class Mika extends Client {
     public readonly playlist: PlaylistManager
     public readonly globalMiddlewares: Middleware[]
     public readonly prisma = prisma
+    public maintenance: boolean = false
     private commands: Collection<string, Command> = new Collection()
 
     constructor(options: ClientOptions) {
@@ -214,6 +215,34 @@ class Mika extends Client {
                     .map((option) => option.name)
                     .join(', ')}`
             )
+        }
+    }
+
+    public async maintenanceMode(maintenance: boolean) {
+        this.maintenance = maintenance
+        if (maintenance) {
+            this.players.forEach(async (player) => {
+                await player.stopPlayer()
+            })
+            this.user?.setPresence({
+                activities: [
+                    {
+                        name: '⚠️ Maintenance Mode ⚠️',
+                        type: ActivityType.Custom,
+                    },
+                ],
+                status: 'idle',
+            })
+        } else {
+            this.user?.setPresence({
+                activities: [
+                    {
+                        name: '/play',
+                        type: ActivityType.Listening,
+                    },
+                ],
+                status: 'online',
+            })
         }
     }
 }

@@ -12,7 +12,7 @@ import {
 } from 'discord.js'
 import type { Track } from 'shoukaku'
 import { Command, EMBEDTYPE, Mika, PlayerManager } from '@/instances'
-import { IsPlayerExist } from '@/middlewares'
+import { IsNotMaintenance, IsPlayerExist } from '@/middlewares'
 import { EMOJI } from '@/config'
 
 const data = new SlashCommandBuilder()
@@ -30,7 +30,7 @@ class Queue extends Command {
 
     constructor() {
         super(data)
-        this.use(IsPlayerExist)
+        this.use(IsNotMaintenance, IsPlayerExist)
     }
 
     private pages(guildId: string): number {

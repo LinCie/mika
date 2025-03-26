@@ -8,7 +8,12 @@ import {
     type MessageActionRowComponentBuilder,
 } from 'discord.js'
 import { Command, EMBEDTYPE, Mika, PlayerManager } from '@/instances'
-import { IsInVoiceChannel, IsPlayerCurrent, IsPlayerInit } from '@/middlewares'
+import {
+    IsInVoiceChannel,
+    IsNotMaintenance,
+    IsPlayerCurrent,
+    IsPlayerInit,
+} from '@/middlewares'
 import { EMOJI } from '@/config'
 
 const data = new SlashCommandBuilder()
@@ -36,7 +41,12 @@ const data = new SlashCommandBuilder()
 class Search extends Command {
     constructor() {
         super(data as SlashCommandBuilder)
-        this.use(IsInVoiceChannel, IsPlayerInit, IsPlayerCurrent)
+        this.use(
+            IsNotMaintenance,
+            IsInVoiceChannel,
+            IsPlayerInit,
+            IsPlayerCurrent
+        )
     }
 
     async command(

@@ -7,12 +7,12 @@ import {
 import { LoadType, type Track } from 'shoukaku'
 import { Prisma } from '@prisma/client'
 import { EMBEDTYPE, Mika, PlayerManager, Subcommand } from '@/instances'
-import { IsPlayerExist } from '@/middlewares'
+import { IsNotMaintenance, IsPlayerExist } from '@/middlewares'
 
 class PlaylistAdd extends Subcommand {
     constructor() {
         super()
-        this.use(IsPlayerExist)
+        this.use(IsNotMaintenance, IsPlayerExist)
     }
 
     async configure(data: SlashCommandBuilder): Promise<void> {
