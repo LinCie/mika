@@ -2,7 +2,7 @@ import type {
     ChatInputCommandInteraction,
     SlashCommandBuilder,
 } from 'discord.js'
-import type { Mika } from './Mika'
+import type { Mika } from '../Mika'
 
 type Middleware<TContext = unknown> = (
     client: Mika,
