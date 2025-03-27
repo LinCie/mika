@@ -3,10 +3,8 @@ import {
     ApplicationCommandOptionType,
     Client,
     Collection,
-    Events,
     REST,
     Routes,
-    TextChannel,
     type ClientOptions,
     type RESTPostAPIChatInputApplicationCommandsJSONBody,
 } from 'discord.js'
@@ -16,21 +14,14 @@ import path from 'node:path'
 import type { BaseLogger } from 'pino'
 import { Connectors, Shoukaku } from 'shoukaku'
 import { logger } from '@/utilities'
-import {
-    BOT_TOKEN,
-    CLIENT_ID,
-    ERROR_LOGGER_CHANNEL_ID,
-    getNodes,
-    GUILD_ID,
-    LOGGER_CHANNEL_ID,
-    NODE_ENV,
-} from '@/config'
+import { BOT_TOKEN, CLIENT_ID, getNodes, GUILD_ID, NODE_ENV } from '@/config'
 import {
     EmbedManager,
     InteractionManager,
     PlayerManager,
     PlaylistManager,
     Command,
+    ClientEvent,
     type Middleware,
 } from '@/instances'
 import { prisma } from '@/database'
@@ -46,7 +37,7 @@ class Mika extends Client {
     public readonly globalMiddlewares: Middleware[]
     public readonly prisma = prisma
     public maintenance: boolean = false
-    private commands: Collection<string, Command> = new Collection()
+    public commands: Collection<string, Command> = new Collection()
 
     constructor(options: ClientOptions) {
         super(options)
@@ -66,8 +57,9 @@ class Mika extends Client {
         // Playlist
         this.playlist = new PlaylistManager(this)
 
-        // Client events
-        this.clientEventHandler()
+        // Register
+        this.registerEvents()
+        this.registerCommands()
 
         // Shoukaku
         this.shoukaku = new Shoukaku(
@@ -107,55 +99,24 @@ class Mika extends Client {
         this.globalMiddlewares = [DeferReply, GuildOnly]
     }
 
-    private clientEventHandler() {
-        this.once(Events.ClientReady, async () => {
-            await this.registerCommands()
+    private async registerEvents() {
+        this.logger.info('Started loading client events...')
 
-            // Presence
-            this.user?.setPresence({
-                activities: [
-                    {
-                        name: '/play',
-                        type: ActivityType.Listening,
-                    },
-                ],
-                status: 'online',
-            })
+        for await (const file of glob('src/events/**/*.ts', {})) {
+            const filePath = pathToFileURL(path.resolve(file)).href
+            const module = await import(filePath)
+            const ClassRef = module.default
 
-            this.logger.info('Mika is now ready 🩷')
-        })
+            if (ClassRef && typeof ClassRef === 'function') {
+                const instance = new ClassRef(this)
+                if (instance instanceof ClientEvent) {
+                    instance.register()
 
-        this.on(Events.InteractionCreate, async (interaction) => {
-            if (!interaction.isChatInputCommand()) return
-
-            const command = this.commands.get(interaction.commandName)
-            if (!command) {
-                throw new Error(
-                    `There is no command with name ${interaction.commandName}`
-                )
+                    const eventName = file.split('/').pop()?.split('.').shift()
+                    this.logger.info(`Loaded client event ${eventName}`)
+                }
             }
-
-            try {
-                await command.execute(this, interaction)
-            } finally {
-                const loggerEmbed =
-                    this.embed.createSuccessLoggerEmbed(interaction)
-                const loggerChannel = this.channels.cache.get(
-                    LOGGER_CHANNEL_ID
-                ) as TextChannel
-                await this.interaction.sendEmbed(loggerChannel, loggerEmbed)
-            }
-        })
-
-        this.on(Events.Error, async (error) => {
-            this.logger.error(error)
-
-            const errorEmbed = this.embed.createErrorLoggerEmbed(error)
-            const errorLoggerChannel = this.channels.cache.get(
-                ERROR_LOGGER_CHANNEL_ID
-            ) as TextChannel
-            await this.interaction.sendEmbed(errorLoggerChannel, errorEmbed)
-        })
+        }
     }
 
     private async registerCommands() {
@@ -187,7 +148,7 @@ class Mika extends Client {
         }
 
         this.logger.info(
-            `Started refreshing ${commands.length} application (/) commands.`
+            `Started refreshing ${commands.length} application (/) commands...`
         )
 
         const rest = new REST().setToken(BOT_TOKEN)
