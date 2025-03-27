@@ -188,7 +188,7 @@ class Mika extends Client {
             this.user?.setPresence({
                 activities: [
                     {
-                        name: '⚠️ Maintenance Mode ⚠️',
+                        name: '⚠️ Maintenance Mode',
                         type: ActivityType.Custom,
                     },
                 ],
