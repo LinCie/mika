@@ -106,22 +106,26 @@ class Stop extends Command {
                         button
                     )
 
-                const successEmbed = client.embed.createMessageEmbedWithAuthor(
-                    `${EMOJI.music} **${music?.info.title}** has been downloaded!\n[Download Link](${downloadUrl})`,
-                    member,
-                    EMBEDTYPE.SUCCESS
-                )
+                const successEmbed = client.embed
+                    .createMessageEmbedWithAuthor(
+                        `${emoji} **${music?.info.title}** has been downloaded!\n[Download Link](${downloadUrl})\n\n⚠️ It's recommended to use an adblocker such as [uBlock](https://github.com/gorhill/uBlock) before visiting **Buzzheavier**`,
+                        member,
+                        EMBEDTYPE.SUCCESS
+                    )
+                    .setThumbnail(
+                        music?.info.artworkUrl || member.displayAvatarURL()
+                    )
 
                 await client.interaction.replyEmbedWithButton(
                     interaction,
                     successEmbed,
                     row
                 )
-
-                await file.delete()
             } else {
                 throw new Error(response.statusText)
             }
+
+            await file.delete()
         } catch (error) {
             const embed = client.embed.createMessageEmbedWithAuthor(
                 '⛔ There is an error while trying to download music ⛔',
