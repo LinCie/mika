@@ -9,5 +9,6 @@ declare module 'bun' {
         OWNER_ID: string
         LOGGER_CHANNEL_ID: string
         ERROR_LOGGER_CHANNEL_ID: string
+        GEMINI_API_KEY: string
     }
 }

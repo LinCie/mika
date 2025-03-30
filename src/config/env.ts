@@ -7,3 +7,4 @@ export const TURSO_AUTH_TOKEN = Bun.env.TURSO_AUTH_TOKEN
 export const OWNER_ID = Bun.env.OWNER_ID
 export const LOGGER_CHANNEL_ID = Bun.env.LOGGER_CHANNEL_ID
 export const ERROR_LOGGER_CHANNEL_ID = Bun.env.ERROR_LOGGER_CHANNEL_ID
+export const GEMINI_API_KEY = Bun.env.GEMINI_API_KEY

@@ -13,8 +13,16 @@ import { glob } from 'node:fs/promises'
 import path from 'node:path'
 import type { BaseLogger } from 'pino'
 import { Connectors, Shoukaku } from 'shoukaku'
+import { GoogleGenerativeAI, type GenerativeModel } from '@google/generative-ai'
 import { logger } from '@/utilities'
-import { BOT_TOKEN, CLIENT_ID, getNodes, GUILD_ID, NODE_ENV } from '@/config'
+import {
+    BOT_TOKEN,
+    CLIENT_ID,
+    GEMINI_API_KEY,
+    getNodes,
+    GUILD_ID,
+    NODE_ENV,
+} from '@/config'
 import {
     EmbedManager,
     InteractionManager,
@@ -35,6 +43,7 @@ class Mika extends Client {
     public readonly players: Collection<string, PlayerManager>
     public readonly playlist: PlaylistManager
     public readonly globalMiddlewares: Middleware[]
+    public readonly ai: GenerativeModel
     public readonly prisma = prisma
     public maintenance: boolean = false
     public commands: Collection<string, Command> = new Collection()
@@ -56,6 +65,11 @@ class Mika extends Client {
 
         // Playlist
         this.playlist = new PlaylistManager(this)
+
+        // AI
+        this.ai = new GoogleGenerativeAI(GEMINI_API_KEY).getGenerativeModel({
+            model: 'gemini-1.5-flash',
+        })
 
         // Register
         this.registerEvents()
