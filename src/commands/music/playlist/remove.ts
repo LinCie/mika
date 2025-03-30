@@ -7,6 +7,7 @@ import {
 import { Prisma } from '@prisma/client'
 import { EMBEDTYPE, Mika, Subcommand } from '@/instances'
 import type { Track } from 'shoukaku'
+import { EMOJI } from '@/config'
 
 class PlaylistRemove extends Subcommand {
     async configure(data: SlashCommandBuilder): Promise<void> {
@@ -36,6 +37,14 @@ class PlaylistRemove extends Subcommand {
         const position = interaction.options.getNumber('position', true)
 
         try {
+            const loadingEmbed = client.embed.createMessageEmbedWithAuthor(
+                `${EMOJI.loading} Removing music from your playlist...`,
+                member,
+                EMBEDTYPE.GLOBAL
+            )
+
+            await client.interaction.replyEmbed(interaction, loadingEmbed)
+
             const playlist = await client.playlist.getPlaylistByName(
                 name.toLowerCase()
             )

@@ -13,6 +13,7 @@ import {
     IsPlayerCurrent,
     IsPlayerInit,
 } from '@/middlewares'
+import { EMOJI } from '@/config'
 
 class PlaylistPlay extends Subcommand {
     constructor() {
@@ -49,6 +50,14 @@ class PlaylistPlay extends Subcommand {
         const name = interaction.options.getString('name', true)
 
         try {
+            const loadingEmbed = client.embed.createMessageEmbedWithAuthor(
+                `${EMOJI.loading} Playing music to your playlist...`,
+                member,
+                EMBEDTYPE.GLOBAL
+            )
+
+            await client.interaction.replyEmbed(interaction, loadingEmbed)
+
             const playlist = await client.playlist.getPlaylistByName(
                 name.toLowerCase()
             )

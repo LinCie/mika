@@ -61,7 +61,7 @@ class Stop extends Command {
         try {
             const emoji = EMOJI[music?.info.sourceName as keyof typeof EMOJI]
             const initialEmbed = client.embed.createMessageEmbedWithAuthor(
-                `${emoji} **${music?.info.title}** is currently downloading...`,
+                `${EMOJI.loading} **${music?.info.title}** is currently downloading...`,
                 member,
                 EMBEDTYPE.GLOBAL
             )

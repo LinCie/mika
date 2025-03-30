@@ -62,6 +62,14 @@ class PlaylistList extends Subcommand {
         const member = interaction.member as GuildMember
 
         try {
+            const loadingEmbed = client.embed.createMessageEmbedWithAuthor(
+                `${EMOJI.loading} Fetching your playlists...`,
+                member,
+                EMBEDTYPE.GLOBAL
+            )
+
+            await client.interaction.replyEmbed(interaction, loadingEmbed)
+
             const playlists = await client.playlist.getUserPlaylists(member)
 
             const list: ListData = {

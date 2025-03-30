@@ -6,6 +6,7 @@ import {
 } from 'discord.js'
 import { Prisma } from '@prisma/client'
 import { EMBEDTYPE, Mika, Subcommand } from '@/instances'
+import { EMOJI } from '@/config'
 
 class PlaylistDelete extends Subcommand {
     async configure(data: SlashCommandBuilder): Promise<void> {
@@ -28,6 +29,14 @@ class PlaylistDelete extends Subcommand {
         const name = interaction.options.getString('name', true)
 
         try {
+            const loadingEmbed = client.embed.createMessageEmbedWithAuthor(
+                `${EMOJI.loading} Deleting your playlists...`,
+                member,
+                EMBEDTYPE.GLOBAL
+            )
+
+            await client.interaction.replyEmbed(interaction, loadingEmbed)
+
             const playlist = await client.playlist.getPlaylistByName(
                 name.toLowerCase()
             )

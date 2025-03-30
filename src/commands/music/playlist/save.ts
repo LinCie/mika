@@ -8,6 +8,7 @@ import type { Track } from 'shoukaku'
 import { Prisma } from '@prisma/client'
 import { EMBEDTYPE, Mika, PlayerManager, Subcommand } from '@/instances'
 import { IsNotMaintenance, IsPlayerExist } from '@/middlewares'
+import { EMOJI } from '@/config'
 
 class PlaylistSave extends Subcommand {
     constructor() {
@@ -40,6 +41,14 @@ class PlaylistSave extends Subcommand {
         const name = interaction.options.getString('name', true)
 
         try {
+            const loadingEmbed = client.embed.createMessageEmbedWithAuthor(
+                `${EMOJI.loading} Saving queue to your playlist...`,
+                member,
+                EMBEDTYPE.GLOBAL
+            )
+
+            await client.interaction.replyEmbed(interaction, loadingEmbed)
+
             const playlist = await client.playlist.getPlaylistByName(name)
 
             if (playlist.userId !== member.user.id) {

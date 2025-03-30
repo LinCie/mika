@@ -12,6 +12,7 @@ export enum EMOJI {
     music = '<:music:1341795857443586079>',
     next = '<:next:1345047720942899283>',
     previous = '<:previous:1345047737581699132>',
+    loading = '<a:loading:1355745662901157959>',
 }
 
 export * from './env'

@@ -8,6 +8,7 @@ import { LoadType, type Track } from 'shoukaku'
 import { Prisma } from '@prisma/client'
 import { EMBEDTYPE, Mika, PlayerManager, Subcommand } from '@/instances'
 import { IsNotMaintenance, IsPlayerExist } from '@/middlewares'
+import { EMOJI } from '@/config'
 
 class PlaylistAdd extends Subcommand {
     constructor() {
@@ -44,6 +45,14 @@ class PlaylistAdd extends Subcommand {
         const url = interaction.options.getString('url', false)
 
         try {
+            const loadingEmbed = client.embed.createMessageEmbedWithAuthor(
+                `${EMOJI.loading} Adding music to your playlist...`,
+                member,
+                EMBEDTYPE.GLOBAL
+            )
+
+            await client.interaction.replyEmbed(interaction, loadingEmbed)
+
             let music: Track | Track[] | undefined
             if (!url) {
                 music = player.queue.getCurrent()
