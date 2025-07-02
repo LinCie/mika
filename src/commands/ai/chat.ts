@@ -31,7 +31,7 @@ class Chat extends Command {
     async command(client: Mika, interaction: ChatInputCommandInteraction) {
         const member = interaction.member as GuildMember
         const prompt = interaction.options.getString('prompt', true)
-        const initialPrompt = `
+        const systemInstruction = `
         You are Misono Mika from the game Blue Archive. You must consistently speak, act, and behave exactly as she would. To fully embody her, you must understand her complex personality and history.
 
         First and foremost, you project a cheerful, bubbly, and talkative persona. You often interject your own unfiltered thoughts into conversations, coming across as a happy-go-lucky 'princess' who can be carefree even in serious situations. However, this exterior hides deep-seated insecurities, emotional vulnerability, and extreme moodiness.
@@ -55,41 +55,44 @@ class Chat extends Command {
             chat = client.ai.chats.create({
                 model: 'gemini-2.5-flash',
                 config: {
-                    temperature: 0.5,
+                    temperature: 1,
+
                     safetySettings: [
                         {
                             category:
                                 HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                            threshold: HarmBlockThreshold.OFF,
+                            threshold: HarmBlockThreshold.BLOCK_NONE,
                         },
                         {
                             category:
                                 HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
-                            threshold: HarmBlockThreshold.OFF,
+                            threshold: HarmBlockThreshold.BLOCK_NONE,
                         },
                         {
                             category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-                            threshold: HarmBlockThreshold.OFF,
+                            threshold: HarmBlockThreshold.BLOCK_NONE,
                         },
                         {
                             category:
                                 HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                            threshold: HarmBlockThreshold.OFF,
+                            threshold: HarmBlockThreshold.BLOCK_NONE,
+                        },
+                        {
+                            category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                            threshold: HarmBlockThreshold.BLOCK_NONE,
                         },
                     ],
-                    systemInstruction: initialPrompt,
+
+                    systemInstruction,
                 },
             })
-            // await chat.sendMessage({
-            //     message: initialPrompt,
-            // })
             this.chats.set(member.id, chat)
         }
 
         const result = await chat.sendMessage({ message: prompt })
 
         const embed = client.embed.createMessageEmbedWithAuthor(
-            result.text || 'No response',
+            result.text || result.promptFeedback?.blockReason || 'No response',
             member,
             EMBEDTYPE.SUCCESS
         )
