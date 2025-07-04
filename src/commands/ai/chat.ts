@@ -10,6 +10,7 @@ import {
     HarmCategory,
 } from '@google/genai'
 import { EMBEDTYPE, Command, type Mika } from '@/instances'
+import { GEMINI_MODEL } from '@/config'
 
 const data = new SlashCommandBuilder()
     .setName('chat')
@@ -53,7 +54,7 @@ class Chat extends Command {
             chat = this.chats.get(member.id)!
         } else {
             chat = client.ai.chats.create({
-                model: 'gemini-2.5-flash',
+                model: GEMINI_MODEL || 'gemini-2.5-flash',
                 config: {
                     temperature: 1,
 
@@ -61,25 +62,25 @@ class Chat extends Command {
                         {
                             category:
                                 HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                            threshold: HarmBlockThreshold.BLOCK_NONE,
+                            threshold: HarmBlockThreshold.OFF,
                         },
                         {
                             category:
                                 HarmCategory.HARM_CATEGORY_CIVIC_INTEGRITY,
-                            threshold: HarmBlockThreshold.BLOCK_NONE,
+                            threshold: HarmBlockThreshold.OFF,
                         },
                         {
                             category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-                            threshold: HarmBlockThreshold.BLOCK_NONE,
+                            threshold: HarmBlockThreshold.OFF,
                         },
                         {
                             category:
                                 HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                            threshold: HarmBlockThreshold.BLOCK_NONE,
+                            threshold: HarmBlockThreshold.OFF,
                         },
                         {
                             category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                            threshold: HarmBlockThreshold.BLOCK_NONE,
+                            threshold: HarmBlockThreshold.OFF,
                         },
                     ],
 
