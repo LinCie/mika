@@ -10,7 +10,7 @@ class AIChat extends Subcommand {
         data.addSubcommand((subcommand) =>
             subcommand
                 .setName('chat')
-                .setDescription('Send a chat to Mika')
+                .setDescription('Send a chat to the AI')
                 .addStringOption((option) =>
                     option
                         .setName('prompt')

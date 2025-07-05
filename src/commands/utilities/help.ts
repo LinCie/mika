@@ -129,19 +129,24 @@ const commands: CommandInfo[] = [
     // AI Command
     {
         name: 'ai',
-        description: 'Chat with Mika',
+        description: 'Chat with AI',
         category: 'AI',
         usage: '/ai `<subcommand>`',
         subcommands: [
             {
                 name: 'chat',
-                description: 'Send a chat to Mika',
+                description: 'Send a chat to AI',
                 usage: '/ai `chat` `prompt:<your message prompt>`',
             },
             {
                 name: 'clear',
                 description: 'Clear the chat history',
                 usage: '/ai `clear`',
+            },
+            {
+                name: 'personality',
+                description: 'Change the AI personality',
+                usage: '/ai `personality` `personality:<personality name>`',
             },
         ],
     },

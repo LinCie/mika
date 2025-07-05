@@ -5,20 +5,23 @@ import {
 import { Command, type Mika } from '@/instances'
 import AIChat from './ai/chat'
 import AIClear from './ai/clear'
+import AIPersonality from './ai/personality'
 
 const data = new SlashCommandBuilder()
     .setName('ai')
-    .setDescription('Chat with Mika')
+    .setDescription('Chat with AI')
 
 class Chat extends Command {
     private readonly aiChat = new AIChat()
     private readonly aiClear = new AIClear()
+    private readonly aiPersonality = new AIPersonality()
 
     constructor() {
         super(data)
 
         this.aiChat.configure(this.data)
         this.aiClear.configure(this.data)
+        this.aiPersonality.configure(this.data)
     }
 
     async command(
@@ -35,6 +38,10 @@ class Chat extends Command {
 
             case 'clear':
                 this.aiClear.execute(client, interaction, context)
+                break
+
+            case 'personality':
+                this.aiPersonality.execute(client, interaction, context)
                 break
 
             default:

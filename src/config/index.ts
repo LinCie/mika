@@ -17,3 +17,4 @@ export enum EMOJI {
 
 export * from './env'
 export * from './lavalink'
+export * from './personalities'
