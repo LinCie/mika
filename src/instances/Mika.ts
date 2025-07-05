@@ -14,26 +14,19 @@ import path from 'node:path'
 import type { BaseLogger } from 'pino'
 import { Connectors, Shoukaku } from 'shoukaku'
 import { logger } from '@/utilities'
-import {
-    BOT_TOKEN,
-    CLIENT_ID,
-    GEMINI_API_KEY,
-    getNodes,
-    GUILD_ID,
-    NODE_ENV,
-} from '@/config'
+import { BOT_TOKEN, CLIENT_ID, getNodes, GUILD_ID, NODE_ENV } from '@/config'
 import {
     EmbedManager,
     InteractionManager,
     PlayerManager,
     PlaylistManager,
+    AIManager,
     Command,
     ClientEvent,
     type Middleware,
 } from '@/instances'
 import { prisma } from '@/database'
 import { DeferReply, GuildOnly } from '@/middlewares'
-import { GoogleGenAI } from '@google/genai'
 
 class Mika extends Client {
     public readonly logger: BaseLogger
@@ -42,8 +35,8 @@ class Mika extends Client {
     public readonly interaction: InteractionManager
     public readonly players: Collection<string, PlayerManager>
     public readonly playlist: PlaylistManager
+    public readonly ai: AIManager
     public readonly globalMiddlewares: Middleware[]
-    public readonly ai: GoogleGenAI
     public readonly prisma = prisma
     public maintenance: boolean = false
     public commands: Collection<string, Command> = new Collection()
@@ -67,7 +60,7 @@ class Mika extends Client {
         this.playlist = new PlaylistManager(this)
 
         // AI
-        this.ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY })
+        this.ai = new AIManager(this)
 
         // Register
         this.registerEvents()

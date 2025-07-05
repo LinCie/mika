@@ -7,3 +7,4 @@ export * from './manager/InteractionManager'
 export * from './manager/PlayerManager'
 export * from './manager/PlaylistManager'
 export * from './manager/QueueManager'
+export * from "./manager/AIManager"
