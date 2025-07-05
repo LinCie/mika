@@ -109,6 +109,15 @@ class QueueManager extends EventEmitter {
     public setCurrent(position: number): void {
         this.current = position
     }
+
+    public clearQueue(): void {
+        const currentTrack = this.getCurrent()
+        this.queue.clear()
+        if (currentTrack) {
+            this.queue.push(currentTrack)
+        }
+        this.current = 0
+    }
 }
 
 export { QueueManager, QUEUEEVENT }

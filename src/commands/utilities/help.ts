@@ -126,6 +126,12 @@ const commands: CommandInfo[] = [
         category: 'Music',
         usage: '/download',
     },
+        {
+        name: 'clear',
+        description: 'Clear current queue.',
+        category: 'Music',
+        usage: '/clear',
+    },
     // Playlist Command
     {
         name: 'playlist',
