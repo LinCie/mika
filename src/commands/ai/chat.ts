@@ -1,38 +1,45 @@
 import {
-    GuildMember,
     SlashCommandBuilder,
     type ChatInputCommandInteraction,
 } from 'discord.js'
-import { EMBEDTYPE, Command, type Mika } from '@/instances'
+import { Command, type Mika } from '@/instances'
+import AIChat from './ai/chat'
+import AIClear from './ai/clear'
 
 const data = new SlashCommandBuilder()
-    .setName('chat')
+    .setName('ai')
     .setDescription('Chat with Mika')
-    .addStringOption((option) =>
-        option
-            .setName('prompt')
-            .setDescription('Your message prompt')
-            .setRequired(true)
-    )
 
 class Chat extends Command {
+    private readonly aiChat = new AIChat()
+    private readonly aiClear = new AIClear()
+
     constructor() {
-        super(data as SlashCommandBuilder)
+        super(data)
+
+        this.aiChat.configure(this.data)
+        this.aiClear.configure(this.data)
     }
 
-    async command(client: Mika, interaction: ChatInputCommandInteraction) {
-        const member = interaction.member as GuildMember
-        const prompt = interaction.options.getString('prompt', true)
+    async command(
+        client: Mika,
+        interaction: ChatInputCommandInteraction,
+        context: unknown
+    ) {
+        const subcommand = interaction.options.getSubcommand()
 
-        const response = await client.ai.sendMessage(member.id, prompt)
+        switch (subcommand) {
+            case 'chat':
+                this.aiChat.execute(client, interaction, context)
+                break
 
-        const embed = client.embed.createMessageEmbedWithAuthor(
-            response,
-            member,
-            EMBEDTYPE.SUCCESS
-        )
+            case 'clear':
+                this.aiClear.execute(client, interaction, context)
+                break
 
-        await client.interaction.replyEmbed(interaction, embed)
+            default:
+                throw new Error(`Subcommand ${subcommand} not found`)
+        }
     }
 }
 

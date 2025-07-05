@@ -8,7 +8,7 @@ import { EMBEDTYPE, Command, type Mika } from '@/instances'
 interface CommandInfo {
     name: string
     description: string
-    category: 'General' | 'Music' | 'Playlist'
+    category: 'General' | 'Music' | 'Playlist' | 'AI'
     usage?: string
     subcommands?: {
         name: string
@@ -32,12 +32,6 @@ const commands: CommandInfo[] = [
         description: 'Checks the bot\'s latency and replies with "Pong!".',
         category: 'General',
         usage: '/ping',
-    },
-    {
-        name: 'chat',
-        description: 'Have a conversation with Mika.',
-        category: 'General',
-        usage: '/chat `prompt:<your message>`',
     },
     // Music Commands
     {
@@ -126,12 +120,32 @@ const commands: CommandInfo[] = [
         category: 'Music',
         usage: '/download',
     },
-        {
+    {
         name: 'clear',
         description: 'Clear current queue.',
         category: 'Music',
         usage: '/clear',
     },
+    // AI Command
+    {
+        name: 'ai',
+        description: 'Chat with Mika',
+        category: 'AI',
+        usage: '/ai `<subcommand>`',
+        subcommands: [
+            {
+                name: 'chat',
+                description: 'Send a chat to Mika',
+                usage: '/ai `chat` `prompt:<your message prompt>`',
+            },
+            {
+                name: 'clear',
+                description: 'Clear the chat history',
+                usage: '/ai `clear`',
+            },
+        ],
+    },
+
     // Playlist Command
     {
         name: 'playlist',
@@ -272,7 +286,7 @@ class Help extends Command {
                 )
                 .setTitle("Mika's Command List")
 
-            const categories = ['General', 'Music', 'Playlist']
+            const categories = ['General', 'Music', 'Playlist', 'AI']
 
             categories.forEach((category) => {
                 const commandsInCategory = commands

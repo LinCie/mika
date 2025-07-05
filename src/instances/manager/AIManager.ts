@@ -90,6 +90,14 @@ class AIManager {
             return 'I am sorry, but I was unable to process your request.'
         }
     }
+
+    clearChat(userId: string): boolean {
+        if (this.chats.has(userId)) {
+            this.chats.delete(userId)
+            return true
+        }
+        return false
+    }
 }
 
 export { AIManager }
