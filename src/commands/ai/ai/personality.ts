@@ -19,8 +19,15 @@ class AIPersonality extends Subcommand {
                         .setRequired(true)
                         .addChoices(
                             { name: 'Misono Mika', value: 'mika' },
+                            { name: 'Arona', value: 'arona' },
+                            { name: 'Plana', value: 'plana' },
                             { name: 'Iochi Mari', value: 'mari' },
-                            { name: 'Tendou Alice', value: 'alice' }
+                            { name: 'Tendou Alice', value: 'alice' },
+                            { name: 'Shimoe Koharu', value: 'koharu' },
+                            { name: 'Kuda Izuna', value: 'izuna' },
+                            { name: 'Kosaka Wakamo', value: 'wakamo' },
+                            { name: 'Shirasu Azusa', value: 'azusa' },
+                            { name: 'Ajitani Hifumi', value: 'hifumi' }
                         )
                 )
         )
