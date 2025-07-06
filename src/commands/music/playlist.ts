@@ -24,7 +24,7 @@ class PlaylistCommand extends Command {
     private readonly playlistSave = new PlaylistSave()
 
     constructor() {
-        super(data)
+        super(data, 'Playlist')
 
         this.playlistCreate.configure(this.data)
         this.playlistPlay.configure(this.data)

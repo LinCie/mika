@@ -35,7 +35,7 @@ const data = new SlashCommandBuilder()
 
 class Play extends Command {
     constructor() {
-        super(data as SlashCommandBuilder)
+        super(data as SlashCommandBuilder, 'Music')
         this.use(
             IsNotMaintenance,
             IsInVoiceChannel,

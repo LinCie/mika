@@ -11,7 +11,7 @@ const data = new SlashCommandBuilder()
 
 class Ping extends Command {
     constructor() {
-        super(data)
+        super(data, 'Utilities')
     }
 
     async command(client: Mika, interaction: ChatInputCommandInteraction) {

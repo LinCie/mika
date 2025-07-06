@@ -19,7 +19,7 @@ const data = new SlashCommandBuilder()
 
 class Maintenance extends Command {
     constructor() {
-        super(data as SlashCommandBuilder)
+        super(data as SlashCommandBuilder, 'Developer')
         this.isGuildOnly = true
         this.use(IsOwner)
     }

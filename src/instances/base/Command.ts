@@ -13,11 +13,13 @@ type Middleware<TContext = unknown> = (
 
 abstract class Command {
     public data: SlashCommandBuilder
+    public category: string // Added category property
     public isGuildOnly: boolean = false
     private middlewares: Middleware[] = []
 
-    constructor(data: SlashCommandBuilder) {
+    constructor(data: SlashCommandBuilder, category: string = 'General') { // Added category to constructor
         this.data = data
+        this.category = category
     }
 
     abstract command(

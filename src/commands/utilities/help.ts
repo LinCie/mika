@@ -1,212 +1,43 @@
 import {
     GuildMember,
     SlashCommandBuilder,
+    ApplicationCommandOptionType,
+    GuildMember,
+    SlashCommandBuilder,
     type ChatInputCommandInteraction,
+    type SlashCommandSubcommandBuilder,
 } from 'discord.js'
 import { EMBEDTYPE, Command, type Mika } from '@/instances'
 
-interface CommandInfo {
-    name: string
-    description: string
-    category: 'General' | 'Music' | 'Playlist' | 'AI'
-    usage?: string
-    subcommands?: {
-        name: string
-        description: string
-        usage?: string
-    }[]
+// Helper function to generate usage string for commands and subcommands
+const getUsage = (
+    commandName: string,
+    commandOrSubcommand: Command | any // Can be Command instance or subcommand JSON
+): string => {
+    let usage = `/${commandName}`
+    if (commandOrSubcommand.name !== commandName) {
+        // It's a subcommand
+        usage += ` ${commandOrSubcommand.name}`
+    }
+
+    const options =
+        'options' in commandOrSubcommand && commandOrSubcommand.options
+            ? commandOrSubcommand.options // For main command (Command class)
+            : commandOrSubcommand.options // For subcommand (already JSON)
+    if (options) {
+        options.forEach((option: any) => {
+            // Ensure option is in JSON format if it's not already
+            const opt = option.toJSON ? option.toJSON() : option
+            if (opt.type === ApplicationCommandOptionType.Subcommand || opt.type === ApplicationCommandOptionType.SubcommandGroup) {
+                return // Skip subcommands/groups in usage string for now, handled separately
+            }
+            const optionName = opt.name
+            const required = opt.required ? '' : '?'
+            usage += ` \`<${optionName}${required}>:${opt.description}\``
+        })
+    }
+    return usage
 }
-
-// Store all command information here for easy access
-const commands: CommandInfo[] = [
-    // General Commands
-    {
-        name: 'help',
-        description:
-            'Shows a list of all commands or info about a specific command.',
-        category: 'General',
-        usage: '/help `[command]`',
-    },
-    {
-        name: 'ping',
-        description: 'Checks the bot\'s latency and replies with "Pong!".',
-        category: 'General',
-        usage: '/ping',
-    },
-    // Music Commands
-    {
-        name: 'play',
-        description: 'Plays a song or adds it to the queue.',
-        category: 'Music',
-        usage: '/play `query:<song name or url>` `[source]`',
-    },
-    {
-        name: 'search',
-        description:
-            'Searches for a song and lets you choose from the results.',
-        category: 'Music',
-        usage: '/search `query:<song name or url>` `[source]`',
-    },
-    {
-        name: 'queue',
-        description: 'Displays the current song queue with pagination.',
-        category: 'Music',
-        usage: '/queue',
-    },
-    {
-        name: 'skip',
-        description: 'Skips the currently playing track.',
-        category: 'Music',
-        usage: '/skip',
-    },
-    {
-        name: 'stop',
-        description:
-            'Stops the music, clears the queue, and disconnects the bot.',
-        category: 'Music',
-        usage: '/stop',
-    },
-    {
-        name: 'pause',
-        description: 'Pauses the currently playing track.',
-        category: 'Music',
-        usage: '/pause',
-    },
-    {
-        name: 'resume',
-        description: 'Resumes the paused track.',
-        category: 'Music',
-        usage: '/resume',
-    },
-    {
-        name: 'loop',
-        description: 'Sets the loop mode for the queue (Off, Current, Queue).',
-        category: 'Music',
-        usage: '/loop `[method]`',
-    },
-    {
-        name: 'shuffle',
-        description: 'Shuffles the songs in the queue.',
-        category: 'Music',
-        usage: '/shuffle',
-    },
-    {
-        name: 'move',
-        description: 'Moves a track to a specific position in the queue.',
-        category: 'Music',
-        usage: '/move `position:<track number>`',
-    },
-    {
-        name: 'remove',
-        description: 'Removes a track from a specific position in the queue.',
-        category: 'Music',
-        usage: '/remove `position:<track number>`',
-    },
-    {
-        name: 'seek',
-        description: 'Seeks to a specific time in the current song.',
-        category: 'Music',
-        usage: '/seek `position:<time in seconds>`',
-    },
-    {
-        name: 'volume',
-        description: 'Changes the player volume (0-1000).',
-        category: 'Music',
-        usage: '/volume `volume:<number>`',
-    },
-    {
-        name: 'download',
-        description: 'Generates a download link for the current song.',
-        category: 'Music',
-        usage: '/download',
-    },
-    {
-        name: 'clear',
-        description: 'Clear current queue.',
-        category: 'Music',
-        usage: '/clear',
-    },
-    // AI Command
-    {
-        name: 'ai',
-        description: 'Chat with AI',
-        category: 'AI',
-        usage: '/ai `<subcommand>`',
-        subcommands: [
-            {
-                name: 'chat',
-                description: 'Send a chat to AI',
-                usage: '/ai `chat` `prompt:<your message prompt>`',
-            },
-            {
-                name: 'clear',
-                description: 'Clear the chat history',
-                usage: '/ai `clear`',
-            },
-            {
-                name: 'personality',
-                description: 'Change the AI personality',
-                usage: '/ai `personality` `personality:<personality name>`',
-            },
-        ],
-    },
-
-    // Playlist Command
-    {
-        name: 'playlist',
-        description: 'The main command for managing your playlists.',
-        category: 'Playlist',
-        usage: '/playlist `<subcommand>`',
-        subcommands: [
-            {
-                name: 'create',
-                description: 'Creates a new, empty playlist.',
-                usage: '/playlist `create` `name:<playlist name>`',
-            },
-            {
-                name: 'delete',
-                description: 'Deletes one of your playlists.',
-                usage: '/playlist `delete` `name:<playlist name>`',
-            },
-            {
-                name: 'add',
-                description: 'Adds a track (or current song) to a playlist.',
-                usage: '/playlist `add` `name:<playlist name>` `[url]`',
-            },
-            {
-                name: 'remove',
-                description: 'Removes a track from a playlist by its position.',
-                usage: '/playlist `remove` `name:<playlist name>` `position:<track number>`',
-            },
-            {
-                name: 'play',
-                description: 'Adds all tracks from a playlist to the queue.',
-                usage: '/playlist `play` `name:<playlist name>`',
-            },
-            {
-                name: 'save',
-                description:
-                    'Saves the current queue to one of your playlists.',
-                usage: '/playlist `save` `name:<playlist name>`',
-            },
-            {
-                name: 'list',
-                description: 'Lists all of your created playlists.',
-                usage: '/playlist `list`',
-            },
-            {
-                name: 'get',
-                description: 'Shows all the tracks inside a specific playlist.',
-                usage: '/playlist `get` `name:<playlist name>`',
-            },
-        ],
-    },
-]
-
-// Create a map for quick lookups
-const commandMap = new Map<string, CommandInfo>(
-    commands.map((cmd) => [cmd.name, cmd])
-)
 
 const data = new SlashCommandBuilder()
     .setName('help')
@@ -232,15 +63,41 @@ class Help extends Command {
 
     async command(client: Mika, interaction: ChatInputCommandInteraction) {
         const member = interaction.member as GuildMember
-        const commandName = interaction.options.getString('command')
+        const commandInput = interaction.options.getString('command')
+        const { commands } = client
 
-        if (commandName) {
-            // User asked for help on a specific command
-            const commandInfo = commandMap.get(commandName)
+        // Dynamically set choices for the 'command' option
+        const commandOption = this.data.options.find(opt => opt.toJSON().name === 'command');
+        if (commandOption && commandOption.toJSON().type === ApplicationCommandOptionType.String) {
+            const choices = [];
+            commands.forEach(cmd => {
+                choices.push({ name: cmd.data.name, value: cmd.data.name });
+                const subcommands = cmd.data.options?.filter(
+                    option => option.toJSON().type === ApplicationCommandOptionType.Subcommand
+                );
+                subcommands?.forEach(sub => {
+                    const subJson = sub.toJSON();
+                    choices.push({ name: `${cmd.data.name}/${subJson.name}`, value: `${cmd.data.name}/${subJson.name}` });
+                });
+            });
+            // @ts-expect-error choices is not directly assignable
+            commandOption.setChoices(...choices.slice(0, 25)); // Discord limits choices to 25
+        }
 
-            if (!commandInfo) {
+
+        if (commandInput) {
+            let mainCommandName = commandInput
+            let subCommandName: string | null = null
+
+            if (commandInput.includes('/')) {
+                [mainCommandName, subCommandName] = commandInput.split('/')
+            }
+
+            const command = commands.get(mainCommandName)
+
+            if (!command) {
                 const embed = client.embed.createMessageEmbedWithAuthor(
-                    `⛔ The command \`${commandName}\` was not found.`,
+                    `⛔ The command \`${mainCommandName}\` was not found.`,
                     member,
                     EMBEDTYPE.ERROR
                 )
@@ -250,37 +107,63 @@ class Help extends Command {
                 return
             }
 
-            const embed = client.embed
-                .createMessageEmbedWithAuthor(
-                    commandInfo.description,
-                    member,
-                    EMBEDTYPE.GLOBAL
-                )
-                .setTitle(`Command: /${commandInfo.name}`)
+            // Check if a specific subcommand is requested
+            if (subCommandName) {
+                const subcommand = command.data.options
+                    ?.filter(opt => opt.toJSON().type === ApplicationCommandOptionType.Subcommand)
+                    .find(opt => opt.toJSON().name === subCommandName) as SlashCommandSubcommandBuilder | undefined;
 
-            if (commandInfo.usage) {
+
+                if (!subcommand) {
+                    const embed = client.embed.createMessageEmbedWithAuthor(
+                        `⛔ Subcommand \`${subCommandName}\` not found for command \`/${mainCommandName}\`.`,
+                        member,
+                        EMBEDTYPE.ERROR
+                    );
+                    await client.interaction.replyEmbed(interaction, embed, { ephemeral: true });
+                    return;
+                }
+                const subJson = subcommand.toJSON()
+                const embed = client.embed
+                    .createMessageEmbedWithAuthor(subJson.description, member, EMBEDTYPE.GLOBAL)
+                    .setTitle(`Subcommand: /${mainCommandName} ${subJson.name}`)
+                    .addFields({
+                        name: 'Usage',
+                        value: `\`${getUsage(mainCommandName, subJson)}\``, // Pass subcommand JSON to getUsage
+                    });
+                await client.interaction.replyEmbed(interaction, embed, { ephemeral: true });
+            } else {
+                // Display help for the main command
+                const embed = client.embed
+                    .createMessageEmbedWithAuthor(command.data.description, member, EMBEDTYPE.GLOBAL)
+                    .setTitle(`Command: /${command.data.name}`);
+
                 embed.addFields({
                     name: 'Usage',
-                    value: `\`${commandInfo.usage}\``,
-                })
-            }
+                    value: `\`${getUsage(command.data.name, command.data)}\``,
+                });
 
-            if (commandInfo.subcommands) {
-                const subcommandsString = commandInfo.subcommands
-                    .map((sub) => `> \`${sub.name}\` - ${sub.description}`)
-                    .join('\n')
-                embed.addFields({
-                    name: 'Subcommands',
-                    value: subcommandsString,
-                })
-                embed.setFooter({
-                    text: 'For more details, use `/help` with the subcommand, e.g., `/help playlist create` (feature coming soon).',
-                })
-            }
+                const subcommands = command.data.options?.filter(
+                    (option) => option.toJSON().type === ApplicationCommandOptionType.Subcommand
+                );
 
-            await client.interaction.replyEmbed(interaction, embed, {
-                ephemeral: true,
-            })
+                if (subcommands && subcommands.length > 0) {
+                    const subcommandsString = subcommands
+                        .map((sub) => {
+                            const subJson = sub.toJSON();
+                            return `> \`/${command.data.name} ${subJson.name}\` - ${subJson.description}`;
+                        })
+                        .join('\n');
+                    embed.addFields({
+                        name: 'Subcommands',
+                        value: subcommandsString,
+                    });
+                    embed.setFooter({
+                        text: 'Use `/help command/subcommand` for details on a specific subcommand.',
+                    });
+                }
+                await client.interaction.replyEmbed(interaction, embed, { ephemeral: true });
+            }
         } else {
             // User wants the main help menu
             const embed = client.embed
@@ -291,27 +174,183 @@ class Help extends Command {
                 )
                 .setTitle("Mika's Command List")
 
-            const categories = ['General', 'Music', 'Playlist', 'AI']
-
-            categories.forEach((category) => {
-                const commandsInCategory = commands
-                    .filter((cmd) => cmd.category === category)
-                    .map((cmd) => `\`${cmd.name}\``)
-                    .join(' ')
-
-                if (commandsInCategory) {
-                    embed.addFields({
-                        name: `••• ${category} Commands •••`,
-                        value: commandsInCategory,
-                    })
+            // Categorize commands (assuming a 'category' property exists on the Command class or can be derived)
+            // This part needs adjustment based on how categories are defined for commands.
+            // For now, we'll group them by a simple heuristic or a default category.
+            const categorizedCommands: Record<string, string[]> = {}
+            commands.forEach((cmd) => {
+                // Attempt to get category from command object (e.g., cmd.category)
+                // If not available, use a default or derive from path
+                const category = cmd.category || 'General' // Fallback category
+                if (!categorizedCommands[category]) {
+                    categorizedCommands[category] = []
                 }
+                categorizedCommands[category].push(`\`${cmd.data.name}\``)
             })
+
+            for (const category in categorizedCommands) {
+                embed.addFields({
+                    name: `••• ${category} Commands •••`,
+                    value: categorizedCommands[category].join(' '),
+                })
+            }
 
             await client.interaction.replyEmbed(interaction, embed, {
                 ephemeral: true,
             })
         }
     }
+
+    // TODO: Add a `category` property to the Command class
+    // For now, category is hardcoded in the command itself or defaults to 'General'
+    private getCommandCategory(command: Command): string {
+        return command.category || 'General';
+    }
+
+
+    private populateCommandChoices(client: Mika) {
+        const commandOption = this.data.options.find(opt => opt.toJSON().name === 'command');
+        if (commandOption && commandOption.toJSON().type === ApplicationCommandOptionType.String) {
+            const choices = [];
+            client.commands.forEach(cmd => {
+                choices.push({ name: cmd.data.name, value: cmd.data.name });
+                const subcommands = cmd.data.options?.filter(
+                    option => option.toJSON().type === ApplicationCommandOptionType.Subcommand
+                );
+                subcommands?.forEach(sub => {
+                    const subJson = sub.toJSON();
+                    choices.push({ name: `${cmd.data.name}/${subJson.name}`, value: `${cmd.data.name}/${subJson.name}` });
+                });
+            });
+            // @ts-expect-error choices is not directly assignable
+            commandOption.setChoices(...choices.slice(0, 25)); // Discord limits choices to 25
+        }
+    }
+
+    async command(client: Mika, interaction: ChatInputCommandInteraction) {
+        const member = interaction.member as GuildMember;
+        const commandInput = interaction.options.getString('command');
+
+        this.populateCommandChoices(client);
+
+        if (commandInput) {
+            await this.sendSpecificCommandHelp(client, interaction, commandInput, member);
+        } else {
+            await this.sendGeneralHelp(client, interaction, member);
+        }
+    }
+
+    private async sendSpecificCommandHelp(client: Mika, interaction: ChatInputCommandInteraction, commandInput: string, member: GuildMember) {
+        let mainCommandName = commandInput;
+        let subCommandName: string | null = null;
+
+        if (commandInput.includes('/')) {
+            [mainCommandName, subCommandName] = commandInput.split('/');
+        }
+
+        const command = client.commands.get(mainCommandName);
+
+        if (!command) {
+            const embed = client.embed.createMessageEmbedWithAuthor(
+                `⛔ The command \`${mainCommandName}\` was not found.`,
+                member,
+                EMBEDTYPE.ERROR
+            );
+            await client.interaction.replyEmbed(interaction, embed, { ephemeral: true });
+            return;
+        }
+
+        if (subCommandName) {
+            await this.sendSubcommandHelp(client, interaction, command, subCommandName, member);
+        } else {
+            await this.sendMainCommandHelp(client, interaction, command, member);
+        }
+    }
+
+    private async sendMainCommandHelp(client: Mika, interaction: ChatInputCommandInteraction, command: Command, member: GuildMember) {
+        const embed = client.embed
+            .createMessageEmbedWithAuthor(command.data.description, member, EMBEDTYPE.GLOBAL)
+            .setTitle(`Command: /${command.data.name}`);
+
+        embed.addFields({
+            name: 'Usage',
+            value: `\`${getUsage(command.data.name, command.data)}\``,
+        });
+
+        const subcommands = command.data.options?.filter(
+            (option) => option.toJSON().type === ApplicationCommandOptionType.Subcommand
+        );
+
+        if (subcommands && subcommands.length > 0) {
+            const subcommandsString = subcommands
+                .map((sub) => {
+                    const subJson = sub.toJSON();
+                    return `> \`/${command.data.name} ${subJson.name}\` - ${subJson.description}`;
+                })
+                .join('\n');
+            embed.addFields({
+                name: 'Subcommands',
+                value: subcommandsString,
+            });
+            embed.setFooter({
+                text: 'Use `/help command/subcommand` for details on a specific subcommand.',
+            });
+        }
+        await client.interaction.replyEmbed(interaction, embed, { ephemeral: true });
+    }
+
+    private async sendSubcommandHelp(client: Mika, interaction: ChatInputCommandInteraction, command: Command, subCommandName: string, member: GuildMember) {
+        const subcommand = command.data.options
+            ?.filter(opt => opt.toJSON().type === ApplicationCommandOptionType.Subcommand)
+            .find(opt => opt.toJSON().name === subCommandName) as SlashCommandSubcommandBuilder | undefined;
+
+        if (!subcommand) {
+            const embed = client.embed.createMessageEmbedWithAuthor(
+                `⛔ Subcommand \`${subCommandName}\` not found for command \`/${command.data.name}\`.`,
+                member,
+                EMBEDTYPE.ERROR
+            );
+            await client.interaction.replyEmbed(interaction, embed, { ephemeral: true });
+            return;
+        }
+        const subJson = subcommand.toJSON();
+        const embed = client.embed
+            .createMessageEmbedWithAuthor(subJson.description, member, EMBEDTYPE.GLOBAL)
+            .setTitle(`Subcommand: /${command.data.name} ${subJson.name}`)
+            .addFields({
+                name: 'Usage',
+                value: `\`${getUsage(command.data.name, subJson)}\``,
+            });
+        await client.interaction.replyEmbed(interaction, embed, { ephemeral: true });
+    }
+
+    private async sendGeneralHelp(client: Mika, interaction: ChatInputCommandInteraction, member: GuildMember) {
+        const embed = client.embed
+            .createMessageEmbedWithAuthor(
+                'Hello! Here are all the things I can do for you. \nUse `/help <command>` for more details on a specific command.',
+                member,
+                EMBEDTYPE.GLOBAL
+            )
+            .setTitle("Mika's Command List");
+
+        const categorizedCommands: Record<string, string[]> = {};
+        client.commands.forEach((cmd) => {
+            const category = this.getCommandCategory(cmd);
+            if (!categorizedCommands[category]) {
+                categorizedCommands[category] = [];
+            }
+            categorizedCommands[category].push(`\`${cmd.data.name}\``);
+        });
+
+        for (const category in categorizedCommands) {
+            embed.addFields({
+                name: `••• ${category} Commands •••`,
+                value: categorizedCommands[category].join(' '),
+            });
+        }
+
+        await client.interaction.replyEmbed(interaction, embed, { ephemeral: true });
+    }
 }
 
-export default Help
+export default Help;

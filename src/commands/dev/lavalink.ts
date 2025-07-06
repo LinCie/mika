@@ -23,7 +23,7 @@ const data = new SlashCommandBuilder()
 
 class LavalinkCommand extends Command {
     constructor() {
-        super(data as SlashCommandBuilder)
+        super(data as SlashCommandBuilder, 'Developer')
         this.isGuildOnly = true
         this.use(IsOwner)
     }

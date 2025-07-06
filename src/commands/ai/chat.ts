@@ -17,7 +17,7 @@ class Chat extends Command {
     private readonly aiPersonality = new AIPersonality()
 
     constructor() {
-        super(data)
+        super(data, 'AI')
 
         this.aiChat.configure(this.data)
         this.aiClear.configure(this.data)
