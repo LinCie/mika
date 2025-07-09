@@ -399,7 +399,7 @@ class PlayerManager {
 
     private async handleOnPlayerClosed(): Promise<void> {
         const embed = this.client.embed.createMessageEmbed(
-            '🎶 Leaving voice channel now! Thank you for using Mika 🩷 🎶',
+            '🎶 Leaving voice channel now! Thank you for using Mika 🩷 🎶\n\nAre you looking to invite Mika in your server? Check out my [invite link](https://discord.com/oauth2/authorize?client_id=1312578502851035166&permissions=3148800&integration_type=0&scope=bot) ☆',
             EMBEDTYPE.GLOBAL
         )
         await this.channel.send({ embeds: [embed] })

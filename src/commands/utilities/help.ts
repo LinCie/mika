@@ -33,6 +33,12 @@ const commands: CommandInfo[] = [
         category: 'General',
         usage: '/ping',
     },
+    {
+        name: 'invite',
+        description: 'Invite Mika to your server',
+        category: 'General',
+        usage: '/invite',
+    },
     // Music Commands
     {
         name: 'play',
