@@ -23,13 +23,13 @@ const data = new SlashCommandBuilder()
     .addStringOption((option) =>
         option
             .setName('source')
-            .setDescription('The search source. Defaults to soundcloud')
+            .setDescription('The search source. Defaults to YouTube Music')
             .setRequired(false)
             .addChoices(
-                { name: 'Soundcloud', value: 'scsearch' },
                 { name: 'Youtube Music', value: 'ytmsearch' },
                 { name: 'Youtube', value: 'ytsearch' },
-                { name: 'Spotify', value: 'spsearch' }
+                { name: 'Spotify', value: 'spsearch' },
+                { name: 'Soundcloud', value: 'scsearch' }
             )
     )
 
@@ -52,7 +52,7 @@ class Play extends Command {
         const { player, member } = context
 
         const query = interaction.options.getString('query', true)
-        const source = interaction.options.getString('source') || 'scsearch'
+        const source = interaction.options.getString('source') || 'ytmsearch'
 
         try {
             await player.addMusic(query, source, interaction)
