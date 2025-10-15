@@ -3,15 +3,11 @@ FROM oven/bun:1 AS base
 WORKDIR /app
 # Install system dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends openssl ffmpeg && \
+    apt-get install -y --no-install-recommends python3 openssl ffmpeg && \
     rm -rf /var/lib/apt/lists/*
 
 # Install all dependencies (including dev)
 FROM base AS deps
-# Install python3 for yt-dlp build
-RUN apt-get update && \ 
-    apt-get install -y --no-install-recommends python3 && \
-    rm -rf /var/lib/apt/lists/*
 # Install dependencies
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
