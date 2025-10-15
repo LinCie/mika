@@ -4,3 +4,33 @@ services:
     image: mika:latest
     mem_limit: 512m
     cpus: 0.5
+  lavalink:
+    image: ghcr.io/lavalink-devs/lavalink:4-distroless
+    container_name: lavalink
+    restart: unless-stopped
+    environment:
+      # set Java options here (6GB heap size)
+      - _JAVA_OPTIONS=-Xmx6G
+      # set lavalink server port
+      # - SERVER_PORT=2333
+      # set password for lavalink
+      # - LAVALINK_SERVER_PASSWORD=youshallnotpass
+    volumes:
+      # mount application.yml from the same directory, if you want to use environment variables remove this line below
+      - ./application.yml:/opt/Lavalink/application.yml
+      # persist plugins between restarts, make sure to create the folder & set the correct permissions and user/group id mentioned above
+      - ./plugins/:/opt/Lavalink/plugins/
+    networks:
+      - lavalink
+    expose:
+      # lavalink exposes port 2333 to connect to for other containers (this is for documentation purposes only)
+      - 4321
+    ports:
+      # you only need this if you want to make your lavalink accessible from outside of containers, keep in mind this will expose your lavalink to the internet
+      - "4321:4321"
+      # if you want to restrict access to localhost only
+      # - "127.0.0.1:2333:2333"
+networks:
+  # create a lavalink network you can add other containers to, to give them access to Lavalink
+  lavalink:
+    name: lavalink
