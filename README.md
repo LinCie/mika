@@ -8,7 +8,6 @@ Mika is a multi-functional Discord bot built with Bun, TypeScript, and Discord.j
 	- Comprehensive queue management: view, shuffle, clear, loop (track or queue), move, and remove tracks.
 	- Control playback with pause, resume, skip, and seek commands.
 	- Adjust the volume to your liking.
-	- Download the currently playing song.
 - **Playlist Management 🎵**: Create and manage your own custom playlists.
 	- Create, delete, and list your personal playlists.
 	- Add the current track, a URL, or an entire queue to your playlist.
