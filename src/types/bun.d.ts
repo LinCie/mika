@@ -10,5 +10,8 @@ declare module 'bun' {
         LOGGER_CHANNEL_ID: string
         ERROR_LOGGER_CHANNEL_ID: string
         GEMINI_API_KEY: string
+        OPENAI_BASE_URL: string
+        OPENAI_API_KEY: string
+        OPENAI_MODEL: string
     }
 }

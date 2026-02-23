@@ -9,3 +9,6 @@ export const LOGGER_CHANNEL_ID = Bun.env.LOGGER_CHANNEL_ID
 export const ERROR_LOGGER_CHANNEL_ID = Bun.env.ERROR_LOGGER_CHANNEL_ID
 export const GEMINI_API_KEY = Bun.env.GEMINI_API_KEY
 export const GEMINI_MODEL = Bun.env.GEMINI_MODEL
+export const OPENAI_BASE_URL = Bun.env.OPENAI_BASE_URL
+export const OPENAI_API_KEY = Bun.env.OPENAI_API_KEY
+export const OPENAI_MODEL = Bun.env.OPENAI_MODEL

@@ -25,7 +25,7 @@ class AIChat extends Subcommand {
 
         const prompt = interaction.options.getString('prompt', true)
 
-        const response = await client.ai.sendMessage(member.id, prompt)
+        const response = await client.ai.openaiSendMessage(member.id, prompt)
 
         const embed = client.embed.createMessageEmbedWithAuthor(
             response,
