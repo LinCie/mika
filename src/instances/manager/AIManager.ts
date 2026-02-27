@@ -168,7 +168,8 @@ class AIManager {
         const runner = this.openai.chat.completions.stream({
             model: OPENAI_MODEL,
             messages,
-            temperature: 1.1,
+            temperature: 0.9,
+            top_p: 0.85,
         })
 
         let fullResponse = ''
