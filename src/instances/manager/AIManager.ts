@@ -155,6 +155,40 @@ class AIManager {
         }
     }
 
+    public async *openaiSendMessageStream(
+        userId: string,
+        prompt: string
+    ): AsyncGenerator<string, string, unknown> {
+        const messages = this.getOrCreateOpenAIChat(userId)
+        messages.push({
+            role: 'user',
+            content: prompt,
+        })
+
+        const runner = this.openai.chat.completions.stream({
+            model: OPENAI_MODEL,
+            messages,
+            temperature: 1.1,
+        })
+
+        let fullResponse = ''
+
+        for await (const chunk of runner) {
+            const content = chunk.choices[0]?.delta?.content || ''
+            if (content) {
+                fullResponse += content
+                yield content
+            }
+        }
+
+        messages.push({
+            role: 'assistant',
+            content: fullResponse,
+        })
+
+        return fullResponse
+    }
+
     clearChat(userId: string): boolean {
         let cleared = false
         if (this.chats.has(userId)) {

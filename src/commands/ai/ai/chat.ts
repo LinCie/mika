@@ -25,15 +25,40 @@ class AIChat extends Subcommand {
 
         const prompt = interaction.options.getString('prompt', true)
 
-        const response = await client.ai.openaiSendMessage(member.id, prompt)
+        let fullText = ''
+        let lastUpdateLength = 0
+        const updateInterval = 100
 
         const embed = client.embed.createMessageEmbedWithAuthor(
-            response,
+            'Generating...',
             member,
             EMBEDTYPE.SUCCESS
         )
 
         await client.interaction.replyEmbed(interaction, embed)
+
+        try {
+            const stream = client.ai.openaiSendMessageStream(member.id, prompt)
+
+            for await (const chunk of stream) {
+                fullText += chunk
+
+                if (fullText.length - lastUpdateLength >= updateInterval) {
+                    embed.setDescription(fullText)
+                    await interaction.editReply({ embeds: [embed] })
+                    lastUpdateLength = fullText.length
+                }
+            }
+
+            embed.setDescription(fullText)
+            await interaction.editReply({ embeds: [embed] })
+        } catch (error) {
+            client.logger.error(error)
+            embed.setDescription(
+                'I am sorry, but I was unable to process your request.'
+            )
+            await interaction.editReply({ embeds: [embed] })
+        }
     }
 }
 
