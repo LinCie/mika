@@ -21,12 +21,19 @@ class AIPersonality extends Subcommand {
                             { name: 'Misono Mika', value: 'mika' },
                             { name: 'Arona', value: 'arona' },
                             { name: 'Plana', value: 'plana' },
+                            { name: 'Hayase Yuuka', value: 'yuuka' },
                             { name: 'Iochi Mari', value: 'mari' },
-                            { name: 'Tendou Alice', value: 'alice' },
-                            { name: 'Hanaoka Yuzu', value: 'yuzu' },
                             { name: 'Shimoe Koharu', value: 'koharu' },
                             { name: 'Shirasu Azusa', value: 'azusa' },
-                            { name: 'Ajitani Hifumi', value: 'hifumi' }
+                            { name: 'Ajitani Hifumi', value: 'hifumi' },
+                            { name: 'Sumi Serina', value: 'serina' },
+                            { name: 'Tendou Alice', value: 'alice' },
+                            { name: 'Hanaoka Yuzu', value: 'yuzu' },
+                            { name: 'Sorasaki Hina', value: 'hina' },
+                            { name: 'Asagi Mutsuki', value: 'mutsuki' },
+                            { name: 'Takanashi Hoshino', value: 'hoshino' },
+                            { name: 'Sunaōkami Shiroko', value: 'shiroko' },
+                            { name: 'Kasumizawa Miyu', value: 'miyu' }
                         )
                 )
         )
