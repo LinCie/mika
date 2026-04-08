@@ -1,6 +1,8 @@
 services:
-  app:
-    build: .
-    image: mika:latest
-    mem_limit: 512m
-    cpus: 0.5
+    app:
+        build: .
+        image: mika:latest
+        mem_limit: 512m
+        cpus: 0.5
+        env_file:
+            - .env
