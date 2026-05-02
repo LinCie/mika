@@ -5,7 +5,7 @@ import {
     SlashCommandBuilder,
 } from 'discord.js'
 import type { Track } from 'shoukaku'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@/generated/prisma/client'
 import { EMBEDTYPE, Mika, PlayerManager, Subcommand } from '@/instances'
 import { IsNotMaintenance, IsPlayerExist } from '@/middlewares'
 import { EMOJI } from '@/config'

@@ -1,14 +1,11 @@
-import { PrismaClient } from '@prisma/client'
-import { PrismaLibSQL } from '@prisma/adapter-libsql'
-import { createClient } from '@libsql/client'
+import { PrismaClient } from '@/generated/prisma/client'
+import { PrismaLibSql } from '@prisma/adapter-libsql'
 import { TURSO_AUTH_TOKEN, TURSO_DATABASE_URL } from '@/config'
 
-const libsql = createClient({
+const adapter = new PrismaLibSql({
     url: TURSO_DATABASE_URL,
     authToken: TURSO_AUTH_TOKEN,
 })
-
-const adapter = new PrismaLibSQL(libsql)
 const prisma = new PrismaClient({ adapter })
 
 export { prisma }

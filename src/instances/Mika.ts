@@ -95,10 +95,10 @@ class Mika extends Client {
             )
             .on('debug', (name, content) => {
                 if (NODE_ENV === 'debug') {
-                    this.logger.debug(content, name)
+                    this.logger.debug(`${name}: ${content}`)
                 }
             })
-            .on('error', (name, error) => this.logger.error(error, name))
+            .on('error', (name, error) => this.logger.error(error, `${name}:`))
 
         // Global middlewares
         this.globalMiddlewares = [DeferReply, GuildOnly]

@@ -4,7 +4,7 @@ import {
     GuildMember,
     SlashCommandBuilder,
 } from 'discord.js'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@/generated/prisma/client'
 import { EMBEDTYPE, Mika, Subcommand } from '@/instances'
 import { EMOJI } from '@/config'
 

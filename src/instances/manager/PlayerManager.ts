@@ -303,7 +303,7 @@ class PlayerManager {
                 await this.client.interaction.replyEmbed(interaction, embed, {
                     ephemeral: true,
                 })
-                this.client.logger.error(result.data.message, result.data.cause)
+                this.client.logger.error(`${result.data.message}: ${result.data.cause}`)
                 break
             }
         }

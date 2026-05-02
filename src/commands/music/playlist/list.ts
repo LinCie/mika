@@ -11,7 +11,7 @@ import {
     type MessageActionRowComponentBuilder,
 } from 'discord.js'
 import { EMBEDTYPE, Mika, Subcommand } from '@/instances'
-import type { Playlist } from '@prisma/client'
+import type { Playlist } from '@/generated/prisma/client'
 import type { Track } from 'shoukaku'
 import { EMOJI } from '@/config'
 
