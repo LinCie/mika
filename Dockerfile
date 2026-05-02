@@ -19,7 +19,8 @@ COPY . .
 
 # Prerelease stage
 FROM build AS prerelease
-# Generate Prisma client
+# Generate Prisma client (dummy URL needed by prisma.config.ts at generate time)
+ENV TURSO_DATABASE_URL="file:./dev.db"
 RUN bun prisma:generate
 
 # Final runtime image

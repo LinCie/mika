@@ -12,9 +12,9 @@ import { pathToFileURL } from 'bun'
 import { glob } from 'node:fs/promises'
 import path from 'node:path'
 import type { BaseLogger } from 'pino'
-import { Connectors, Shoukaku } from 'shoukaku'
+import { Connectors, Shoukaku, type NodeOption } from 'shoukaku'
 import { logger } from '@/utilities'
-import { BOT_TOKEN, CLIENT_ID, getNodes, GUILD_ID, NODE_ENV } from '@/config'
+import { BOT_TOKEN, CLIENT_ID, GUILD_ID, NODE_ENV } from '@/config'
 import {
     EmbedManager,
     InteractionManager,
@@ -41,7 +41,7 @@ class Mika extends Client {
     public maintenance: boolean = false
     public commands: Collection<string, Command> = new Collection()
 
-    constructor(options: ClientOptions) {
+    constructor(options: ClientOptions, lavalinkNodes: NodeOption[]) {
         super(options)
 
         // Logger
@@ -69,7 +69,7 @@ class Mika extends Client {
         // Shoukaku
         this.shoukaku = new Shoukaku(
             new Connectors.DiscordJS(this),
-            getNodes(),
+            lavalinkNodes,
             {
                 resumeTimeout: 30,
                 resume: true,

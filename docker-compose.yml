@@ -1,8 +1,33 @@
 services:
+    lavalink:
+        build:
+            context: .
+            dockerfile: Dockerfile.lavalink
+        image: mika-lavalink:latest
+        container_name: lavalink
+        restart: unless-stopped
+        environment:
+            - _JAVA_OPTIONS=-Xmx1G
+        expose:
+            - '4321'
+        healthcheck:
+            test:
+                [
+                    'CMD-SHELL',
+                    "wget -S -qO- http://localhost:4321/version 2>&1 | grep -Eq 'HTTP/1.1 (200|401)'",
+                ]
+            interval: 5s
+            timeout: 3s
+            retries: 30
+            start_period: 10s
+
     app:
         build: .
         image: mika:latest
         mem_limit: 512m
         cpus: 0.5
+        depends_on:
+            lavalink:
+                condition: service_healthy
         env_file:
             - .env
