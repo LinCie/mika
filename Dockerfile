@@ -26,5 +26,7 @@ RUN bun prisma:generate
 # Final runtime image
 FROM base AS release
 COPY --from=prerelease /app ./
+RUN mkdir -p /app/download && \
+    chown -R bun:bun /app/download /app/node_modules/youtube-dl-exec/bin
 USER bun
 ENTRYPOINT ["bun", "run", "./src/mika.ts"]

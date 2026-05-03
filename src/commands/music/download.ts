@@ -16,6 +16,8 @@ import {
 } from '@/middlewares'
 import youtubeDl from 'youtube-dl-exec'
 import { fetch } from 'bun'
+import { mkdirSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { EMOJI } from '@/config'
 
 const data = new SlashCommandBuilder()
@@ -50,13 +52,9 @@ class Stop extends Command {
 
         const url =
             music?.info.uri || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-        const path =
-            __dirname +
-            '/..' +
-            '/..' +
-            '/..' +
-            '/download/' +
-            `${new Date().getTime().toString()}-${music?.info.title}.mp3`
+        const downloadDir = resolve(__dirname, '../../..', 'download')
+        const path = `${downloadDir}/${new Date().getTime().toString()}-${music?.info.title}.mp3`
+        mkdirSync(downloadDir, { recursive: true })
 
         try {
             const emoji = EMOJI[music?.info.sourceName as keyof typeof EMOJI]
